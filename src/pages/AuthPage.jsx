@@ -156,6 +156,10 @@ function InputField({ label, type = 'text', placeholder, value, onChange, error,
   );
 }
 
+const showForgotPasswordAlert = () => {
+  window.alert('Password reset is coming soon. We are working on this feature for you!');
+};
+
 // ===== SIGNUP FORM =====
 function SignUpForm({ onSwitch, onSuccess }) {
   const [fields, setFields] = useState({ firstName: '', lastName: '', email: '', password: '' });
@@ -324,7 +328,7 @@ function LoginForm({ onSwitch, onSuccess }) {
           </div>
 
           <div className="form-field" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="button" className="forgot-link">Forgot Password?</button>
+            <button type="button" className="forgot-link" onClick={showForgotPasswordAlert}>Forgot Password?</button>
           </div>
 
           <div className="form-field">
@@ -561,7 +565,7 @@ function MobileFormPage({ view, onBack, onSwitch, onGoHome }) {
 
                   {isLogin && (
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button type="button" className="forgot-link">Forgot Password?</button>
+                      <button type="button" className="forgot-link" onClick={showForgotPasswordAlert}>Forgot Password?</button>
                     </div>
                   )}
 
