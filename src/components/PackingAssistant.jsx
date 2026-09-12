@@ -49,7 +49,7 @@ const PackingAssistant = () => {
             {/* The Checkbox */}
             <input 
               type="checkbox" 
-              id={packing-${item.id}} 
+              id={`packing-${item.id}`} 
               checked={item.checked}
               onChange={() => toggleItem(item.id)}
               style={{ accentColor: 'var(--accent-green)', width: '18px', height: '18px', cursor: 'pointer' }}
@@ -57,7 +57,7 @@ const PackingAssistant = () => {
             
             {/* The Text Label - gets a strikethrough effect if checked */}
             <label 
-              htmlFor={packing-${item.id}} 
+              htmlFor={`packing-${item.id}`} 
               style={{ 
                 cursor: 'pointer', 
                 textDecoration: item.checked ? 'line-through' : 'none', 
