@@ -59,7 +59,7 @@ const Sidebar = ({ isHome }) => {
           <li><NavLink to="/packing"><span className="material-symbols-rounded">backpack</span><span className="nav-text">Packing</span></NavLink></li>
           
           {/* User Specific Pages */}
-          <li><NavLink to="/wishlist"><span className="material-symbols-rounded">favorite</span><span className="nav-text">Wishlist</span></NavLink></li>
+
           <li><NavLink to="/journal"><span className="material-symbols-rounded">menu_book</span><span className="nav-text">Journal</span></NavLink></li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">Settings</span></NavLink></li>
         </ul>

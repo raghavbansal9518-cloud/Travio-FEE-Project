@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // --- Static Data ---
 // Array of popular destinations to display in the carousel
 const destinations = [
   {
-    id: 1,
+    id: 'bali',
     name: 'Bali, Indonesia',
     image: '/images/bali.jpg',
     rating: 4.9,
@@ -13,7 +13,7 @@ const destinations = [
     bestTime: 'Apr - Oct'
   },
   {
-    id: 2,
+    id: 'switzerland',
     name: 'Switzerland',
     image: '/images/switzerland.jpg',
     rating: 4.9,
@@ -21,7 +21,7 @@ const destinations = [
     bestTime: 'May - Sep'
   },
   {
-    id: 3,
+    id: 'japan',
     name: 'Japan',
     image: '/images/japan.jpg',
     rating: 4.8,
@@ -29,7 +29,7 @@ const destinations = [
     bestTime: 'Mar - May'
   },
   {
-    id: 4,
+    id: 'maldives',
     name: 'Maldives',
     image: '/images/maldives.jpg',
     rating: 4.9,
@@ -37,7 +37,7 @@ const destinations = [
     bestTime: 'Nov - Apr'
   },
   {
-    id: 5,
+    id: 'dubai',
     name: 'Dubai, UAE',
     image: '/images/dubai_bg.png',
     rating: 4.8,
@@ -47,13 +47,18 @@ const destinations = [
 ];
 
 const DestinationsCarousel = () => {
+  const navigate = useNavigate();
+  // Reference to the carousel container for scrolling
   const carouselRef = useRef(null);
 
   // Track which destination card is currently clicked/expanded
   const [expandedId, setExpandedId] = useState(null);
   
   // Track which destinations are in the wishlist (by ID)
-  const [likedIds, setLikedIds] = useState(new Set());
+  const [likedIds, setLikedIds] = useState(() => {
+    const saved = localStorage.getItem('wishlist_ids');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
 
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -61,6 +66,10 @@ const DestinationsCarousel = () => {
       carousel.scrollLeft = carousel.scrollWidth / 3;
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('wishlist_ids', JSON.stringify(Array.from(likedIds)));
+  }, [likedIds]);
 
   const handleCarouselScroll = (event) => {
     const carousel = event.currentTarget;
@@ -86,8 +95,9 @@ const DestinationsCarousel = () => {
   const loopedDestinations = [...destinations, ...destinations, ...destinations];
 
   // Toggle wishlist heart
-  const toggleLike = (e, id) => {
+  const toggleLike = (e, dest) => {
     e.stopPropagation(); // Prevent the image expansion from triggering
+    const id = dest.id;
     setLikedIds(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -97,6 +107,14 @@ const DestinationsCarousel = () => {
       }
       return newSet;
     });
+
+    // Also update a full objects array in localStorage so WishlistPage can easily display them
+    const savedDestinations = JSON.parse(localStorage.getItem('wishlist_destinations') || '[]');
+    if (savedDestinations.find(d => d.id === id)) {
+      localStorage.setItem('wishlist_destinations', JSON.stringify(savedDestinations.filter(d => d.id !== id)));
+    } else {
+      localStorage.setItem('wishlist_destinations', JSON.stringify([...savedDestinations, dest]));
+    }
   };
 
   return (
@@ -131,7 +149,7 @@ const DestinationsCarousel = () => {
                 {/* Clickable Image Area */}
                 <div 
                   className="destination-image" 
-                  onClick={() => setExpandedId(isExpanded ? null : `${dest.id}-${index}`)}
+                  onClick={() => navigate(`/destination/${dest.id}`)}
                   style={{ cursor: 'pointer' }}
                 >
                   <img src={dest.image} alt={dest.name} />
@@ -153,7 +171,7 @@ const DestinationsCarousel = () => {
                   <button 
                     type="button" 
                     className="wishlist-btn" 
-                    onClick={(e) => toggleLike(e, dest.id)}
+                    onClick={(e) => toggleLike(e, dest)}
                     aria-label={`Add ${dest.name} to wishlist`}
                   >
                     <span 

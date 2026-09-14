@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
 // Importing our widget components
@@ -23,6 +23,7 @@ const heroImages = [
 ];
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -123,6 +124,16 @@ const Dashboard = () => {
             </div>
           </div>
           
+          <Link 
+            to="/wishlist" 
+            className="notification-button" 
+            aria-label="Wishlist"
+            title="Wishlist"
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <span className="material-symbols-rounded">favorite</span>
+          </Link>
+
           <div 
             className={`profile-dropdown-container ${isProfileOpen ? 'open' : ''}`} 
             style={{ position: 'relative' }}
@@ -142,13 +153,8 @@ const Dashboard = () => {
               <span>Profile</span>
             </div>
             
-            {/* Glass Dropdown Profile Menu */}
             <div className="profile-dropdown-menu">
               <Link to="/profile">My Profile</Link>
-              <Link to="/bookings">My Bookings</Link>
-              <Link to="/membership">Membership</Link>
-              <Link to="/support">Support</Link>
-              <Link to="/settings">Settings</Link>
               <Link to="/auth" style={{ color: '#F43F5E' }}>Logout</Link>
             </div>
           </div>
@@ -175,10 +181,21 @@ const Dashboard = () => {
         <div className="hero-overlay"></div>
 
         <div className="hero-content">
-          <form className="search-bar hero-search-bar" role="search" onSubmit={(e) => e.preventDefault()} style={{ marginBottom: '2rem' }}>
+          <form 
+            className="search-bar hero-search-bar" 
+            role="search" 
+            onSubmit={(e) => {
+              e.preventDefault();
+              const query = e.target.search.value;
+              if (query.trim()) {
+                navigate('/explore', { state: { search: query } });
+              }
+            }} 
+            style={{ marginBottom: '2rem' }}
+          >
             <label htmlFor="main-search" className="visually-hidden">Search destinations</label>
             <span className="material-symbols-rounded search-icon" style={{ color: 'var(--text-muted)', paddingLeft: '0.5rem' }}>search</span>
-            <input type="search" id="main-search" name="search" placeholder="Search destinations, hotels, activities..." />
+            <input type="search" id="main-search" name="search" placeholder="Search destinations, hotels, activities..." autoComplete="off" />
           </form>
 
           <p className="hero-small-text">Discover your next adventure</p>
@@ -186,7 +203,7 @@ const Dashboard = () => {
           <p style={{ marginBottom: '0.5rem' }}>Discover amazing places, plan unforgettable trips and create memories that last forever.</p>
           
           <div className="hero-buttons">
-            <button onClick={() => window.scrollTo({ top: 800, behavior: 'smooth' })} className="btn primary-btn">
+            <button onClick={() => navigate('/explore')} className="btn primary-btn">
               Explore Destinations
             </button>
             <button onClick={handlePlanTrip} className="btn secondary-btn">
@@ -199,12 +216,12 @@ const Dashboard = () => {
         <aside className="popular-searches">
           <h3>Popular Searches</h3>
           <div className="search-tags">
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>beach_access</span> Bali</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>festival</span> Japan</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>location_city</span> Dubai</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>sailing</span> Maldives</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>landscape</span> Switzerland</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>ac_unit</span> Iceland</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Bali' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>beach_access</span> Bali</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Japan' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>festival</span> Japan</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Dubai' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>location_city</span> Dubai</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Maldives' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>sailing</span> Maldives</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Switzerland' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>landscape</span> Switzerland</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); navigate('/explore', { state: { search: 'Iceland' } }); }}><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>ac_unit</span> Iceland</a>
           </div>
         </aside>
       </section>
@@ -310,7 +327,7 @@ const Dashboard = () => {
                   <li>Check weather conditions before departure.</li>
                   <li>Plan transportation in advance.</li>
                 </ul>
-                <button onClick={() => alert('Opening Destination Details...')} className="btn primary-btn" style={{ marginTop: '1rem' }}>Explore Destination</button>
+                <button onClick={() => navigate('/explore')} className="btn primary-btn" style={{ marginTop: '1rem' }}>Explore Destination</button>
               </div>
             </div>
           </article>
@@ -473,34 +490,34 @@ const Dashboard = () => {
           <div className="footer-column">
             <h3>Company</h3>
             <ul>
-              <li><Link to="#">About Us</Link></li>
-              <li><Link to="#">Careers</Link></li>
-              <li><Link to="#">Blog</Link></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>About Us</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Careers</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Blog</a></li>
             </ul>
           </div>
           <div className="footer-column">
             <h3>Support</h3>
             <ul>
-              <li><Link to="#">Help Center</Link></li>
-              <li><Link to="#">Contact Us</Link></li>
-              <li><Link to="#">Privacy Policy</Link></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Help Center</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Contact Us</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Privacy Policy</a></li>
             </ul>
           </div>
           <div className="footer-column">
             <h3>Explore</h3>
             <ul>
-              <li><Link to="/explore">Destinations</Link></li>
-              <li><Link to="/hotels">Hotels</Link></li>
-              <li><Link to="/activities">Activities</Link></li>
-              <li><Link to="#">Travel Guide</Link></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Destinations</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Hotels</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Activities</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Travel Guide</a></li>
             </ul>
           </div>
           <div className="footer-column">
             <h3>Follow Us</h3>
             <div className="social-links" style={{ display: 'flex', gap: '1rem' }}>
-              <a href="#" aria-label="Instagram"><span className="material-symbols-rounded">photo_camera</span></a>
-              <a href="#" aria-label="Facebook"><span className="material-symbols-rounded">public</span></a>
-              <a href="#" aria-label="YouTube"><span className="material-symbols-rounded">play_circle</span></a>
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="Instagram"><span className="material-symbols-rounded">photo_camera</span></a>
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="Facebook"><span className="material-symbols-rounded">public</span></a>
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="YouTube"><span className="material-symbols-rounded">play_circle</span></a>
             </div>
           </div>
         </div>

@@ -3,25 +3,14 @@ import { Link } from 'react-router-dom';
 
 export default function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(false);
+
 
   return (
     <header className="top-header">
       <div className="logo-placeholder" style={{ flex: 1 }}></div>
 
       <div className="header-actions">
-        {/* ☀️ Theme / Sun Button */}
-        <button 
-          type="button" 
-          className="theme-button" 
-          aria-label="Change theme"
-          onClick={() => setIsLightMode(!isLightMode)}
-          title="Toggle Theme"
-        >
-          <span className="material-symbols-rounded">
-            {isLightMode ? 'dark_mode' : 'light_mode'}
-          </span>
-        </button>
+
 
         {/* 🔔 Notification Bell Button */}
         <div style={{ position: 'relative' }}>
@@ -47,6 +36,16 @@ export default function Header() {
             </div>
           )}
         </div>
+
+        <Link 
+          to="/wishlist" 
+          className="notification-button" 
+          aria-label="Wishlist"
+          title="Wishlist"
+          style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <span className="material-symbols-rounded">favorite</span>
+        </Link>
 
         {/* 🟣 Circular "TR" Profile Avatar + Dropdown */}
         <div className="profile-dropdown-container" style={{ position: 'relative' }}>
@@ -74,10 +73,6 @@ export default function Header() {
           {/* Glass Dropdown Profile Menu */}
           <div className="profile-dropdown-menu">
             <Link to="/profile">My Profile</Link>
-            <Link to="/bookings">My Bookings</Link>
-            <Link to="/membership">Membership</Link>
-            <Link to="/support">Support</Link>
-            <Link to="/settings">Settings</Link>
             <Link to="/" style={{ color: '#F43F5E' }}>Logout</Link>
           </div>
         </div>

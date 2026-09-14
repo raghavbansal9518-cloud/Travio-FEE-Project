@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import SearchHero from './components/SearchHero';
 import CategoryGrid from './components/CategoryGrid';
@@ -14,10 +14,11 @@ import './Explore.css';
 
 export default function Explore() {
   const navigate = useNavigate();
+  const location = useLocation();
   const searchInputRef = useRef(null);
 
   // Filter States
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(location.state?.search || '');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
