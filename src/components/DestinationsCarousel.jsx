@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 // --- Static Data ---
 // Array of popular destinations to display in the carousel
@@ -46,11 +47,40 @@ const destinations = [
 ];
 
 const DestinationsCarousel = () => {
+  const carouselRef = useRef(null);
+
   // Track which destination card is currently clicked/expanded
   const [expandedId, setExpandedId] = useState(null);
   
   // Track which destinations are in the wishlist (by ID)
   const [likedIds, setLikedIds] = useState(new Set());
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (carousel) {
+      carousel.scrollLeft = carousel.scrollWidth / 3;
+    }
+  }, []);
+
+  const handleCarouselScroll = (event) => {
+    const carousel = event.currentTarget;
+    const copyWidth = carousel.scrollWidth / 3;
+
+    if (carousel.scrollLeft <= 0) {
+      carousel.scrollLeft += copyWidth;
+    } else if (carousel.scrollLeft >= copyWidth * 2) {
+      carousel.scrollLeft -= copyWidth;
+    }
+  };
+
+  const handleCarouselWheel = (event) => {
+    if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.scrollLeft += event.deltaX;
+  };
 
   // Duplicate the array 3 times to create a seamless infinite scrolling effect in CSS
   const loopedDestinations = [...destinations, ...destinations, ...destinations];
@@ -74,11 +104,16 @@ const DestinationsCarousel = () => {
       {/* Section Header */}
       <header className="section-header">
         <h2>Popular Destinations</h2>
-        <a href="/explore">View All</a>
+        <Link to="/explore">View All</Link>
       </header>
 
       {/* Carousel Track Container */}
-      <div className="destination-carousel-container">
+      <div
+        className="destination-carousel-container"
+        ref={carouselRef}
+        onScroll={handleCarouselScroll}
+        onWheel={handleCarouselWheel}
+      >
         <div className="destination-carousel-track" id="destination-track">
           
           {/* Map through our looped array to render the cards */}
@@ -141,7 +176,7 @@ const DestinationsCarousel = () => {
                     {dest.rating} <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.8rem' }}>({dest.reviews})</span>
                   </p>
                   <p>Best time: {dest.bestTime}</p>
-                  <a href="/explore">Explore</a>
+                  <Link to="/explore">Explore</Link>
                 </div>
               </article>
             );

@@ -23,6 +23,10 @@ const heroImages = [
 ];
 
 const Dashboard = () => {
+  const handleBrandClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // --- State Variables ---
   // Controls which background image is currently showing
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -195,6 +199,19 @@ const Dashboard = () => {
           </div>
 
           <div className="form-group">
+            <label htmlFor="travel-mode">Travel Mode</label>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>commute</span>
+              <select id="travel-mode" name="travelMode" defaultValue="flight">
+                <option value="flight">Flight</option>
+                <option value="train">Train</option>
+                <option value="bus">Bus</option>
+                <option value="car">Car</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
             <label htmlFor="travelers">Travelers</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>group</span>
@@ -209,7 +226,7 @@ const Dashboard = () => {
           </div>
 
           <button type="submit" className="plan-trip-btn" onClick={handlePlanTrip}>
-            Plan Trip
+            Search
           </button>
         </form>
       </section>
@@ -400,10 +417,15 @@ const Dashboard = () => {
       <footer className="main-footer">
         <div className="footer-container">
           <div className="footer-brand">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <Link
+              to="/"
+              onClick={handleBrandClick}
+              aria-label="Go to the top of the Travio home page"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}
+            >
               <span className="material-symbols-rounded logo-icon">flight_takeoff</span>
               <h2 style={{ margin: 0 }}>Travio</h2>
-            </div>
+            </Link>
             <p>Explore the world with smarter travel planning.</p>
           </div>
           <div className="footer-column">

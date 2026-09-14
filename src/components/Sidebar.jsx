@@ -6,6 +6,10 @@ const Sidebar = ({ isHome }) => {
   // State to handle sidebar expansion on mobile devices
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
 
+  const handleBrandClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Toggle the sidebar when clicked on mobile
   const toggleMobileSidebar = () => {
     setIsMobileExpanded(!isMobileExpanded);
@@ -18,7 +22,7 @@ const Sidebar = ({ isHome }) => {
     >
       {/* --- Branding & Logo --- */}
       <div className="sidebar-brand">
-        <NavLink to="/" className="logo-link">
+        <NavLink to="/" className="logo-link" onClick={handleBrandClick}>
           <span className="material-symbols-rounded logo-icon">flight_takeoff</span>
           <div className="logo-text">
             <h1>Travio</h1>
@@ -57,7 +61,6 @@ const Sidebar = ({ isHome }) => {
           {/* User Specific Pages */}
           <li><NavLink to="/wishlist"><span className="material-symbols-rounded">favorite</span><span className="nav-text">Wishlist</span></NavLink></li>
           <li><NavLink to="/journal"><span className="material-symbols-rounded">menu_book</span><span className="nav-text">Journal</span></NavLink></li>
-          <li><NavLink to="/reviews"><span className="material-symbols-rounded">star</span><span className="nav-text">Reviews</span></NavLink></li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">Settings</span></NavLink></li>
         </ul>
 
