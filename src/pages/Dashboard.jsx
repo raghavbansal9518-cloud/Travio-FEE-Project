@@ -37,12 +37,17 @@ const Dashboard = () => {
   // Profile dropdown state
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const notificationsRef = useRef(null);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsProfileOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -77,9 +82,46 @@ const Dashboard = () => {
         <div className="logo-placeholder" style={{ flex: 1 }}></div>
 
         <div className="header-actions">
-          <button type="button" className="notification-button" aria-label="Notifications">
-            <span className="material-symbols-rounded">notifications</span>
-          </button>
+          <div className={`notification-container ${isNotificationsOpen ? 'open' : ''}`} ref={notificationsRef}>
+            <button
+              type="button"
+              className="notification-button"
+              aria-label="Notifications"
+              aria-expanded={isNotificationsOpen}
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            >
+              <span className="material-symbols-rounded">notifications</span>
+              <span className="notification-dot" aria-hidden="true"></span>
+            </button>
+
+            <div className="notification-menu" role="status" aria-live="polite">
+              <div className="notification-menu-header">
+                <strong>Notifications</strong>
+                <span>3 new</span>
+              </div>
+              <div className="notification-item">
+                <span className="material-symbols-rounded">luggage</span>
+                <div>
+                  <strong>Your Bali trip is ready</strong>
+                  <p>Review your itinerary and packing list.</p>
+                </div>
+              </div>
+              <div className="notification-item">
+                <span className="material-symbols-rounded">sunny</span>
+                <div>
+                  <strong>Weather update</strong>
+                  <p>Expect clear skies in your saved destinations.</p>
+                </div>
+              </div>
+              <div className="notification-item">
+                <span className="material-symbols-rounded">favorite</span>
+                <div>
+                  <strong>Wishlist inspiration</strong>
+                  <p>New travel ideas are waiting to be explored.</p>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div 
             className={`profile-dropdown-container ${isProfileOpen ? 'open' : ''}`} 

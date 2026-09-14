@@ -19,8 +19,6 @@ import SettingsPage from './pages/SettingsPage';
 
 // Components
 import Sidebar from './components/Sidebar';
-import Footer from './components/Footer';
-import FloatingChatbot from './components/FloatingChatbot';
 
 export default function App() {
   const [hasSeenSplash, setHasSeenSplash] = useState(false);
@@ -55,13 +53,10 @@ export default function App() {
                     <Route path="/reviews" element={<ReviewsPage />} />
                     <Route path="/settings" element={<SettingsPage />} />
                   </Routes>
-                  <Footer />
                 </main>
               </div>
             } />
           </Routes>
-          
-          <FloatingChatbot />
         </>
       )}
     </BrowserRouter>
