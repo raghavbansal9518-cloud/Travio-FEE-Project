@@ -71,7 +71,8 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
         </div>
 
         <p className="card-short-desc">
-          {destination.description || destination.tagline}
+          {destination.tagline && <strong>{destination.tagline}</strong>}
+          {destination.description && <span>{destination.description}</span>}
         </p>
 
         <div className="card-footer-row">

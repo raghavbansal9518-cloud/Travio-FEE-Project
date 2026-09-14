@@ -755,6 +755,12 @@
   outline: none;
 }
 
+.planner-text-field::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 1;
+  cursor: pointer;
+}
+
 .planner-select-input option {
   background: #0d1322;
   color: white;

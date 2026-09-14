@@ -674,10 +674,20 @@
   line-height: 1.4;
   margin: 6px 0 16px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   flex: 1;
+}
+
+.card-short-desc strong,
+.card-short-desc span {
+  display: block;
+}
+
+.card-short-desc strong {
+  color: #dbeafe;
+  margin-bottom: 3px;
 }
 
 .card-footer-row {

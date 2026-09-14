@@ -13,6 +13,24 @@ export default function DestinationDetails() {
 
   // Find destination by id or default to bali
   const destination = DESTINATIONS.find((d) => d.id === id) || DESTINATIONS[0];
+  const highlights = destination.highlights || [
+    {
+      label: 'Visa',
+      value: destination.country === 'India' ? 'Domestic / e-Visa' : 'Check local visa rules'
+    },
+    {
+      label: 'Language',
+      value: `${destination.country} local languages, English`
+    },
+    {
+      label: 'Currency',
+      value: destination.country === 'India' ? 'Indian Rupee (INR)' : 'Local currency'
+    },
+    {
+      label: 'Ideal For',
+      value: `${destination.travelType || 'All'} Travelers`
+    }
+  ];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -152,19 +170,19 @@ export default function DestinationDetails() {
                   <h2 style={{ fontFamily: 'var(--font-heading, inherit)', fontSize: '26px', fontWeight: 800, color: 'white' }}>
                     About {destination.name}
                   </h2>
-                  <p className="about-paragraph">{destination.about}</p>
+                  <p className="about-paragraph">
+                    {destination.about || destination.description || destination.tagline}
+                  </p>
 
                   {/* Highlights Specs Matrix */}
-                  {destination.highlights && (
-                    <div className="highlights-spec-matrix">
-                      {destination.highlights.map((h, i) => (
-                        <div key={i} className="highlight-spec-item">
-                          <span className="spec-lbl">{h.label}</span>
-                          <span className="spec-val">{h.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="highlights-spec-matrix">
+                    {highlights.map((h, i) => (
+                      <div key={i} className="highlight-spec-item">
+                        <span className="spec-lbl">{h.label}</span>
+                        <span className="spec-val">{h.value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Food & Culture Showcase */}

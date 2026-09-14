@@ -181,6 +181,7 @@ export const DESTINATIONS = [
     heroImage: 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&auto=format&fit=crop&q=85',
     cardImage: 'https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&auto=format&fit=crop&q=80',
     description: 'Radhanagar beach voted Asia’s best, luminous bioluminescent sea, and world-class scuba diving.',
+    about: 'The Andaman Islands are a tropical escape in the Bay of Bengal, known for clear turquoise water, quiet white-sand beaches, and rich coral reefs. Visitors can relax on Radhanagar Beach, explore the historic Cellular Jail in Port Blair, or discover colorful marine life through snorkeling, scuba diving, and glass-bottom boat rides. With warm weather, lush forests, and a slower island rhythm, the Andamans are ideal for travelers looking for both adventure and peaceful coastal time.',
     isTrending: true,
     isRecommended: true,
     mapLocation: { x: 74, y: 52, lat: 11.7401, lng: 92.6586 }
@@ -705,8 +706,8 @@ export const DESTINATIONS = [
     budgetStarting: '₹22,000',
     budgetNum: 22000,
     weather: { temp: '12°C', condition: 'Alpine & Snow', icon: 'fa-snowflake', bestSeason: 'Dec – Mar (Snow) / Apr – Sep' },
-    heroImage: 'https://images.unsplash.com/photo-1566837945700-30057527ade0?w=1600&auto=format&fit=crop&q=85',
-    cardImage: 'https://images.unsplash.com/photo-1566837945700-30057527ade0?w=800&auto=format&fit=crop&q=80',
+    heroImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?w=1600&auto=format&fit=crop&q=85',
+    cardImage: 'https://images.unsplash.com/photo-1598091383021-15ddea10925d?w=800&auto=format&fit=crop&q=80',
     description: 'Gulmarg cable car up to 13,780ft, Dal Lake wooden shikara rides, Pahalgam pine valleys, and snow sports.',
     isTrending: true,
     isRecommended: true,
