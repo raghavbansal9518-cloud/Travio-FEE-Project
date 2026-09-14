@@ -5,7 +5,6 @@ import SearchHero from './components/SearchHero';
 import CategoryGrid from './components/CategoryGrid';
 import TrendingCarousel from './components/TrendingCarousel';
 import PopularCountries from './components/PopularCountries';
-import InteractiveMap from './components/InteractiveMap';
 import HiddenGems from './components/HiddenGems';
 import RecommendedSection from './components/RecommendedSection';
 import FilterModal from './components/FilterModal';
@@ -238,13 +237,10 @@ export default function Explore() {
               onSelectCountry={setSelectedCountry}
             />
 
-            {/* 5. DISCOVER ON MAP */}
-            <InteractiveMap />
-
-            {/* 6. HIDDEN GEMS */}
+            {/* 5. HIDDEN GEMS */}
             <HiddenGems destinations={hiddenGemsList} />
 
-            {/* 7. RECOMMENDED FOR YOU */}
+            {/* 6. RECOMMENDED FOR YOU */}
             <RecommendedSection destinations={recommendedList} />
           </>
         )}

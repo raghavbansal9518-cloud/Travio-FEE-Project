@@ -478,6 +478,26 @@
   margin-bottom: 20px;
 }
 
+.category-section .section-tag {
+  color: #38bdf8;
+}
+
+.trending-section .section-tag {
+  color: #f97316;
+}
+
+.countries-section .section-tag {
+  color: #34d399;
+}
+
+.gems-section .section-tag {
+  color: #ec4899;
+}
+
+.recommended-section .section-tag {
+  color: #a78bfa;
+}
+
 .carousel-nav-arrows {
   display: flex;
   gap: 10px;
