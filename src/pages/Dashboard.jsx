@@ -199,12 +199,12 @@ const Dashboard = () => {
         <aside className="popular-searches">
           <h3>Popular Searches</h3>
           <div className="search-tags">
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>beach_access</span> Bali</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>festival</span> Japan</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>location_city</span> Dubai</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>sailing</span> Maldives</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>landscape</span> Switzerland</a>
-            <a href="#"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>ac_unit</span> Iceland</a>
+            <Link to="/explore?search=Bali"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>beach_access</span> Bali</Link>
+            <Link to="/explore?search=Japan"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>festival</span> Japan</Link>
+            <Link to="/explore?search=Dubai"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>location_city</span> Dubai</Link>
+            <Link to="/explore?search=Maldives"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>sailing</span> Maldives</Link>
+            <Link to="/explore?search=Switzerland"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>landscape</span> Switzerland</Link>
+            <Link to="/explore?search=Iceland"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>ac_unit</span> Iceland</Link>
           </div>
         </aside>
       </section>

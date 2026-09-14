@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from './components/Header';
 import SearchHero from './components/SearchHero';
 import CategoryGrid from './components/CategoryGrid';
@@ -14,10 +14,11 @@ import './Explore.css';
 
 export default function Explore() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const searchInputRef = useRef(null);
 
   // Filter States
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -28,6 +29,13 @@ export default function Explore() {
     travelTypes: [],
     duration: []
   });
+
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q !== null && q !== undefined) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -133,6 +141,9 @@ export default function Explore() {
       travelTypes: [],
       duration: []
     });
+    if (searchParams.get('search')) {
+      navigate('/explore', { replace: true });
+    }
   };
 
   return (
