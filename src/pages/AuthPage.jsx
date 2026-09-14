@@ -156,9 +156,6 @@ function InputField({ label, type = 'text', placeholder, value, onChange, error,
   );
 }
 
-const showForgotPasswordAlert = () => {
-  window.alert('Password reset is coming soon. We are working on this feature for you!');
-};
 
 // ===== SIGNUP FORM =====
 function SignUpForm({ onSwitch, onSuccess }) {
@@ -327,9 +324,6 @@ function LoginForm({ onSwitch, onSuccess }) {
             />
           </div>
 
-          <div className="form-field" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="button" className="forgot-link" onClick={showForgotPasswordAlert}>Forgot Password?</button>
-          </div>
 
           <div className="form-field">
             <button type="submit" className="btn-primary">Sign In</button>
@@ -413,6 +407,44 @@ function DesktopAuth({ onGoHome }) {
             <CompassLogoIcon />
           </div>
           <span className="carousel-logo__text">Travio</span>
+        </button>
+
+        {/* Back to Website button on top right */}
+        <button
+          type="button"
+          onClick={onGoHome}
+          className="back-to-website-btn"
+          style={{
+            position: 'absolute',
+            top: '32px',
+            right: '48px',
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            color: '#ffffff',
+            padding: '8px 16px',
+            borderRadius: '999px',
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            backdropFilter: 'blur(8px)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(106, 76, 255, 0.25)';
+            e.currentTarget.style.borderColor = 'rgba(106, 76, 255, 0.5)';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
+        >
+          <span>Back to Website</span>
+          <ArrowRightIcon />
         </button>
 
         <div className="form-wrapper" aria-live="polite" style={{ marginTop: '40px' }}>
@@ -507,6 +539,25 @@ function MobileFormPage({ view, onBack, onSwitch, onGoHome }) {
         <span className="mobile-form-page__header-title">
           {isLogin ? 'Log In to Travio' : 'Create Travio Account'}
         </span>
+        <button
+          type="button"
+          onClick={onGoHome}
+          style={{
+            marginLeft: 'auto',
+            background: 'none',
+            border: 'none',
+            color: 'var(--color-primary-light)',
+            fontSize: '0.82rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          <span>Back to Website</span>
+          <ArrowRightIcon />
+        </button>
       </header>
 
       <div className="mobile-form-page__scroll">
@@ -563,11 +614,6 @@ function MobileFormPage({ view, onBack, onSwitch, onGoHome }) {
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                   />
 
-                  {isLogin && (
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button type="button" className="forgot-link" onClick={showForgotPasswordAlert}>Forgot Password?</button>
-                    </div>
-                  )}
 
                   <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
                     {isLogin ? 'Sign In' : 'Create Account'}
@@ -625,11 +671,33 @@ function MobileLanding({ onGoHome }) {
           />
           <div className="mobile-landing__overlay" />
           <div className="mobile-landing__content">
-            <div className="mobile-landing__top">
-              <div className="mobile-landing__logo-icon">
-                <CompassLogoIcon />
+            <div className="mobile-landing__top" style={{ justifyContent: 'space-between', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="mobile-landing__logo-icon">
+                  <CompassLogoIcon />
+                </div>
+                <span className="mobile-landing__logo-text">Travio</span>
               </div>
-              <span className="mobile-landing__logo-text">Travio</span>
+              <button
+                type="button"
+                onClick={onGoHome}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: '#fff',
+                  padding: '6px 14px',
+                  borderRadius: '999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span>Back to Website</span>
+                <ArrowRightIcon />
+              </button>
             </div>
 
             <div className="mobile-landing__bottom">
