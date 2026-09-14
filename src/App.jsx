@@ -7,6 +7,7 @@ import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import GeoWeather from './pages/GeoWeather';
 import ExplorePage from './pages/ExplorePage';
+import DestinationDetails from './DestinationDetails';
 import BookingsPage from './pages/BookingsPage';
 import TransportPage from './pages/TransportPage';
 import FoodGuide from './pages/FoodGuide';
@@ -44,6 +45,7 @@ export default function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/explore" element={<ExplorePage />} />
+                    <Route path="/destination/:id" element={<DestinationDetails />} />
                     <Route path="/bookings" element={<BookingsPage />} />
                     <Route path="/transport" element={<TransportPage />} />
                     <Route path="/geoweather" element={<GeoWeather />} />
