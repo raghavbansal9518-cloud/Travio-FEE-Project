@@ -459,7 +459,7 @@ function DesktopAuth({ onGoHome }) {
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          <span>Back to Website</span>
+          <span>Skip for now</span>
           <ArrowRightIcon />
         </button>
 
@@ -571,7 +571,7 @@ function MobileFormPage({ view, onBack, onSwitch, onGoHome }) {
             gap: '4px'
           }}
         >
-          <span>Back to Website</span>
+          <span>Skip for now</span>
           <ArrowRightIcon />
         </button>
       </header>
@@ -711,7 +711,7 @@ function MobileLanding({ onGoHome }) {
                   gap: '6px'
                 }}
               >
-                <span>Back to Website</span>
+                <span>Skip for now</span>
                 <ArrowRightIcon />
               </button>
             </div>
