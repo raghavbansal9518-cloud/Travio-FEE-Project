@@ -2,33 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Header from './components/Header';
 import { DESTINATIONS } from './data/destinationsData';
+import { getDestinationDetails } from './data/destinationDetailsHelper';
 import TripPlannerModal from './components/TripPlannerModal';
 import './DestinationDetails.css';
 
 export default function DestinationDetails() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('places');
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Find destination by id or default to bali
-  const destination = DESTINATIONS.find((d) => d.id === id) || DESTINATIONS[0];
-  const highlights = destination.highlights || [
+  // Find destination by id or default to first
+  const rawDestination = DESTINATIONS.find((d) => d.id === id) || DESTINATIONS[0];
+  const destination = getDestinationDetails(rawDestination);
+
+  const highlights = destination?.highlights || [
     {
       label: 'Visa',
-      value: destination.country === 'India' ? 'Domestic / e-Visa' : 'Check local visa rules'
+      value: destination?.country === 'India' ? 'Domestic / No Visa' : 'e-Visa / Visa on Arrival'
     },
     {
       label: 'Language',
-      value: `${destination.country} local languages, English`
+      value: `${destination?.country} local languages, English`
     },
     {
       label: 'Currency',
-      value: destination.country === 'India' ? 'Indian Rupee (INR)' : 'Local currency'
+      value: destination?.country === 'India' ? 'Indian Rupee (INR)' : 'Local currency / Cards'
     },
     {
       label: 'Ideal For',
-      value: `${destination.travelType || 'All'} Travelers`
+      value: `${destination?.travelType || 'All'} Travelers`
     }
   ];
 
@@ -215,11 +218,7 @@ export default function DestinationDetails() {
                     <span>Weather & Best Time</span>
                   </h3>
                   <div className="weather-matrix-list">
-                    {(destination.weatherDetails || [
-                      { month: 'Apr-Jun', temp: '28°C', desc: 'Peak sunny conditions' },
-                      { month: 'Jul-Sep', temp: '27°C', desc: 'Cool breeze & clear skies' },
-                      { month: 'Oct-Dec', temp: '29°C', desc: 'Pleasant tropical season' }
-                    ]).map((w, index) => (
+                    {(destination.weatherDetails || []).map((w, index) => (
                       <div key={index} className="weather-month-row">
                         <div>
                           <span className="month-name">{w.month}</span>
@@ -238,12 +237,7 @@ export default function DestinationDetails() {
                     <span>Estimated Budget</span>
                   </h3>
                   <div className="budget-items-list">
-                    {(destination.budgetBreakdown || [
-                      { category: 'Flights (Roundtrip)', cost: '₹20,000', icon: 'fa-plane' },
-                      { category: 'Stays (4-Star / 5-Star)', cost: '₹15,000', icon: 'fa-hotel' },
-                      { category: 'Dining & Food', cost: '₹5,000', icon: 'fa-utensils' },
-                      { category: 'Activities & Tours', cost: '₹6,000', icon: 'fa-ticket' }
-                    ]).map((b, idx) => (
+                    {(destination.budgetBreakdown || []).map((b, idx) => (
                       <div key={idx} className="budget-item-row">
                         <span className="budget-item-name">
                           <i className={`fa-solid ${b.icon || 'fa-tag'}`}></i>
