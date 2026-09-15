@@ -185,6 +185,11 @@ function SignUpForm({ onSwitch, onSuccess }) {
       return;
     }
     setErrors({});
+    
+    // Save credentials to local storage
+    localStorage.setItem('auth_email', fields.email);
+    localStorage.setItem('auth_password', fields.password);
+
     // Redirect immediately without showing success banner
     onSuccess();
   };
@@ -283,9 +288,20 @@ function LoginForm({ onSwitch, onSuccess }) {
       setTimeout(() => setShake(false), 500);
       return;
     }
-    setErrors({});
-    // Redirect immediately without showing success banner
-    onSuccess();
+    
+    // Check credentials against local storage
+    const savedEmail = localStorage.getItem('auth_email');
+    const savedPassword = localStorage.getItem('auth_password');
+
+    if (savedEmail === fields.email && savedPassword === fields.password) {
+      setErrors({});
+      // Redirect immediately without showing success banner
+      onSuccess();
+    } else {
+      setErrors({ email: 'Invalid email or password' });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
   };
 
   return (
