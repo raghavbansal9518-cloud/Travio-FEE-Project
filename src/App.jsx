@@ -45,6 +45,7 @@ export default function App() {
                     <Route path="/explore" element={<ExplorePage />} />
                     <Route path="/destination/:id" element={<DestinationDetails />} />
                     <Route path="/bookings" element={<BookingsPage />} />
+                    <Route path="/booking" element={<BookingsPage />} />
                     <Route path="/transport" element={<TransportPage />} />
                     <Route path="/geoweather" element={<GeoWeather />} />
                     <Route path="/food-guide" element={<FoodGuide />} />
