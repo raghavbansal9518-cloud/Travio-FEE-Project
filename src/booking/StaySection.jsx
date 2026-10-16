@@ -7,6 +7,8 @@ const POPULAR_HOTEL_DESTINATIONS = [
   'Singapore',
   'Bangkok',
   'Paris',
+  'London',
+  'Tokyo',
   'Bali',
   'Maldives',
 ];

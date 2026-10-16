@@ -32,21 +32,26 @@ export default function ExperienceSection({ onSelectBookingItem }) {
   // Filter activities dynamically
   const filteredActivities = useMemo(() => {
     return ACTIVITIES_DATA.filter((act) => {
-      // 1. Text Search Match
-      if (searchDestination.trim()) {
-        const query = searchDestination.toLowerCase().trim();
-        const matchesDest = act.destination.toLowerCase().includes(query);
-        const matchesName = act.name.toLowerCase().includes(query);
-        if (!matchesDest && !matchesName) return false;
+      // 1. Destination Filter Match (Primary)
+      if (selectedDestinationFilter) {
+        if (act.destination.toLowerCase() !== selectedDestinationFilter.toLowerCase()) {
+          return false;
+        }
       }
 
-      // 2. Destination Filter Match
-      if (selectedDestinationFilter && act.destination.toLowerCase() !== selectedDestinationFilter.toLowerCase()) {
-        return false;
+      // 2. Text Search Match (Secondary - only if searchDestination differs from selected pill)
+      if (searchDestination.trim()) {
+        const query = searchDestination.toLowerCase().trim();
+        if (!selectedDestinationFilter || query !== selectedDestinationFilter.toLowerCase()) {
+          const matchesDest = act.destination.toLowerCase().includes(query);
+          const matchesName = act.name.toLowerCase().includes(query);
+          const matchesCat = act.category.toLowerCase().includes(query);
+          if (!matchesDest && !matchesName && !matchesCat) return false;
+        }
       }
 
       // 3. Category Match
-      if (selectedCategory !== 'All' && act.category !== selectedCategory) {
+      if (selectedCategory !== 'All' && act.category.toLowerCase() !== selectedCategory.toLowerCase()) {
         return false;
       }
 
@@ -55,11 +60,24 @@ export default function ExperienceSection({ onSelectBookingItem }) {
   }, [searchDestination, selectedDestinationFilter, selectedCategory]);
 
   const handleDestinationPill = (dest) => {
-    if (selectedDestinationFilter === dest) {
+    if (selectedDestinationFilter.toLowerCase() === dest.toLowerCase()) {
       setSelectedDestinationFilter('');
+      setSearchDestination('');
     } else {
       setSelectedDestinationFilter(dest);
       setSearchDestination(dest);
+    }
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchDestination(value);
+    const match = POPULAR_EXPERIENCE_DESTINATIONS.find(
+      (d) => d.toLowerCase() === value.trim().toLowerCase()
+    );
+    if (match) {
+      setSelectedDestinationFilter(match);
+    } else if (selectedDestinationFilter && !value.toLowerCase().includes(selectedDestinationFilter.toLowerCase())) {
+      setSelectedDestinationFilter('');
     }
   };
 
@@ -97,9 +115,23 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                   type="text"
                   className="glass-text-input"
                   value={searchDestination}
-                  onChange={(e) => setSearchDestination(e.target.value)}
-                  placeholder="Where do you want to explore? (e.g. Singapore, Dubai)"
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder={
+                    selectedDestinationFilter
+                      ? `Filter activities in ${selectedDestinationFilter}...`
+                      : "Where do you want to explore? (e.g. Singapore, Dubai)"
+                  }
                 />
+                {searchDestination && (
+                  <button
+                    type="button"
+                    className="input-clear-btn"
+                    onClick={() => setSearchDestination('')}
+                    title="Clear search"
+                  >
+                    <span className="material-symbols-rounded">close</span>
+                  </button>
+                )}
               </div>
               <span className="field-airport-desc">Tours, Theme Parks, Museums, Water Sports</span>
             </div>
@@ -210,87 +242,123 @@ export default function ExperienceSection({ onSelectBookingItem }) {
           </div>
         </div>
 
-        <div className="activity-cards-grid">
-          {filteredActivities.map((act) => (
-            <div key={act.id} className="activity-card-item">
-              {/* Image & Badge */}
-              <div className="activity-image-box">
-                <img
-                  src={act.image}
-                  alt={act.name}
-                  className="activity-card-img"
-                  loading="lazy"
-                />
-                <div className="activity-image-overlay" />
-                <span className="activity-badge-pill">{act.badge}</span>
-                <span className="activity-duration-pill">
-                  <span className="material-symbols-rounded">schedule</span>
-                  <span>{act.duration}</span>
-                </span>
-              </div>
-
-              {/* Body */}
-              <div className="activity-card-body">
-                <div className="activity-location-tag">
-                  <span className="material-symbols-rounded">location_on</span>
-                  <span>{act.destination} • {act.category}</span>
+        {filteredActivities.length === 0 ? (
+          <div className="no-activities-found-box">
+            <div className="empty-state-icon-wrap">
+              <span className="material-symbols-rounded">travel_explore</span>
+            </div>
+            <h4 className="empty-state-title">No experiences found matching your criteria</h4>
+            <p className="empty-state-desc">
+              We couldn't find any activities for {selectedDestinationFilter ? `"${selectedDestinationFilter}"` : 'your query'} under "{selectedCategory}".
+            </p>
+            <div className="empty-state-actions">
+              {selectedCategory !== 'All' && (
+                <button
+                  type="button"
+                  className="btn-empty-action btn-empty-primary"
+                  onClick={() => setSelectedCategory('All')}
+                >
+                  <span className="material-symbols-rounded">category</span>
+                  <span>View All {selectedDestinationFilter || ''} Activities</span>
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn-empty-action btn-empty-secondary"
+                onClick={() => {
+                  setSelectedDestinationFilter('');
+                  setSelectedCategory('All');
+                  setSearchDestination('');
+                }}
+              >
+                <span className="material-symbols-rounded">refresh</span>
+                <span>Reset All Filters</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="activity-cards-grid">
+            {filteredActivities.map((act) => (
+              <div key={act.id} className="activity-card-item">
+                {/* Image & Badge */}
+                <div className="activity-image-box">
+                  <img
+                    src={act.image}
+                    alt={act.name}
+                    className="activity-card-img"
+                    loading="lazy"
+                  />
+                  <div className="activity-image-overlay" />
+                  <span className="activity-badge-pill">{act.badge}</span>
+                  <span className="activity-duration-pill">
+                    <span className="material-symbols-rounded">schedule</span>
+                    <span>{act.duration}</span>
+                  </span>
                 </div>
 
-                <h4 className="activity-title" title={act.name}>
-                  {act.name}
-                </h4>
-
-                <div className="activity-rating-row">
-                  <span className="material-symbols-rounded star-icon">star</span>
-                  <span className="rating-bold">{act.rating}</span>
-                  <span className="reviews-sub">({act.reviewsCount.toLocaleString()} reviews)</span>
-                </div>
-
-                {/* Highlights */}
-                <div className="activity-highlights-list">
-                  {act.highlights.slice(0, 2).map((h, idx) => (
-                    <div key={idx} className="activity-hl-item">
-                      <span className="material-symbols-rounded">check</span>
-                      <span>{h}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Footer with Price and Explore Button */}
-                <div className="activity-card-footer">
-                  <div className="activity-price-box">
-                    <span className="price-strike">₹{act.originalPrice.toLocaleString('en-IN')}</span>
-                    <div className="price-active-row">
-                      <span className="curr">₹</span>
-                      <span className="amt">{act.price.toLocaleString('en-IN')}</span>
-                      <span className="unit">/ person</span>
-                    </div>
+                {/* Body */}
+                <div className="activity-card-body">
+                  <div className="activity-location-tag">
+                    <span className="material-symbols-rounded">location_on</span>
+                    <span>{act.destination} • {act.category}</span>
                   </div>
 
-                  <button
-                    type="button"
-                    className="btn-explore-activity"
-                    onClick={() => onSelectBookingItem({
-                      type: 'EXPERIENCE',
-                      title: act.name,
-                      from: `Destination: ${act.destination}`,
-                      to: act.category,
-                      date: activityDate || 'Open Flexible Date (Valid 90 Days)',
-                      time: `Duration: ${act.duration}`,
-                      price: act.price,
-                      seats: '1 Guest Pass',
-                      extra: `${act.badge} • Instant Mobile Voucher`,
-                      bookingRef: `TRV-EXP-${Math.floor(100000 + Math.random() * 900000)}`,
-                    })}
-                  >
-                    <span>Explore</span>
-                    <span className="material-symbols-rounded">arrow_forward</span>
-                  </button>
+                  <h4 className="activity-title" title={act.name}>
+                    {act.name}
+                  </h4>
+
+                  <div className="activity-rating-row">
+                    <span className="material-symbols-rounded star-icon">star</span>
+                    <span className="rating-bold">{act.rating}</span>
+                    <span className="reviews-sub">({act.reviewsCount.toLocaleString()} reviews)</span>
+                  </div>
+
+                  {/* Highlights */}
+                  <div className="activity-highlights-list">
+                    {act.highlights.slice(0, 2).map((h, idx) => (
+                      <div key={idx} className="activity-hl-item">
+                        <span className="material-symbols-rounded">check</span>
+                        <span>{h}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Footer with Price and Explore Button */}
+                  <div className="activity-card-footer">
+                    <div className="activity-price-box">
+                      <span className="price-strike">₹{act.originalPrice.toLocaleString('en-IN')}</span>
+                      <div className="price-active-row">
+                        <span className="curr">₹</span>
+                        <span className="amt">{act.price.toLocaleString('en-IN')}</span>
+                        <span className="unit">/ person</span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="btn-explore-activity"
+                      onClick={() => onSelectBookingItem({
+                        type: 'EXPERIENCE',
+                        title: act.name,
+                        from: `Destination: ${act.destination}`,
+                        to: act.category,
+                        date: activityDate || 'Open Flexible Date (Valid 90 Days)',
+                        time: `Duration: ${act.duration}`,
+                        price: act.price,
+                        seats: '1 Guest Pass',
+                        extra: `${act.badge} • Instant Mobile Voucher`,
+                        bookingRef: `TRV-EXP-${Math.floor(100000 + Math.random() * 900000)}`,
+                      })}
+                    >
+                      <span>Explore</span>
+                      <span className="material-symbols-rounded">arrow_forward</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
