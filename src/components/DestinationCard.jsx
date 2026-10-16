@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTravel } from '../context/TravelContext';
 
 export default function DestinationCard({ destination, isGem = false, aiTag = null }) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const navigate = useNavigate();
+  const { isWishlisted, toggleWishlist } = useTravel();
+
+  const isBookmarked = isWishlisted(destination.id);
 
   const handleCardClick = (e) => {
     if (e.target.closest('.bookmark-toggle-btn')) return;
@@ -12,7 +15,15 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
 
   const handleBookmarkToggle = (e) => {
     e.stopPropagation();
-    setIsBookmarked(!isBookmarked);
+    toggleWishlist(destination);
+  };
+
+  const cardAiTag = aiTag || destination.aiTag;
+  const fallbackImg = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80';
+
+  const handleImgError = (e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = fallbackImg;
   };
 
   return (
@@ -25,10 +36,11 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
     >
       <div className="card-media-box">
         <img 
-          src={destination.cardImage || destination.heroImage} 
+          src={destination.cardImage || destination.heroImage || fallbackImg} 
           alt={`${destination.name}, ${destination.country}`}
           className="card-image"
           loading="lazy"
+          onError={handleImgError}
         />
 
         <div className="card-top-badges">
@@ -54,9 +66,15 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
           </div>
         )}
 
-        {aiTag && (
+        {cardAiTag && (
           <div className="gem-tag-pill" style={{ background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' }}>
-            <i className="fa-solid fa-wand-magic-sparkles"></i> {aiTag}
+            <i className="fa-solid fa-wand-magic-sparkles"></i> {cardAiTag}
+          </div>
+        )}
+
+        {destination.photoAttribution && (
+          <div style={{ position: 'absolute', bottom: '6px', left: '8px', fontSize: '9px', color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 3px rgba(0,0,0,0.8)', pointerEvents: 'none', zIndex: 2 }}>
+            📷 {destination.photoAttribution.name}
           </div>
         )}
       </div>

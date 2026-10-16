@@ -8,10 +8,12 @@ import ExperienceSection from './booking/ExperienceSection';
 import BookingCheckoutModal from './booking/BookingCheckoutModal';
 import MyBookingsModal from './booking/MyBookingsModal';
 import ToastNotification from './booking/ToastNotification';
+import { getTodayDate, getFutureDate, formatDisplayDate } from './utils/dateUtils';
+import { useTravel } from './context/TravelContext';
 import './Booking.css';
 
-// Default initial seeded bookings for immediate CRUD demonstration
-const DEFAULT_SAMPLE_BOOKINGS = [
+// Default initial seeded bookings with dynamic latest dates for immediate CRUD demonstration
+const getInitialSampleBookings = () => [
   {
     id: 'booking-seed-1',
     pnr: 'TRV-894218',
@@ -19,7 +21,7 @@ const DEFAULT_SAMPLE_BOOKINGS = [
     title: 'IndiGo Airlines (6E-204)',
     from: 'Delhi (DEL)',
     to: 'Goa (GOI)',
-    date: '2026-11-15',
+    date: getFutureDate(3),
     time: '06:15 AM - 08:45 AM',
     seatSummary: 'Seat 14A (Window)',
     passenger: {
@@ -32,7 +34,7 @@ const DEFAULT_SAMPLE_BOOKINGS = [
     amountPaid: 4850,
     paymentMethod: 'UPI (Google Pay)',
     status: 'CONFIRMED',
-    bookingDate: '10 Oct 2026'
+    bookingDate: formatDisplayDate(getTodayDate())
   },
   {
     id: 'booking-seed-2',
@@ -41,7 +43,7 @@ const DEFAULT_SAMPLE_BOOKINGS = [
     title: 'Vande Bharat Express (#22436)',
     from: 'New Delhi (NDLS)',
     to: 'Varanasi (BSB)',
-    date: '2026-11-28',
+    date: getFutureDate(10),
     time: '06:00 AM - 02:00 PM',
     seatSummary: 'Coach B2 (3A) • Lower Berth',
     passenger: {
@@ -54,11 +56,13 @@ const DEFAULT_SAMPLE_BOOKINGS = [
     amountPaid: 1750,
     paymentMethod: 'HDFC NetBanking',
     status: 'CONFIRMED',
-    bookingDate: '12 Oct 2026'
+    bookingDate: formatDisplayDate(getTodayDate())
   }
 ];
 
 export default function Booking() {
+  const travelContext = useTravel ? useTravel() : null;
+
   // Main Category state: 'MOVE' | 'STAY' | 'EXPERIENCE'
   const [activeCategory, setActiveCategory] = useState('MOVE');
 
@@ -73,11 +77,22 @@ export default function Booking() {
   const [bookings, setBookings] = useState(() => {
     try {
       const saved = localStorage.getItem('travio_user_bookings');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // If any old bookings contain the stale September 2026 date, refresh to latest
+          return parsed.map(b => {
+            if (b.date === '2026-09-04' || (b.date && b.date.startsWith('2026-09-'))) {
+              return { ...b, date: getFutureDate(4), bookingDate: formatDisplayDate(getTodayDate()) };
+            }
+            return b;
+          });
+        }
+      }
     } catch (e) {
       console.error(e);
     }
-    return DEFAULT_SAMPLE_BOOKINGS;
+    return getInitialSampleBookings();
   });
 
   // Toast Notifications State
@@ -111,6 +126,19 @@ export default function Booking() {
   // CRUD: CREATE
   const handleBookingComplete = (newBooking) => {
     setBookings((prev) => [newBooking, ...prev]);
+    if (travelContext && typeof travelContext.addBooking === 'function') {
+      try {
+        travelContext.addBooking({
+          ...newBooking,
+          departureDate: newBooking.date,
+          origin: newBooking.from,
+          destinationName: newBooking.to,
+          totalCost: newBooking.amountPaid
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
     addToast('Reservation Confirmed! 🎉', `PNR ${newBooking.pnr} issued. E-ticket ready!`, 'success');
   };
 

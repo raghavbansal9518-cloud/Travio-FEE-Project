@@ -3,16 +3,34 @@ import SeatSelection from './SeatSelection';
 import PassengerForm from './PassengerForm';
 import PaymentGateway from './PaymentGateway';
 import BankOtpModal from './BankOtpModal';
+import { getTodayDate, formatDisplayDate } from '../utils/dateUtils';
 
 export default function BookingCheckoutModal({ item, onClose, onBookingComplete, initialTicket }) {
   // Stepper state: 'SEAT' | 'PASSENGER' | 'PAYMENT' | 'TICKET'
   const [currentStep, setCurrentStep] = useState(initialTicket ? 'TICKET' : 'SEAT');
 
-  // Step 1: Seat & Customization State
-  const [seatDetails, setSeatDetails] = useState({
-    seat: '12A',
-    seatPrice: 0,
-    summary: 'Seat 12A (Standard Free)'
+  // Step 1: Seat & Customization State (Dynamic per transport mode)
+  const [seatDetails, setSeatDetails] = useState(() => {
+    if (item?.type === 'TRAIN') {
+      return { seat: 'Berth 36', seatPrice: 0, summary: item.seats || 'Coach B2 (3A) • Lower Berth' };
+    }
+    if (item?.type === 'BUS') {
+      return { seat: 'L4', seatPrice: 0, summary: item.seats || 'Berth L4 (Window Sleeper)' };
+    }
+    if (item?.type === 'CAB') {
+      return { seat: 'Sedan', seatPrice: 0, summary: item.seats || '4 Seater Sedan • AC Express' };
+    }
+    if (item?.type === 'HOTEL') {
+      return { seat: 'Suite', seatPrice: 0, summary: item.seats || 'Deluxe Balcony Suite (1 King Bed)' };
+    }
+    if (item?.type === 'EXPERIENCE') {
+      return { seat: 'Pass', seatPrice: 0, summary: item.seats || '09:00 AM (Morning Glow Batch)' };
+    }
+    return {
+      seat: '12A',
+      seatPrice: 0,
+      summary: item?.seats ? `${item.seats} • Seat 12A` : 'Seat 12A (Standard Free)'
+    };
   });
 
   // Step 2: Passenger Form State & Validation
@@ -85,22 +103,30 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
   const handleOtpSuccess = () => {
     setShowOtpModal(false);
 
-    const generatedPnr = `TRV-${Math.floor(100000 + Math.random() * 900000)}`;
+    const generatedPnr = item.bookingRef || `TRV-${Math.floor(100000 + Math.random() * 900000)}`;
     const newBooking = {
       id: `booking-${Date.now()}`,
       pnr: generatedPnr,
       type: item.type,
       title: item.title,
+      carrier: item.carrier || item.title,
       from: item.from,
       to: item.to,
+      fromCity: item.fromCity || item.from,
+      toCity: item.toCity || item.to,
       date: item.date,
       time: item.time || '10:30 AM',
-      passenger: formData,
+      duration: item.duration || '',
+      seats: item.seats || seatDetails.summary,
       seatSummary: seatDetails.summary,
-      amountPaid: pendingPayment?.amountPaid || pendingPayment?.grandTotal || 4500,
+      extra: item.extra || '',
+      image: item.image || '',
+      bookingRef: generatedPnr,
+      passenger: formData,
+      amountPaid: pendingPayment?.amountPaid || pendingPayment?.grandTotal || item.price || 4500,
       paymentMethod: pendingPayment?.details || 'Online Gateway',
       status: 'CONFIRMED',
-      bookingDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+      bookingDate: formatDisplayDate(getTodayDate())
     };
 
     setConfirmedTicket(newBooking);
@@ -257,8 +283,22 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
               <div className="ticket-head">
                 <div className="th-left">
                   <span className="th-brand">
-                    <span className="material-symbols-rounded">flight_takeoff</span>
-                    <span>TRAVIO FAST-PASS</span>
+                    <span className="material-symbols-rounded">
+                      {confirmedTicket.type === 'FLIGHT' ? 'flight_takeoff' 
+                        : confirmedTicket.type === 'TRAIN' ? 'directions_subway' 
+                        : confirmedTicket.type === 'BUS' ? 'directions_bus' 
+                        : confirmedTicket.type === 'CAB' ? 'local_taxi' 
+                        : confirmedTicket.type === 'HOTEL' ? 'hotel' 
+                        : 'attractions'}
+                    </span>
+                    <span>
+                      {confirmedTicket.type === 'FLIGHT' ? 'TRAVIO AIRWAYS • BOARDING PASS' 
+                        : confirmedTicket.type === 'TRAIN' ? 'IRCTC / TRAVIO • E-RESERVATION SLIP' 
+                        : confirmedTicket.type === 'HOTEL' ? 'TRAVIO LUXURY RETREATS • STAY VOUCHER' 
+                        : confirmedTicket.type === 'BUS' ? 'TRAVIO EXPRESS COACH • BOARDING PASS' 
+                        : confirmedTicket.type === 'CAB' ? 'TRAVIO CHAUFFEUR • TRIP RECEIPT' 
+                        : 'TRAVIO VIP EXPERIENCES • ACTIVITY PASS'}
+                    </span>
                   </span>
                   <span className="th-type-pill">{confirmedTicket.type}</span>
                 </div>
@@ -280,7 +320,12 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                   <div className="route-arrow-flow">
                     <span className="flow-dash" />
                     <span className="material-symbols-rounded flow-icon">
-                      {confirmedTicket.type === 'FLIGHT' ? 'flight' : confirmedTicket.type === 'TRAIN' ? 'train' : confirmedTicket.type === 'BUS' ? 'directions_bus' : confirmedTicket.type === 'CAB' ? 'local_taxi' : 'apartment'}
+                      {confirmedTicket.type === 'FLIGHT' ? 'flight' 
+                        : confirmedTicket.type === 'TRAIN' ? 'train' 
+                        : confirmedTicket.type === 'BUS' ? 'directions_bus' 
+                        : confirmedTicket.type === 'CAB' ? 'local_taxi' 
+                        : confirmedTicket.type === 'HOTEL' ? 'hotel' 
+                        : 'attractions'}
                     </span>
                     <span className="flow-dash" />
                   </div>
@@ -297,8 +342,10 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                     <strong className="sp-val">{confirmedTicket.passenger?.fullName || 'Aarav Sharma'}</strong>
                   </div>
                   <div className="spec-block">
-                    <span className="sp-lbl">SEAT / BERTH</span>
-                    <strong className="sp-val">{confirmedTicket.seatSummary}</strong>
+                    <span className="sp-lbl">
+                      {confirmedTicket.type === 'HOTEL' ? 'ROOM & ALLOCATION' : confirmedTicket.type === 'CAB' ? 'SEATING & FLEET' : 'SEAT / BERTH'}
+                    </span>
+                    <strong className="sp-val">{confirmedTicket.seatSummary || confirmedTicket.seats}</strong>
                   </div>
                   <div className="spec-block">
                     <span className="sp-lbl">TRAVEL DATE</span>
@@ -309,8 +356,22 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                     <strong className="sp-val">{confirmedTicket.time}</strong>
                   </div>
                   <div className="spec-block">
-                    <span className="sp-lbl">GATE / PLATFORM</span>
-                    <strong className="sp-val">T3 • Gate 14B</strong>
+                    <span className="sp-lbl">
+                      {confirmedTicket.type === 'FLIGHT' ? 'GATE / TERMINAL' 
+                        : confirmedTicket.type === 'TRAIN' ? 'PLATFORM' 
+                        : confirmedTicket.type === 'HOTEL' ? 'CHECK-IN TIME' 
+                        : confirmedTicket.type === 'BUS' ? 'BOARDING POINT' 
+                        : confirmedTicket.type === 'CAB' ? 'VEHICLE MODEL' 
+                        : 'VOUCHER ACCESS'}
+                    </span>
+                    <strong className="sp-val">
+                      {confirmedTicket.type === 'FLIGHT' ? 'T3 • Gate 14B' 
+                        : confirmedTicket.type === 'TRAIN' ? 'Platform #1' 
+                        : confirmedTicket.type === 'HOTEL' ? '02:00 PM Check-in' 
+                        : confirmedTicket.type === 'BUS' ? (confirmedTicket.from || 'Terminal Bay #4') 
+                        : confirmedTicket.type === 'CAB' ? (confirmedTicket.carrier || 'Prime Sedan') 
+                        : 'Instant Mobile Pass'}
+                    </strong>
                   </div>
                   <div className="spec-block">
                     <span className="sp-lbl">PAYMENT STATUS</span>

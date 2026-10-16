@@ -6,6 +6,7 @@ import TravelCalendar from '../components/TravelCalendar';
 import WeatherCard from '../components/WeatherCard';
 import PackingAssistant from '../components/PackingAssistant';
 import DestinationsCarousel from '../components/DestinationsCarousel';
+import { useTravel } from '../context/TravelContext';
 
 
 // Array of images for the hero slider
@@ -24,6 +25,7 @@ const heroImages = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { wishlistCount } = useTravel();
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -62,7 +64,13 @@ const Dashboard = () => {
   // --- Handlers ---
   const handlePlanTrip = (e) => {
     e.preventDefault();
-    alert('Trip planning feature coming soon! (Connected to AI Planner)');
+    const toInput = document.getElementById('to-location');
+    const dest = toInput?.value?.trim();
+    if (dest) {
+      navigate(`/explore?search=${encodeURIComponent(dest)}`);
+    } else {
+      navigate('/explore');
+    }
   };
 
   // Rotating background images using useEffect

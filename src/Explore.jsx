@@ -10,6 +10,7 @@ import RecommendedSection from './components/RecommendedSection';
 import FilterModal from './components/FilterModal';
 import DestinationCard from './components/DestinationCard';
 import { DESTINATIONS } from './data/destinationsData';
+import { searchDestination } from './services/destinationService';
 import './Explore.css';
 
 export default function Explore() {
@@ -29,6 +30,9 @@ export default function Explore() {
     travelTypes: [],
     duration: []
   });
+
+  const [dynamicDestination, setDynamicDestination] = useState(null);
+  const [isSearchingDynamic, setIsSearchingDynamic] = useState(false);
 
   useEffect(() => {
     const q = searchParams.get('search');
@@ -105,6 +109,48 @@ export default function Explore() {
     });
   }, [searchQuery, selectedCategory, selectedCountry, advancedFilters]);
 
+  // Dynamic Google Places + Gemini search when no local destination matches query
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed || trimmed.length < 2) {
+      setDynamicDestination(null);
+      setIsSearchingDynamic(false);
+      return;
+    }
+
+    // If local destinations match, don't trigger dynamic search
+    if (filteredDestinations.length > 0) {
+      setDynamicDestination(null);
+      setIsSearchingDynamic(false);
+      return;
+    }
+
+    setIsSearchingDynamic(true);
+    let isCancelled = false;
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await searchDestination(trimmed);
+        if (!isCancelled) {
+          setDynamicDestination(result);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          setDynamicDestination(null);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsSearchingDynamic(false);
+        }
+      }
+    }, 450);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchQuery, filteredDestinations.length]);
+
   // Subsets for clean layout
   const trendingList = useMemo(() => DESTINATIONS.filter((d) => d.isTrending), []);
   const hiddenGemsList = useMemo(() => DESTINATIONS.filter((d) => d.isHiddenGem).slice(0, 8), []);
@@ -134,6 +180,8 @@ export default function Explore() {
     setSearchQuery('');
     setSelectedCategory(null);
     setSelectedCountry(null);
+    setDynamicDestination(null);
+    setIsSearchingDynamic(false);
     setAdvancedFilters({
       country: null,
       maxBudget: 100000,
@@ -168,10 +216,11 @@ export default function Explore() {
           <section className="search-results-section" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="filter-active-summary-bar">
               <div>
-                <span>Found <strong>{filteredDestinations.length}</strong> destination{filteredDestinations.length === 1 ? '' : 's'} matching your criteria</span>
+                <span>Found <strong>{filteredDestinations.length || (dynamicDestination ? 1 : 0)}</strong> destination{(filteredDestinations.length === 1 || (!filteredDestinations.length && dynamicDestination)) ? '' : 's'} matching your criteria</span>
                 {searchQuery && <span style={{ opacity: 0.8 }}> for "{searchQuery}"</span>}
                 {selectedCategory && <span style={{ opacity: 0.8 }}> in {selectedCategory.toUpperCase()}</span>}
                 {selectedCountry && <span style={{ opacity: 0.8 }}> in {selectedCountry}</span>}
+                {dynamicDestination && !filteredDestinations.length && <span style={{ color: '#38bdf8', marginLeft: '6px', fontSize: '12px' }}><i className="fa-solid fa-sparkles"></i> Worldwide Verified</span>}
               </div>
               <button 
                 type="button"
@@ -183,7 +232,31 @@ export default function Explore() {
               </button>
             </div>
 
-            {filteredDestinations.length === 0 ? (
+            {isSearchingDynamic ? (
+              <div style={{ background: 'rgba(18, 26, 45, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center', backdropFilter: 'blur(16px)' }}>
+                <i className="fa-solid fa-compass fa-spin" style={{ fontSize: '42px', color: '#a855f7', marginBottom: '16px' }}></i>
+                <h3 style={{ fontFamily: 'var(--font-heading, inherit)', fontSize: '20px', color: '#ffffff', marginBottom: '8px' }}>
+                  Searching Global Destinations...
+                </h3>
+                <p style={{ color: '#8E93A1', fontSize: '14px', maxWidth: '420px', margin: '0 auto' }}>
+                  Connecting to Google Places and authentic photography for "{searchQuery}"
+                </p>
+              </div>
+            ) : filteredDestinations.length > 0 ? (
+              <div className="gems-grid">
+                {filteredDestinations.map((dest) => (
+                  <DestinationCard key={dest.id} destination={dest} isGem={dest.isHiddenGem} />
+                ))}
+              </div>
+            ) : dynamicDestination ? (
+              <div className="gems-grid">
+                <DestinationCard 
+                  key={dynamicDestination.id} 
+                  destination={dynamicDestination} 
+                  aiTag={dynamicDestination.aiTag || 'Google Places Verified'} 
+                />
+              </div>
+            ) : (
               <div style={{ background: 'rgba(18, 26, 45, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center', backdropFilter: 'blur(16px)' }}>
                 <i className="fa-solid fa-compass" style={{ fontSize: '42px', color: '#a855f7', marginBottom: '16px' }}></i>
                 <h3 style={{ fontFamily: 'var(--font-heading, inherit)', fontSize: '22px', color: '#ffffff', marginBottom: '8px' }}>
@@ -195,12 +268,6 @@ export default function Explore() {
                 <button type="button" className="btn-primary" onClick={handleResetAllFilters}>
                   <span>Clear All Filters</span>
                 </button>
-              </div>
-            ) : (
-              <div className="gems-grid">
-                {filteredDestinations.map((dest) => (
-                  <DestinationCard key={dest.id} destination={dest} isGem={dest.isHiddenGem} />
-                ))}
               </div>
             )}
           </section>

@@ -1,25 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BUSES_DATA } from './bookingData';
+import { searchLiveBuses } from '../services/bookingService';
+import { getTodayDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
 
-const BUS_CITIES = [
-  { city: 'Delhi', state: 'Delhi', terminal: 'Kashmere Gate / ISBT Anand Vihar' },
-  { city: 'Kanpur', state: 'Uttar Pradesh', terminal: 'Fazalganj / Rama Devi' },
+export const BUS_CITIES = [
+  { city: 'Delhi', state: 'Delhi NCR', terminal: 'Kashmere Gate ISBT / Anand Vihar' },
+  { city: 'Agra', state: 'Uttar Pradesh', terminal: 'ISBT Agra / Idgah Bus Stand' },
   { city: 'Jaipur', state: 'Rajasthan', terminal: 'Sindhi Camp / 200 Ft Bypass' },
-  { city: 'Lucknow', state: 'Uttar Pradesh', terminal: 'Alambagh / Nahariya Chauraha' },
-  { city: 'Manali', state: 'Himachal Pradesh', terminal: 'Private Bus Parking Mall Road' },
-  { city: 'Dehradun', state: 'Uttarakhand', terminal: 'ISBT Dehradun' },
-  { city: 'Agra', state: 'Uttar Pradesh', terminal: 'ISBT Agra' },
+  { city: 'Chandigarh', state: 'Punjab / Haryana', terminal: 'ISBT Sector 43 / Sector 17' },
+  { city: 'Shimla', state: 'Himachal Pradesh', terminal: 'New ISBT Tutikandi' },
+  { city: 'Manali', state: 'Himachal Pradesh', terminal: 'Private Bus Stand / Mall Road' },
+  { city: 'Dehradun', state: 'Uttarakhand', terminal: 'ISBT Dehradun / Haridwar Bypass' },
+  { city: 'Rishikesh', state: 'Uttarakhand', terminal: 'Natraj Chowk / Nepali Farm' },
+  { city: 'Mussoorie', state: 'Uttarakhand', terminal: 'Picture Palace / Library Bus Stand' },
+  { city: 'Amritsar', state: 'Punjab', terminal: 'ISBT Amritsar / Hall Gate' },
+  { city: 'Lucknow', state: 'Uttar Pradesh', terminal: 'Alambagh Bus Terminal / Kaisarbagh' },
+  { city: 'Kanpur', state: 'Uttar Pradesh', terminal: 'Fazalganj / Jhakarkatti ISBT' },
+  { city: 'Varanasi', state: 'Uttar Pradesh', terminal: 'Cantt Bus Station / Lahartara' },
+  { city: 'Udaipur', state: 'Rajasthan', terminal: 'Udiapole Bus Stand / Paras Circle' },
+  { city: 'Jodhpur', state: 'Rajasthan', terminal: 'Paota Bus Stand / Raika Bagh' },
+  { city: 'Mumbai', state: 'Maharashtra', terminal: 'Borivali / Dadar TT / Vashi Highway' },
+  { city: 'Pune', state: 'Maharashtra', terminal: 'Swargate / Wakad / Shivaji Nagar' },
+  { city: 'Lonavala', state: 'Maharashtra', terminal: 'Lonavala Expressway Bypass' },
+  { city: 'Mahabaleshwar', state: 'Maharashtra', terminal: 'Mahabaleshwar ST Bus Stand' },
+  { city: 'Shirdi', state: 'Maharashtra', terminal: 'Shirdi Temple Bus Complex' },
+  { city: 'Nashik', state: 'Maharashtra', terminal: 'Thakkar Bazaar / CBS' },
+  { city: 'Goa', state: 'Goa', terminal: 'Panaji Kadamba Bus Terminus / Mapusa' },
+  { city: 'Ahmedabad', state: 'Gujarat', terminal: 'Geeta Mandir / Paldi Cross Road' },
+  { city: 'Surat', state: 'Gujarat', terminal: 'Central Bus Station / Sahara Darwaja' },
+  { city: 'Vadodara', state: 'Gujarat', terminal: 'Central Bus Terminal / Amit Nagar' },
+  { city: 'Bangalore', state: 'Karnataka', terminal: 'Majestic KBS / Madiwala / Anand Rao' },
+  { city: 'Mysore', state: 'Karnataka', terminal: 'KSRTC Suburb Bus Stand' },
+  { city: 'Coorg', state: 'Karnataka', terminal: 'Madikeri Private Bus Stand' },
+  { city: 'Ooty', state: 'Tamil Nadu', terminal: 'Ooty Central Bus Stand' },
+  { city: 'Chennai', state: 'Tamil Nadu', terminal: 'CMBT Koyambedu / Kilambakkam KCBT' },
+  { city: 'Pondicherry', state: 'Puducherry', terminal: 'New Bus Stand Maraimalai Adigal' },
+  { city: 'Coimbatore', state: 'Tamil Nadu', terminal: 'Gandhipuram Central Bus Stand' },
+  { city: 'Hyderabad', state: 'Telangana', terminal: 'MGBS Imlibun / Ameerpet' },
+  { city: 'Kochi', state: 'Kerala', terminal: 'Vyttila Mobility Hub / Kaloor' },
+  { city: 'Munnar', state: 'Kerala', terminal: 'Munnar KSRTC Bus Station' },
+  { city: 'Kolkata', state: 'West Bengal', terminal: 'Esplanade Babughat / Karunamoyee' },
+  { city: 'Darjeeling', state: 'West Bengal', terminal: 'Chauk Bazaar Bus Stand' },
+  { city: 'Siliguri', state: 'West Bengal', terminal: 'Tenzing Norgay Central Bus Terminus' },
+  { city: 'Puri', state: 'Odisha', terminal: 'Puri Bus Stand / Grand Road' },
+  { city: 'Bhubaneswar', state: 'Odisha', terminal: 'Baramunda ISBT' }
 ];
 
 export default function BusBooking({ onSelectBookingItem }) {
   const [fromCity, setFromCity] = useState(BUS_CITIES[0]); // Delhi
-  const [toCity, setToCity] = useState(BUS_CITIES[1]); // Kanpur
-  const [travelDate, setTravelDate] = useState('2026-09-04');
+  const [toCity, setToCity] = useState(BUS_CITIES[1]); // Agra
+  const [travelDate, setTravelDate] = useState(getTodayDate());
   const [travelersCount, setTravelersCount] = useState(1);
   const [busTypeFilter, setBusTypeFilter] = useState('All');
   const [isSwapping, setIsSwapping] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState(BUSES_DATA);
+  const [allBuses, setAllBuses] = useState(BUSES_DATA);
+  const [isLiveInventory, setIsLiveInventory] = useState(false);
 
   const handleSwap = () => {
     setIsSwapping(true);
@@ -31,18 +67,40 @@ export default function BusBooking({ onSelectBookingItem }) {
     }, 200);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e?.preventDefault();
     setIsSearching(true);
-    setTimeout(() => {
-      let filtered = BUSES_DATA;
-      if (busTypeFilter !== 'All') {
-        filtered = BUSES_DATA.filter(b => b.busType.toLowerCase().includes(busTypeFilter.toLowerCase()));
+    try {
+      const liveData = await searchLiveBuses({
+        fromCity: fromCity.city,
+        toCity: toCity.city,
+        travelDate,
+        busType: 'All'
+      });
+      if (liveData && liveData.length > 0) {
+        setAllBuses(liveData);
+        setIsLiveInventory(liveData.some(b => b.isLive));
       }
-      setResults(filtered.length ? filtered : BUSES_DATA);
+    } catch (err) {
+      console.warn('Bus search error:', err);
+    } finally {
       setIsSearching(false);
-    }, 350);
+    }
   };
+
+  // Only trigger network search when route or date changes (filter is instant in memory!)
+  useEffect(() => {
+    handleSearch();
+  }, [fromCity.city, toCity.city, travelDate]);
+
+  // Instant in-memory filtering: 0ms lag
+  const results = allBuses.filter(b => {
+    if (busTypeFilter === 'All') return true;
+    const t = (b.busType || '').toLowerCase();
+    const td = (b.busTypeDetail || '').toLowerCase();
+    const f = busTypeFilter.toLowerCase();
+    return t.includes(f) || td.includes(f);
+  });
 
   return (
     <div className="booking-engine-card">
@@ -138,6 +196,7 @@ export default function BusBooking({ onSelectBookingItem }) {
                 type="date"
                 className="glass-date-input"
                 value={travelDate}
+                min={getTodayDate()}
                 onChange={(e) => setTravelDate(e.target.value)}
               />
             </div>
@@ -193,6 +252,22 @@ export default function BusBooking({ onSelectBookingItem }) {
 
       {/* BUS SEARCH RESULTS */}
       <div className="flight-results-container">
+        {/* Live Current Time Departure Banner */}
+        {isToday(travelDate) && (
+          <div className="live-current-time-banner">
+            <div className="banner-left-info">
+              <span className="material-symbols-rounded live-clock-icon">schedule</span>
+              <span>
+                Showing intercity buses departing from present time (<strong>{getCurrentTime12()}</strong> onwards) • Live Terminal GPS
+              </span>
+            </div>
+            <span className="live-status-pill">
+              <span className="live-pulse-dot"></span>
+              <span>LIVE BUS SCHEDULE</span>
+            </span>
+          </div>
+        )}
+
         <div className="results-header-bar">
           <div className="results-badge-info">
             <span className="material-symbols-rounded">directions_bus</span>
@@ -204,22 +279,35 @@ export default function BusBooking({ onSelectBookingItem }) {
         </div>
 
         <div className="bus-cards-list">
-          {results.map((bus) => (
-            <div key={bus.id} className="bus-item-card">
-              <div className="bus-operator-col">
-                <div className="bus-icon-avatar">
-                  <span className="material-symbols-rounded">directions_bus</span>
-                </div>
-                <div>
-                  <h4 className="bus-operator-name">{bus.operator}</h4>
-                  <span className="bus-type-subtitle">{bus.busType}</span>
-                  <div className="bus-amenities-tags">
-                    {bus.amenities.slice(0, 3).map((a, i) => (
-                      <span key={i} className="mini-amenity-tag">✓ {a}</span>
-                    ))}
+          {results.map((bus) => {
+            const timeBadge = getTimeStatusBadge(bus.departureTime, travelDate);
+
+            return (
+              <div key={bus.id} className="bus-item-card">
+                <div className="bus-operator-col">
+                  <div className="bus-icon-avatar">
+                    <span className="material-symbols-rounded">directions_bus</span>
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h4 className="bus-operator-name">{bus.operator}</h4>
+                      {isToday(travelDate) && (
+                        <span className={`flight-departure-badge ${timeBadge.isUrgent ? 'urgent' : ''}`}>
+                          <span className="material-symbols-rounded" style={{ fontSize: '12px' }}>
+                            {timeBadge.isUrgent ? 'timer' : 'directions_bus'}
+                          </span>
+                          <span>{timeBadge.label}</span>
+                        </span>
+                      )}
+                    </div>
+                    <span className="bus-type-subtitle">{bus.busType}</span>
+                    <div className="bus-amenities-tags">
+                      {bus.amenities.slice(0, 3).map((a, i) => (
+                        <span key={i} className="mini-amenity-tag">✓ {a}</span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
               <div className="bus-timing-col">
                 <div className="time-point">
@@ -261,14 +349,19 @@ export default function BusBooking({ onSelectBookingItem }) {
                   onClick={() => onSelectBookingItem({
                     type: 'BUS',
                     title: `${bus.operator} (${bus.busType})`,
-                    from: bus.from,
-                    to: bus.to,
+                    carrier: bus.operator,
+                    from: bus.from || `${fromCity.city} (${fromCity.terminal})`,
+                    to: bus.to || `${toCity.city} (${toCity.terminal})`,
+                    fromCity: fromCity.city,
+                    toCity: toCity.city,
                     date: travelDate,
                     time: `${bus.departureTime} - ${bus.arrivalTime}`,
+                    duration: bus.duration,
                     price: bus.price * travelersCount,
                     seats: `${travelersCount} Seat(s) Reserved`,
-                    extra: `Amenities: ${bus.amenities.join(', ')}`,
+                    extra: `Amenities: ${bus.amenities ? bus.amenities.join(', ') : 'AC, WiFi, Charging Port'}`,
                     bookingRef: `TRV-BS-${Math.floor(100000 + Math.random() * 900000)}`,
+                    image: bus.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
                   })}
                 >
                   <span>Select Seats</span>
@@ -276,7 +369,8 @@ export default function BusBooking({ onSelectBookingItem }) {
                 </button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       </div>
     </div>

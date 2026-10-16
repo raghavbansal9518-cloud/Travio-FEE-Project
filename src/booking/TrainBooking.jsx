@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TRAINS_DATA } from './bookingData';
+import { searchLiveTrains, checkLivePNR, checkLiveTrainTracking } from '../services/bookingService';
+import { getTodayDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
 
 const TRAIN_STATIONS = [
   { city: 'New Delhi', code: 'NDLS', name: 'New Delhi Railway Station' },
@@ -9,6 +11,11 @@ const TRAIN_STATIONS = [
   { city: 'Bengaluru', code: 'SBC', name: 'KSR Bengaluru City Junction' },
   { city: 'Varanasi', code: 'BSB', name: 'Varanasi Junction' },
   { city: 'Lucknow', code: 'LKO', name: 'Lucknow Charbagh Junction' },
+  { city: 'Jaipur', code: 'JP', name: 'Jaipur Junction Railway Station' },
+  { city: 'Chennai', code: 'MAS', name: 'Puratchi Thalaivar Dr. MGR Central' },
+  { city: 'Ahmedabad', code: 'ADI', name: 'Ahmedabad Junction Railway Station' },
+  { city: 'Goa', code: 'MAO', name: 'Madgaon Junction Terminal' },
+  { city: 'Chandigarh', code: 'CDG', name: 'Chandigarh Junction Railway Station' },
 ];
 
 export default function TrainBooking({ onSelectBookingItem }) {
@@ -17,21 +24,24 @@ export default function TrainBooking({ onSelectBookingItem }) {
   // Booking fields
   const [fromStation, setFromStation] = useState(TRAIN_STATIONS[0]); // NDLS
   const [toStation, setToStation] = useState(TRAIN_STATIONS[1]); // CNB
-  const [travelDate, setTravelDate] = useState('2026-09-04');
+  const [travelDate, setTravelDate] = useState(getTodayDate());
   const [trainClass, setTrainClass] = useState('All Classes');
   const [isSwapping, setIsSwapping] = useState(false);
   
   // PNR state
   const [pnrInput, setPnrInput] = useState('2849104829');
   const [pnrResult, setPnrResult] = useState(null);
+  const [isCheckingPnr, setIsCheckingPnr] = useState(false);
 
   // Live status state
   const [trainNoInput, setTrainNoInput] = useState('22436');
   const [liveResult, setLiveResult] = useState(null);
+  const [isTrackingLive, setIsTrackingLive] = useState(false);
 
   // Search results
   const [searchResults, setSearchResults] = useState(TRAINS_DATA);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLiveInventory, setIsLiveInventory] = useState(false);
 
   const handleSwapStations = () => {
     setIsSwapping(true);
@@ -43,41 +53,56 @@ export default function TrainBooking({ onSelectBookingItem }) {
     }, 200);
   };
 
-  const handleSearchTrains = (e) => {
+  const handleSearchTrains = async (e) => {
     e?.preventDefault();
     setIsSearching(true);
-    setTimeout(() => {
-      setSearchResults(TRAINS_DATA);
+    try {
+      const liveData = await searchLiveTrains({
+        fromStation: fromStation.name,
+        toStation: toStation.name,
+        travelDate,
+        trainClass
+      });
+      if (liveData && liveData.length > 0) {
+        setSearchResults(liveData);
+        setIsLiveInventory(liveData.some(t => t.isLive));
+      }
+    } catch (err) {
+      console.warn('Train search error:', err);
+    } finally {
       setIsSearching(false);
-    }, 350);
+    }
   };
 
-  const handleCheckPNR = (e) => {
-    e.preventDefault();
-    setPnrResult({
-      pnr: pnrInput || '2849104829',
-      train: '22436 Vande Bharat Express',
-      from: 'NDLS (New Delhi)',
-      to: 'CNB (Kanpur Central)',
-      date: '04 Sep 2026',
-      passenger: 'Passenger 1: ADULT (M, 32)',
-      bookingStatus: 'CONFIRMED',
-      coach: 'C-3',
-      berth: '36 (Window Seat)',
-      chartStatus: 'Chart Not Prepared (Current Status Confirmed)',
-    });
+  // Reactive train search when route or class changes
+  useEffect(() => {
+    handleSearchTrains();
+  }, [fromStation.code, toStation.code, travelDate, trainClass]);
+
+  const handleCheckPNR = async (e) => {
+    e?.preventDefault();
+    setIsCheckingPnr(true);
+    try {
+      const result = await checkLivePNR(pnrInput);
+      setPnrResult(result);
+    } catch (err) {
+      console.warn('PNR error:', err);
+    } finally {
+      setIsCheckingPnr(false);
+    }
   };
 
-  const handleCheckLiveStatus = (e) => {
-    e.preventDefault();
-    setLiveResult({
-      train: '22436 - Vande Bharat Express',
-      status: 'Running On Time (0 min late)',
-      currentStation: 'Passing Aligarh Junction (125 km/h)',
-      nextStation: 'Kanpur Central (Arrival: 10:08 AM)',
-      delay: '0 min',
-      platform: 'Platform #1 at NDLS',
-    });
+  const handleCheckLiveStatus = async (e) => {
+    e?.preventDefault();
+    setIsTrackingLive(true);
+    try {
+      const result = await checkLiveTrainTracking(trainNoInput);
+      setLiveResult(result);
+    } catch (err) {
+      console.warn('Live track error:', err);
+    } finally {
+      setIsTrackingLive(false);
+    }
   };
 
   return (
@@ -187,6 +212,7 @@ export default function TrainBooking({ onSelectBookingItem }) {
                     type="date"
                     className="glass-date-input"
                     value={travelDate}
+                    min={getTodayDate()}
                     onChange={(e) => setTravelDate(e.target.value)}
                   />
                 </div>
@@ -237,34 +263,68 @@ export default function TrainBooking({ onSelectBookingItem }) {
 
           {/* TRAIN SEARCH RESULTS */}
           <div className="flight-results-container">
+            {/* Live Current Time Departure Banner */}
+            {isToday(travelDate) && (
+              <div className="live-current-time-banner">
+                <div className="banner-left-info">
+                  <span className="material-symbols-rounded live-clock-icon">schedule</span>
+                  <span>
+                    Showing IRCTC trains departing from present time (<strong>{getCurrentTime12()}</strong> onwards) • Real-time Platform & Chart Sync
+                  </span>
+                </div>
+                <span className="live-status-pill">
+                  <span className="live-pulse-dot"></span>
+                  <span>LIVE TRAIN SCHEDULE</span>
+                </span>
+              </div>
+            )}
+
             <div className="results-header-bar">
               <div className="results-badge-info">
                 <span className="material-symbols-rounded">directions_railway</span>
                 <span>
                   Trains between <strong>{fromStation.city}</strong> and <strong>{toStation.city}</strong> ({searchResults.length} Trains)
                 </span>
+                {isLiveInventory && (
+                  <span className="live-pulse-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid #38bdf8', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', color: '#38bdf8', fontWeight: 600, marginLeft: '8px' }}>
+                    ● LIVE INVENTORY
+                  </span>
+                )}
               </div>
               <span className="results-date-tag">Date: {travelDate}</span>
             </div>
 
             <div className="train-cards-list">
-              {searchResults.map((train) => (
-                <div key={train.id} className="train-item-card">
-                  <div className="train-top-row">
-                    <div className="train-title-block">
-                      <div className="train-icon-badge">
-                        <span className="material-symbols-rounded">train</span>
+              {searchResults.map((train) => {
+                const timeBadge = getTimeStatusBadge(train.departureTime, travelDate);
+
+                return (
+                  <div key={train.id} className="train-item-card">
+                    <div className="train-top-row">
+                      <div className="train-title-block">
+                        <div className="train-icon-badge">
+                          <span className="material-symbols-rounded">train</span>
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <h4 className="train-name">{train.trainName}</h4>
+                            {isToday(travelDate) && (
+                              <span className={`flight-departure-badge ${timeBadge.isUrgent ? 'urgent' : ''}`}>
+                                <span className="material-symbols-rounded" style={{ fontSize: '12px' }}>
+                                  {timeBadge.isUrgent ? 'timer' : 'bolt'}
+                                </span>
+                                <span>{timeBadge.label}</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="train-meta">#{train.trainNumber} • {train.speed} • Runs {train.days}</span>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="train-name">{train.trainName}</h4>
-                        <span className="train-meta">#{train.trainNumber} • {train.speed} • Runs {train.days}</span>
+                      <div className="train-rating-badge">
+                        <span className="material-symbols-rounded">star</span>
+                        <span>{train.rating}</span>
                       </div>
                     </div>
-                    <div className="train-rating-badge">
-                      <span className="material-symbols-rounded">star</span>
-                      <span>{train.rating}</span>
-                    </div>
-                  </div>
 
                   <div className="train-schedule-row">
                     <div className="time-point">
@@ -308,14 +368,19 @@ export default function TrainBooking({ onSelectBookingItem }) {
                             onClick={() => onSelectBookingItem({
                               type: 'TRAIN',
                               title: `${train.trainName} (#${train.trainNumber})`,
+                              carrier: train.trainName,
                               from: `${train.departureStation} (${train.departureCode})`,
                               to: `${train.arrivalStation} (${train.arrivalCode})`,
+                              fromCity: fromStation.city,
+                              toCity: toStation.city,
                               date: travelDate,
                               time: `${train.departureTime} - ${train.arrivalTime}`,
+                              duration: train.duration,
                               price: cls.price,
-                              seats: `Class: ${cls.type} (${cls.name})`,
-                              extra: `Availability: ${cls.status}`,
+                              seats: `Coach ${cls.type === '1A' ? 'H1' : cls.type === '2A' ? 'A1' : cls.type === '3A' ? 'B2' : 'C2'} • Seat ${Math.floor(12 + Math.random() * 50)} (${cls.name})`,
+                              extra: `Speed: ${train.speed || '130 km/h'} • ${cls.status}`,
                               bookingRef: `TRV-TR-${Math.floor(100000 + Math.random() * 900000)}`,
+                              image: 'https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=800&auto=format&fit=crop&q=80',
                             })}
                           >
                             Book
@@ -325,7 +390,8 @@ export default function TrainBooking({ onSelectBookingItem }) {
                     ))}
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
         </>
@@ -346,8 +412,8 @@ export default function TrainBooking({ onSelectBookingItem }) {
                 className="glass-pnr-input"
               />
             </div>
-            <button type="submit" className="btn-glowing-cyan">
-              <span>GET PNR STATUS</span>
+            <button type="submit" className="btn-glowing-cyan" disabled={isCheckingPnr}>
+              <span>{isCheckingPnr ? 'CHECKING PNR...' : 'GET PNR STATUS'}</span>
             </button>
           </form>
 
@@ -398,8 +464,8 @@ export default function TrainBooking({ onSelectBookingItem }) {
                 className="glass-pnr-input"
               />
             </div>
-            <button type="submit" className="btn-glowing-cyan">
-              <span>TRACK LIVE</span>
+            <button type="submit" className="btn-glowing-cyan" disabled={isTrackingLive}>
+              <span>{isTrackingLive ? 'TRACKING LIVE...' : 'TRACK LIVE'}</span>
             </button>
           </form>
 

@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { HOTELS_DATA } from './bookingData';
+import { searchLiveStays } from '../services/bookingService';
+import { getTodayDate, getFutureDate } from '../utils/dateUtils';
 
 const POPULAR_HOTEL_DESTINATIONS = [
   'Goa',
@@ -15,20 +17,58 @@ const POPULAR_HOTEL_DESTINATIONS = [
 
 export default function StaySection({ onSelectBookingItem }) {
   const [destination, setDestination] = useState('Goa, India');
-  const [checkIn, setCheckIn] = useState('2026-09-04');
-  const [checkOut, setCheckOut] = useState('2026-09-05');
+  const [checkIn, setCheckIn] = useState(getTodayDate());
+  const [checkOut, setCheckOut] = useState(getFutureDate(2));
   const [roomsGuests, setRoomsGuests] = useState({ rooms: 1, adults: 2, children: 0 });
   const [showGuestsDropdown, setShowGuestsDropdown] = useState(false);
   const [maxPrice, setMaxPrice] = useState(150000);
   const [selectedDestinationFilter, setSelectedDestinationFilter] = useState('Goa');
   const [isSearching, setIsSearching] = useState(false);
+  const [allHotels, setAllHotels] = useState(HOTELS_DATA);
+  const [isLiveInventory, setIsLiveInventory] = useState(false);
+
+  const handleSearchHotels = async (e) => {
+    e?.preventDefault();
+    setIsSearching(true);
+    const targetDest = destination.trim() || selectedDestinationFilter || 'Goa';
+    try {
+      const liveHotels = await searchLiveStays({
+        destination: targetDest,
+        checkIn,
+        checkOut,
+        guests: roomsGuests.adults + roomsGuests.children,
+        maxPrice
+      });
+      if (liveHotels && liveHotels.length > 0) {
+        setAllHotels(liveHotels);
+        setIsLiveInventory(liveHotels.some(h => h.isLive));
+      }
+    } catch (err) {
+      console.warn('Hotel search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    handleSearchHotels();
+  }, [selectedDestinationFilter, checkIn, checkOut]);
 
   // Filtered hotels
   const filteredHotels = useMemo(() => {
-    return HOTELS_DATA.filter((hotel) => {
-      // Match destination filter
-      if (selectedDestinationFilter && hotel.destination.toLowerCase() !== selectedDestinationFilter.toLowerCase()) {
-        return false;
+    const query = destination.toLowerCase().trim();
+    return allHotels.filter((hotel) => {
+      // If user selected a specific pill and input matches or is empty, filter by pill
+      if (selectedDestinationFilter && (!query || query.includes(selectedDestinationFilter.toLowerCase()))) {
+        if (hotel.destination.toLowerCase() !== selectedDestinationFilter.toLowerCase()) {
+          return false;
+        }
+      } else if (query) {
+        // Otherwise, filter by the typed query
+        const matchesDest = hotel.destination.toLowerCase().includes(query);
+        const matchesName = hotel.name.toLowerCase().includes(query);
+        const matchesLoc = (hotel.location || '').toLowerCase().includes(query);
+        if (!matchesDest && !matchesName && !matchesLoc) return false;
       }
       // Match price filter
       if (hotel.pricePerNight > maxPrice) {
@@ -36,19 +76,16 @@ export default function StaySection({ onSelectBookingItem }) {
       }
       return true;
     });
-  }, [selectedDestinationFilter, maxPrice]);
+  }, [allHotels, selectedDestinationFilter, destination, maxPrice]);
 
   const handleDestinationPillClick = (dest) => {
-    setSelectedDestinationFilter(dest);
-    setDestination(`${dest}`);
-  };
-
-  const handleSearchHotels = (e) => {
-    e?.preventDefault();
-    setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-    }, 350);
+    if (selectedDestinationFilter.toLowerCase() === dest.toLowerCase()) {
+      setSelectedDestinationFilter('');
+      setDestination('');
+    } else {
+      setSelectedDestinationFilter(dest);
+      setDestination(dest);
+    }
   };
 
   return (
@@ -78,12 +115,12 @@ export default function StaySection({ onSelectBookingItem }) {
                   className="glass-text-input"
                   value={destination}
                   onChange={(e) => {
-                    setDestination(e.target.value);
-                    // If matches any popular destination, set filter
+                    const val = e.target.value;
+                    setDestination(val);
                     const match = POPULAR_HOTEL_DESTINATIONS.find(d => 
-                      e.target.value.toLowerCase().includes(d.toLowerCase())
+                      val.toLowerCase().includes(d.toLowerCase())
                     );
-                    if (match) setSelectedDestinationFilter(match);
+                    setSelectedDestinationFilter(match || '');
                   }}
                   placeholder="City, Resort or Destination"
                 />
@@ -100,6 +137,7 @@ export default function StaySection({ onSelectBookingItem }) {
                   type="date"
                   className="glass-date-input"
                   value={checkIn}
+                  min={getTodayDate()}
                   onChange={(e) => setCheckIn(e.target.value)}
                 />
               </div>
@@ -114,6 +152,7 @@ export default function StaySection({ onSelectBookingItem }) {
                   type="date"
                   className="glass-date-input"
                   value={checkOut}
+                  min={checkIn || getTodayDate()}
                   onChange={(e) => setCheckOut(e.target.value)}
                 />
               </div>
@@ -378,14 +417,19 @@ export default function StaySection({ onSelectBookingItem }) {
                     onClick={() => onSelectBookingItem({
                       type: 'HOTEL',
                       title: hotel.name,
+                      carrier: hotel.name,
                       from: `Check-in: ${checkIn}`,
                       to: `Check-out: ${checkOut}`,
+                      fromCity: hotel.location || 'Resort City',
+                      toCity: hotel.destination || 'Luxury Retreat',
                       date: `${checkIn} to ${checkOut}`,
-                      time: 'Check-in: 02:00 PM',
+                      time: 'Check-in: 02:00 PM • Check-out: 11:00 AM',
+                      duration: `${Math.max(1, Math.round((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24)))} Night(s)`,
                       price: hotel.pricePerNight * roomsGuests.rooms,
                       seats: `${roomsGuests.rooms} Room(s), ${roomsGuests.adults} Adults`,
                       extra: `${hotel.location} • ${hotel.tag}`,
                       bookingRef: `TRV-HT-${Math.floor(100000 + Math.random() * 900000)}`,
+                      image: hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80',
                     })}
                   >
                     <span>View Hotel</span>

@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
+import { useTravel } from '../context/TravelContext';
 
 // We pass isHome prop here in case we need to conditionally style based on the page
 const Sidebar = ({ isHome }) => {
   // State to handle sidebar expansion on mobile devices
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+  const { wishlistCount, bookingsCount } = useTravel();
 
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -47,11 +49,29 @@ const Sidebar = ({ isHome }) => {
               <span className="nav-text">Explore</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/wishlist">
+              <span className="material-symbols-rounded">favorite</span>
+              <span className="nav-text">Wishlist</span>
+            </NavLink>
+          </li>
           
           <li className="nav-divider"></li>
 
           {/* Tools & Features */}
-          <li><NavLink to="/bookings"><span className="material-symbols-rounded">luggage</span><span className="nav-text">Bookings</span></NavLink></li>
+          <li>
+            <NavLink to="/booking">
+              <span className="material-symbols-rounded">airplane_ticket</span>
+              <span className="nav-text">Book a Trip</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/bookings">
+              <span className="material-symbols-rounded">luggage</span>
+              <span className="nav-text">My Bookings</span>
+              {bookingsCount > 0 && <span className="nav-badge badge-cyan">{bookingsCount}</span>}
+            </NavLink>
+          </li>
           <li><NavLink to="/transport"><span className="material-symbols-rounded">directions_bus</span><span className="nav-text">Transport</span></NavLink></li>
           <li><NavLink to="/geoweather"><span className="material-symbols-rounded">travel_explore</span><span className="nav-text">GeoWeather</span></NavLink></li>
           <li><NavLink to="/food-guide"><span className="material-symbols-rounded">restaurant</span><span className="nav-text">Food Guide</span></NavLink></li>

@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ACTIVITIES_DATA } from './bookingData';
+import { searchLiveExperiences } from '../services/bookingService';
+import { getTodayDate } from '../utils/dateUtils';
 
 const POPULAR_EXPERIENCE_DESTINATIONS = [
   'Singapore',
@@ -24,14 +26,37 @@ const ACTIVITY_CATEGORIES = [
 
 export default function ExperienceSection({ onSelectBookingItem }) {
   const [searchDestination, setSearchDestination] = useState('');
-  const [activityDate, setActivityDate] = useState('');
+  const [activityDate, setActivityDate] = useState(getTodayDate());
   const [selectedDestinationFilter, setSelectedDestinationFilter] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [isSearching, setIsSearching] = useState(false);
+  const [allActivities, setAllActivities] = useState(ACTIVITIES_DATA);
+  const [isLiveInventory, setIsLiveInventory] = useState(false);
+
+  const handleSearchSubmit = async (e) => {
+    e?.preventDefault();
+    const dest = selectedDestinationFilter || searchDestination.trim();
+    if (!dest) return;
+    setIsSearching(true);
+    try {
+      const liveData = await searchLiveExperiences({
+        destination: dest,
+        category: selectedCategory
+      });
+      if (liveData && liveData.length > 0) {
+        setAllActivities(liveData);
+        setIsLiveInventory(liveData.some(a => a.isLive));
+      }
+    } catch (err) {
+      console.warn('Experience search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   // Filter activities dynamically
   const filteredActivities = useMemo(() => {
-    return ACTIVITIES_DATA.filter((act) => {
+    return allActivities.filter((act) => {
       // 1. Destination Filter Match (Primary)
       if (selectedDestinationFilter) {
         if (act.destination.toLowerCase() !== selectedDestinationFilter.toLowerCase()) {
@@ -57,7 +82,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
 
       return true;
     });
-  }, [searchDestination, selectedDestinationFilter, selectedCategory]);
+  }, [allActivities, searchDestination, selectedDestinationFilter, selectedCategory]);
 
   const handleDestinationPill = (dest) => {
     if (selectedDestinationFilter.toLowerCase() === dest.toLowerCase()) {
@@ -79,14 +104,6 @@ export default function ExperienceSection({ onSelectBookingItem }) {
     } else if (selectedDestinationFilter && !value.toLowerCase().includes(selectedDestinationFilter.toLowerCase())) {
       setSelectedDestinationFilter('');
     }
-  };
-
-  const handleSearchSubmit = (e) => {
-    e?.preventDefault();
-    setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-    }, 300);
   };
 
   return (
@@ -148,6 +165,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                   type="date"
                   className="glass-date-input"
                   value={activityDate}
+                  min={getTodayDate()}
                   onChange={(e) => setActivityDate(e.target.value)}
                 />
               </div>
@@ -340,14 +358,19 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                       onClick={() => onSelectBookingItem({
                         type: 'EXPERIENCE',
                         title: act.name,
+                        carrier: act.destination,
                         from: `Destination: ${act.destination}`,
                         to: act.category,
+                        fromCity: act.destination,
+                        toCity: act.category,
                         date: activityDate || 'Open Flexible Date (Valid 90 Days)',
                         time: `Duration: ${act.duration}`,
+                        duration: act.duration,
                         price: act.price,
                         seats: '1 Guest Pass',
                         extra: `${act.badge} • Instant Mobile Voucher`,
                         bookingRef: `TRV-EXP-${Math.floor(100000 + Math.random() * 900000)}`,
+                        image: act.image || 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=800&auto=format&fit=crop&q=80',
                       })}
                     >
                       <span>Explore</span>

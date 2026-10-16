@@ -111,7 +111,7 @@ const GeoWeather = () => {
 
   // Update recent searches entry for current location with fresh weather data
   useEffect(() => {
-    if (weatherData && weatherData.current) {
+    if (weatherData && weatherData.current && typeof weatherData.current.temperature_2m === 'number') {
       const curTemp = Math.round(weatherData.current.temperature_2m);
       const curDesc = getWeatherDesc(weatherData.current.weather_code);
       setRecentSearches(prev =>
@@ -185,8 +185,8 @@ const GeoWeather = () => {
             name: newLocation.name, 
             lat: newLocation.lat, 
             lon: newLocation.lon, 
-            temp: weatherData ? Math.round(weatherData.current.temperature_2m) : 0, 
-            desc: weatherData ? getWeatherDesc(weatherData.current.weather_code) : 'Clear', 
+            temp: weatherData?.current?.temperature_2m != null ? Math.round(weatherData.current.temperature_2m) : 0, 
+            desc: weatherData?.current?.weather_code != null ? getWeatherDesc(weatherData.current.weather_code) : 'Clear', 
             icon: 'location_on' 
           };
           const filtered = prev.filter(item => item.name !== newLocation.name);
@@ -229,7 +229,7 @@ const GeoWeather = () => {
         name: displayName,
         lat: rLat,
         lon: rLon,
-        temp: weatherData ? Math.round(weatherData.current.temperature_2m) : 0,
+        temp: weatherData?.current?.temperature_2m != null ? Math.round(weatherData.current.temperature_2m) : 0,
         desc: 'Selected Pin',
         icon: 'pin_drop'
       };
@@ -266,10 +266,10 @@ const GeoWeather = () => {
     );
   }
 
-  const currentTemp = weatherData ? Math.round(weatherData.current.temperature_2m) : 0;
-  const maxTemp = weatherData?.daily?.temperature_2m_max?.[0] ? Math.round(weatherData.daily.temperature_2m_max[0]) : currentTemp;
-  const minTemp = weatherData?.daily?.temperature_2m_min?.[0] ? Math.round(weatherData.daily.temperature_2m_min[0]) : currentTemp;
-  const currentCode = weatherData ? weatherData.current.weather_code : 0;
+  const currentTemp = weatherData?.current?.temperature_2m != null ? Math.round(weatherData.current.temperature_2m) : 0;
+  const maxTemp = weatherData?.daily?.temperature_2m_max?.[0] != null ? Math.round(weatherData.daily.temperature_2m_max[0]) : currentTemp;
+  const minTemp = weatherData?.daily?.temperature_2m_min?.[0] != null ? Math.round(weatherData.daily.temperature_2m_min[0]) : currentTemp;
+  const currentCode = weatherData?.current?.weather_code != null ? weatherData.current.weather_code : 0;
   const currentDesc = getWeatherDesc(currentCode);
   const isThunderstorm = currentCode >= 95;
   const isRain = (currentCode >= 51 && currentCode <= 67) || (currentCode >= 80 && currentCode <= 82);

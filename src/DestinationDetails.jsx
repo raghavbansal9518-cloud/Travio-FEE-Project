@@ -3,18 +3,68 @@ import { useParams, Link } from 'react-router-dom';
 import Header from './components/Header';
 import { DESTINATIONS } from './data/destinationsData';
 import { getDestinationDetails } from './data/destinationDetailsHelper';
+import { getDestinationById, findLocalDestination } from './services/destinationService';
 import TripPlannerModal from './components/TripPlannerModal';
+import { useTravel } from './context/TravelContext';
 import './DestinationDetails.css';
+
+const DEFAULT_FALLBACK_IMG = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&auto=format&fit=crop&q=85';
 
 export default function DestinationDetails() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('places');
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { isWishlisted, toggleWishlist } = useTravel();
 
-  // Find destination by id or default to first
-  const rawDestination = DESTINATIONS.find((d) => d.id === id) || DESTINATIONS[0];
-  const destination = getDestinationDetails(rawDestination);
+  // Synchronously initialize if local destination exists
+  const [destination, setDestination] = useState(() => {
+    const local = findLocalDestination(id);
+    return local ? getDestinationDetails(local) : null;
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    const local = findLocalDestination(id);
+    return !local;
+  });
+
+  const handleImgFallback = (e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = DEFAULT_FALLBACK_IMG;
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If local match exists, use it immediately
+    const local = findLocalDestination(id);
+    if (local) {
+      setDestination(getDestinationDetails(local));
+      setIsLoading(false);
+      return;
+    }
+
+    // Otherwise, fetch asynchronously via Google Places & Gemini service
+    let isCancelled = false;
+    setIsLoading(true);
+
+    getDestinationById(id)
+      .then((result) => {
+        if (!isCancelled) {
+          setDestination(result ? getDestinationDetails(result) : null);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching destination:', err);
+        if (!isCancelled) {
+          setDestination(null);
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id]);
 
   const highlights = destination?.highlights || [
     {
@@ -35,18 +85,40 @@ export default function DestinationDetails() {
     }
   ];
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id]);
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="dest-details-container" style={{ textAlign: 'center', padding: '120px 20px' }}>
+          <i className="fa-solid fa-compass fa-spin" style={{ fontSize: '46px', color: '#a855f7', marginBottom: '20px' }}></i>
+          <h2 style={{ color: '#ffffff', fontFamily: 'var(--font-heading, inherit)', fontSize: '24px' }}>
+            Loading Destination Details...
+          </h2>
+          <p style={{ color: '#8E93A1', fontSize: '14px', marginTop: '8px' }}>
+            Fetching verified attractions, authentic photography, and local insights
+          </p>
+        </div>
+      </>
+    );
+  }
 
   if (!destination) {
     return (
-      <div className="dest-details-container" style={{ textAlign: 'center', padding: '80px 20px' }}>
-        <h2>Destination Not Found</h2>
-        <Link to="/explore" className="btn-primary" style={{ marginTop: '20px' }}>
-          Back to Explore
-        </Link>
-      </div>
+      <>
+        <Header />
+        <div className="dest-details-container" style={{ textAlign: 'center', padding: '100px 20px' }}>
+          <i className="fa-solid fa-map-location-dot" style={{ fontSize: '46px', color: '#a855f7', marginBottom: '16px' }}></i>
+          <h2 style={{ color: '#ffffff', fontFamily: 'var(--font-heading, inherit)', fontSize: '26px' }}>
+            Destination Not Found
+          </h2>
+          <p style={{ color: '#8E93A1', fontSize: '14px', maxWidth: '420px', margin: '12px auto 24px' }}>
+            We couldn't find verified travel details for "{id}". Try searching for another city, country, or landmark.
+          </p>
+          <Link to="/explore" className="btn-primary" style={{ display: 'inline-flex' }}>
+            Back to Explore
+          </Link>
+        </div>
+      </>
     );
   }
 
@@ -76,9 +148,10 @@ export default function DestinationDetails() {
         {/* 1. CINEMATIC HERO BANNER */}
         <section className="dest-hero-banner">
           <img 
-            src={destination.heroImage} 
+            src={destination.heroImage || destination.cardImage || DEFAULT_FALLBACK_IMG} 
             alt={`${destination.name}, ${destination.country}`}
             className="dest-hero-bg-img"
+            onError={handleImgFallback}
           />
           <div className="dest-hero-overlay">
             <div className="dest-hero-content">
@@ -91,6 +164,12 @@ export default function DestinationDetails() {
                   {destination.name.toUpperCase()} {destination.flag}
                 </h1>
                 <p className="dest-tagline-text">{destination.tagline}</p>
+                {destination.photoAttribution && (
+                  <div style={{ marginTop: '4px', fontSize: '11px', color: 'rgba(255,255,255,0.75)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <i className="fa-solid fa-camera"></i>
+                    <span>Photo by {destination.photoAttribution.name}</span>
+                  </div>
+                )}
 
                 {/* Quick Hero Stat Badges */}
                 <div className="dest-hero-stats-row">
@@ -119,12 +198,12 @@ export default function DestinationDetails() {
               <div className="dest-hero-actions">
                 <button 
                   type="button"
-                  className="bookmark-toggle-btn"
-                  style={{ width: '48px', height: '48px', fontSize: '18px', background: isBookmarked ? '#f43f5e' : 'rgba(8,12,22,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  title={isBookmarked ? 'Saved in Wishlist' : 'Bookmark Destination'}
+                  className={`bookmark-toggle-btn ${isWishlisted(destination.id) ? 'saved' : ''}`}
+                  style={{ width: '48px', height: '48px', fontSize: '18px', background: isWishlisted(destination.id) ? '#f43f5e' : 'rgba(8,12,22,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  onClick={() => toggleWishlist(destination)}
+                  title={isWishlisted(destination.id) ? 'Saved in Wishlist' : 'Save to Wishlist'}
                 >
-                  <i className={isBookmarked ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                  <i className={isWishlisted(destination.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
                 </button>
 
                 <button 
@@ -280,7 +359,13 @@ export default function DestinationDetails() {
               {(destination.topPlaces || []).map((place, idx) => (
                 <div key={idx} className="place-detail-card">
                   <div className="place-img-box">
-                    <img src={place.image} alt={place.name} className="place-img" loading="lazy" />
+                    <img 
+                      src={place.image || DEFAULT_FALLBACK_IMG} 
+                      alt={place.name} 
+                      className="place-img" 
+                      loading="lazy" 
+                      onError={handleImgFallback}
+                    />
                     <div className="card-top-badges">
                       <span className="rating-pill" style={{ color: 'white' }}>
                         <i className="fa-solid fa-clock"></i> {place.time}
@@ -320,7 +405,13 @@ export default function DestinationDetails() {
               {(destination.activities || []).map((act) => (
                 <div key={act.id} className="activity-detail-card">
                   <div className="act-img-box">
-                    <img src={act.image} alt={act.title} className="act-img" loading="lazy" />
+                    <img 
+                      src={act.image || DEFAULT_FALLBACK_IMG} 
+                      alt={act.title} 
+                      className="act-img" 
+                      loading="lazy" 
+                      onError={handleImgFallback}
+                    />
                     <div className="act-emoji-badge">{act.icon || '🏄'}</div>
                     <div className="act-price-pill">From {act.price}</div>
                   </div>
@@ -370,7 +461,13 @@ export default function DestinationDetails() {
               {(destination.stays || []).map((stay, idx) => (
                 <div key={idx} className="stay-card">
                   <div className="stay-img-box">
-                    <img src={stay.image} alt={stay.name} className="stay-img" loading="lazy" />
+                    <img 
+                      src={stay.image || DEFAULT_FALLBACK_IMG} 
+                      alt={stay.name} 
+                      className="stay-img" 
+                      loading="lazy" 
+                      onError={handleImgFallback}
+                    />
                     <div className="card-top-badges">
                       <div className="rating-pill">
                         <i className="fa-solid fa-star"></i> {stay.rating}

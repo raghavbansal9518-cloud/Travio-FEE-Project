@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTravel } from '../context/TravelContext';
 
 // --- Static Data ---
 // Array of popular destinations to display in the carousel
@@ -54,11 +55,8 @@ const DestinationsCarousel = () => {
   // Track which destination card is currently clicked/expanded
   const [expandedId, setExpandedId] = useState(null);
   
-  // Track which destinations are in the wishlist (by ID)
-  const [likedIds, setLikedIds] = useState(() => {
-    const saved = localStorage.getItem('wishlist_ids');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  // Global Wishlist from TravelContext
+  const { isWishlisted, toggleWishlist } = useTravel();
 
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -66,10 +64,6 @@ const DestinationsCarousel = () => {
       carousel.scrollLeft = carousel.scrollWidth / 3;
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('wishlist_ids', JSON.stringify(Array.from(likedIds)));
-  }, [likedIds]);
 
   const handleCarouselScroll = (event) => {
     const carousel = event.currentTarget;
@@ -94,27 +88,19 @@ const DestinationsCarousel = () => {
   // Duplicate the array 3 times to create a seamless infinite scrolling effect in CSS
   const loopedDestinations = [...destinations, ...destinations, ...destinations];
 
-  // Toggle wishlist heart
+  // Toggle wishlist heart via Global TravelContext
   const toggleLike = (e, dest) => {
-    e.stopPropagation(); // Prevent the image expansion from triggering
-    const id = dest.id;
-    setLikedIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
+    e.stopPropagation(); // Prevent navigation or image expansion
+    toggleWishlist({
+      id: dest.id,
+      name: dest.name,
+      rating: dest.rating,
+      reviews: dest.reviews,
+      bestTime: dest.bestTime,
+      cardImage: dest.image,
+      heroImage: dest.image,
+      image: dest.image
     });
-
-    // Also update a full objects array in localStorage so WishlistPage can easily display them
-    const savedDestinations = JSON.parse(localStorage.getItem('wishlist_destinations') || '[]');
-    if (savedDestinations.find(d => d.id === id)) {
-      localStorage.setItem('wishlist_destinations', JSON.stringify(savedDestinations.filter(d => d.id !== id)));
-    } else {
-      localStorage.setItem('wishlist_destinations', JSON.stringify([...savedDestinations, dest]));
-    }
   };
 
   return (
@@ -139,7 +125,7 @@ const DestinationsCarousel = () => {
             // Check if this specific card is the one expanded
             // We use id + index because the ids repeat in our looped array!
             const isExpanded = expandedId === `${dest.id}-${index}`;
-            const isLiked = likedIds.has(dest.id);
+            const isLiked = isWishlisted(dest.id);
             
             return (
               <article 

@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FLIGHTS_DATA } from './bookingData';
+import { searchLiveFlights } from '../services/bookingService';
+import { getTodayDate, getFutureDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
 
 const AIRPORTS_LIST = [
   { city: 'Delhi', code: 'DEL', name: 'Indira Gandhi International Airport' },
   { city: 'Mumbai', code: 'BOM', name: 'Chhatrapati Shivaji Maharaj International Airport' },
   { city: 'Bengaluru', code: 'BLR', name: 'Kempegowda International Airport' },
   { city: 'Goa', code: 'GOI', name: 'Dabolim / Manohar International Airport' },
+  { city: 'Jaipur', code: 'JAI', name: 'Jaipur International Airport' },
+  { city: 'Kolkata', code: 'CCU', name: 'Netaji Subhash Chandra Bose Intl' },
+  { city: 'Chennai', code: 'MAA', name: 'Chennai International Airport' },
+  { city: 'Hyderabad', code: 'HYD', name: 'Rajiv Gandhi International Airport' },
   { city: 'Dubai', code: 'DXB', name: 'Dubai International Airport' },
   { city: 'Singapore', code: 'SIN', name: 'Singapore Changi Airport' },
   { city: 'London', code: 'LHR', name: 'London Heathrow Airport' },
   { city: 'Paris', code: 'CDG', name: 'Paris Charles de Gaulle' },
+  { city: 'Bangkok', code: 'BKK', name: 'Suvarnabhumi Airport' },
+  { city: 'Tokyo', code: 'HND', name: 'Tokyo Haneda International Airport' },
+  { city: 'Bali', code: 'DPS', name: 'Ngurah Rai International Airport' },
 ];
 
 export default function FlightBooking({ onSelectBookingItem }) {
@@ -20,8 +29,8 @@ export default function FlightBooking({ onSelectBookingItem }) {
   // Form Fields
   const [fromAirport, setFromAirport] = useState(AIRPORTS_LIST[0]); // Delhi
   const [toAirport, setToAirport] = useState(AIRPORTS_LIST[1]); // Mumbai
-  const [departDate, setDepartDate] = useState('2026-09-04');
-  const [returnDate, setReturnDate] = useState('2026-09-10');
+  const [departDate, setDepartDate] = useState(getTodayDate());
+  const [returnDate, setReturnDate] = useState(getFutureDate(6));
 
   // Travelers state
   const [showTravelersDropdown, setShowTravelersDropdown] = useState(false);
@@ -34,6 +43,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
   const [isSearched, setIsSearched] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(FLIGHTS_DATA);
+  const [isLiveInventory, setIsLiveInventory] = useState(false);
 
   const totalTravelers = travelers.adults + travelers.children + travelers.infants;
 
@@ -47,27 +57,35 @@ export default function FlightBooking({ onSelectBookingItem }) {
     }, 200);
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e?.preventDefault();
     setSearchLoading(true);
-    setTimeout(() => {
-      // Filter or customize results
-      let filtered = FLIGHTS_DATA.map(f => ({
-        ...f,
+    try {
+      const liveData = await searchLiveFlights({
         fromCity: fromAirport.city,
         fromCode: fromAirport.code,
-        fromAirport: fromAirport.name,
         toCity: toAirport.city,
         toCode: toAirport.code,
-        toAirport: toAirport.name,
-        cabinClass: cabinClass,
-        price: cabinClass === 'Business' ? Math.round(f.price * 2.2) : f.price
-      }));
-      setSearchResults(filtered);
+        departDate,
+        cabinClass,
+        directOnly
+      });
+      if (liveData && liveData.length > 0) {
+        setSearchResults(liveData);
+        setIsLiveInventory(liveData.some(f => f.isLive));
+      }
+    } catch (err) {
+      console.warn('Flight search error:', err);
+    } finally {
       setIsSearched(true);
       setSearchLoading(false);
-    }, 450);
+    }
   };
+
+  // Perform search on mount or when route / class / date changes
+  useEffect(() => {
+    handleSearch();
+  }, [fromAirport.code, toAirport.code, cabinClass, departDate, directOnly]);
 
   return (
     <div className="booking-engine-card">
@@ -206,6 +224,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                   type="date" 
                   className="glass-date-input" 
                   value={departDate} 
+                  min={getTodayDate()}
                   onChange={(e) => setDepartDate(e.target.value)}
                 />
               </div>
@@ -216,6 +235,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                     type="date" 
                     className="glass-date-input" 
                     value={returnDate} 
+                    min={departDate || getTodayDate()}
                     onChange={(e) => setReturnDate(e.target.value)}
                   />
                 </div>
@@ -329,80 +349,120 @@ export default function FlightBooking({ onSelectBookingItem }) {
       {/* SEARCH RESULTS VIEW */}
       {isSearched && (
         <div className="flight-results-container">
+          {/* Live Current Time Departure Banner */}
+          {isToday(departDate) && (
+            <div className="live-current-time-banner">
+              <div className="banner-left-info">
+                <span className="material-symbols-rounded live-clock-icon">schedule</span>
+                <span>
+                  Showing flights available from present time (<strong>{getCurrentTime12()}</strong> onwards) • Live ATC & Gate Updates
+                </span>
+              </div>
+              <span className="live-status-pill">
+                <span className="live-pulse-dot"></span>
+                <span>LIVE PRESENT SCHEDULE</span>
+              </span>
+            </div>
+          )}
+
           <div className="results-header-bar">
             <div className="results-badge-info">
               <span className="material-symbols-rounded">flight_takeoff</span>
               <span>
                 Available Flights from <strong>{fromAirport.city}</strong> to <strong>{toAirport.city}</strong> ({searchResults.length} Options)
               </span>
+              {isLiveInventory && (
+                <span className="live-pulse-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid #38bdf8', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', color: '#38bdf8', fontWeight: 600, marginLeft: '8px' }}>
+                  ● LIVE INVENTORY
+                </span>
+              )}
             </div>
             <span className="results-date-tag">Date: {departDate}</span>
           </div>
 
           <div className="flight-cards-list">
-            {searchResults.map((flight) => (
-              <div key={flight.id} className="flight-item-card">
-                <div className="flight-airline-col">
-                  <div className="airline-avatar">
-                    <span className="material-symbols-rounded">flight</span>
-                  </div>
-                  <div>
-                    <h4 className="airline-name">{flight.airline}</h4>
-                    <span className="flight-code-label">{flight.airlineCode} • {flight.aircraft}</span>
-                  </div>
-                </div>
+            {searchResults.map((flight) => {
+              const timeBadge = getTimeStatusBadge(flight.departureTime, departDate);
 
-                <div className="flight-timing-col">
-                  <div className="time-point">
-                    <span className="time-val">{flight.departureTime}</span>
-                    <span className="airport-code-sub">{flight.fromCode}</span>
-                  </div>
-
-                  <div className="flight-duration-diagram">
-                    <span className="duration-label">{flight.duration}</span>
-                    <div className="flight-line">
-                      <span className="line-dot start" />
-                      <span className="line-track" />
-                      <span className="material-symbols-rounded flight-glyph">flight</span>
-                      <span className="line-dot end" />
+              return (
+                <div key={flight.id} className="flight-item-card">
+                  <div className="flight-airline-col">
+                    <div className="airline-avatar">
+                      <span className="material-symbols-rounded">flight</span>
                     </div>
-                    <span className="flight-stop-label">{flight.stops}</span>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h4 className="airline-name">{flight.airline}</h4>
+                        {isToday(departDate) && (
+                          <span className={`flight-departure-badge ${timeBadge.isUrgent ? 'urgent' : ''}`}>
+                            <span className="material-symbols-rounded" style={{ fontSize: '12px' }}>
+                              {timeBadge.isUrgent ? 'timer' : 'bolt'}
+                            </span>
+                            <span>{timeBadge.label}</span>
+                          </span>
+                        )}
+                      </div>
+                      <span className="flight-code-label">{flight.airlineCode} • {flight.aircraft}</span>
+                    </div>
                   </div>
 
-                  <div className="time-point">
-                    <span className="time-val">{flight.arrivalTime}</span>
-                    <span className="airport-code-sub">{flight.toCode}</span>
-                  </div>
-                </div>
+                  <div className="flight-timing-col">
+                    <div className="time-point">
+                      <span className="time-val">{flight.departureTime}</span>
+                      <span className="airport-code-sub">{flight.fromCode}</span>
+                    </div>
 
-                <div className="flight-price-col">
-                  <div className="price-tag-wrap">
-                    <span className="currency-symbol">₹</span>
-                    <span className="price-amount">{flight.price.toLocaleString('en-IN')}</span>
-                    <span className="price-sub">per adult</span>
+                    <div className="flight-duration-diagram">
+                      <span className="duration-label">{flight.duration}</span>
+                      <div className="flight-line">
+                        <span className="line-dot start" />
+                        <span className="line-track" />
+                        <span className="material-symbols-rounded flight-glyph">flight</span>
+                        <span className="line-dot end" />
+                      </div>
+                      <span className="flight-stop-label">{flight.stops}</span>
+                    </div>
+
+                    <div className="time-point">
+                      <span className="time-val">{flight.arrivalTime}</span>
+                      <span className="airport-code-sub">{flight.toCode}</span>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-select-action"
-                    onClick={() => onSelectBookingItem({
-                      type: 'FLIGHT',
-                      title: `${flight.airline} (${flight.airlineCode})`,
-                      from: `${flight.fromCity} (${flight.fromCode})`,
-                      to: `${flight.toCity} (${flight.toCode})`,
-                      date: departDate,
-                      time: `${flight.departureTime} - ${flight.arrivalTime}`,
-                      price: flight.price * totalTravelers,
-                      seats: `${totalTravelers} Traveler(s)`,
-                      extra: flight.aircraft,
-                      bookingRef: `TRV-FL-${Math.floor(100000 + Math.random() * 900000)}`,
-                    })}
-                  >
-                    <span>Select Flight</span>
-                    <span className="material-symbols-rounded">chevron_right</span>
-                  </button>
+
+                  <div className="flight-price-col">
+                    <div className="price-tag-wrap">
+                      <span className="currency-symbol">₹</span>
+                      <span className="price-amount">{flight.price.toLocaleString('en-IN')}</span>
+                      <span className="price-sub">per adult</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-select-action"
+                      onClick={() => onSelectBookingItem({
+                        type: 'FLIGHT',
+                        title: `${flight.airline} (${flight.airlineCode})`,
+                        carrier: flight.airline,
+                        from: `${flight.fromCity} (${flight.fromCode})`,
+                        to: `${flight.toCity} (${flight.toCode})`,
+                        fromCity: flight.fromCity,
+                        toCity: flight.toCity,
+                        date: departDate,
+                        time: `${flight.departureTime} - ${flight.arrivalTime}`,
+                        duration: flight.duration,
+                        price: flight.price * totalTravelers,
+                        seats: `${totalTravelers} Traveler(s) • ${cabinClass}`,
+                        extra: `${flight.aircraft} • ${flight.stops}`,
+                        bookingRef: flight.airlineCode ? `TRV-${flight.airlineCode.replace(/[^a-zA-Z0-9]/g, '')}-${Math.floor(1000 + Math.random() * 9000)}` : `TRV-FL-${Math.floor(100000 + Math.random() * 900000)}`,
+                        image: flight.logo || 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&auto=format&fit=crop&q=80',
+                      })}
+                    >
+                      <span>Select Flight</span>
+                      <span className="material-symbols-rounded">chevron_right</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
