@@ -11,19 +11,76 @@ import { getDestinationDetails } from '../data/destinationDetailsHelper.js';
 const memoryCache = new Map();
 const SESSION_CACHE_PREFIX = 'travio_dest_cache_';
 
+// Known city, regional, and landmark aliases mapping to flagship and curated destinations
+export const KNOWN_GLOBAL_CITY_ALIASES = {
+  zurich: 'switzerland',
+  geneva: 'switzerland',
+  interlaken: 'switzerland',
+  jungfrau: 'switzerland',
+  grindelwald: 'switzerland',
+  zermatt: 'zermatt',
+  matterhorn: 'zermatt',
+  gimmelwald: 'gimmelwald',
+  rome: 'rome',
+  florence: 'italy',
+  venice: 'venice',
+  amalfi: 'amalfi-coast',
+  paris: 'paris',
+  tokyo: 'tokyo',
+  kyoto: 'tokyo',
+  dubai: 'dubai',
+  'abu dhabi': 'dubai',
+  abudhabi: 'dubai',
+  santorini: 'santorini',
+  mykonos: 'santorini',
+  athens: 'greece',
+  ubud: 'bali',
+  seminyak: 'bali',
+  canggu: 'bali',
+  'nusa penida': 'bali',
+  nusapenida: 'bali',
+  kuta: 'bali',
+  london: 'london',
+  leh: 'ladakh',
+  pangong: 'ladakh',
+  nubra: 'ladakh',
+  gulmarg: 'kashmir',
+  pahalgam: 'kashmir',
+  srinagar: 'kashmir',
+  shimla: 'shimla-kufri',
+  kufri: 'shimla-kufri',
+  manali: 'manali-spiti',
+  spiti: 'manali-spiti',
+  calangute: 'goa',
+  baga: 'goa',
+  panaji: 'goa',
+  havelock: 'andaman',
+  'port blair': 'andaman',
+  portblair: 'andaman'
+};
+
+// Cached API configuration status to avoid repetitive network calls
+let apiConfigStatusCache = null;
+
 /**
  * Check if external APIs are configured via the local secure proxy
  */
 export async function isApiConfigured() {
+  if (apiConfigStatusCache !== null) return apiConfigStatusCache;
   try {
-    const res = await fetch('/api/status');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 1200);
+    const res = await fetch('/api/status', { signal: controller.signal });
+    clearTimeout(timer);
     if (res.ok) {
-      return await res.json();
+      apiConfigStatusCache = await res.json();
+      return apiConfigStatusCache;
     }
   } catch {
     // fallback
   }
-  return { googlePlaces: false, gemini: false };
+  apiConfigStatusCache = { googlePlaces: false, gemini: false };
+  return apiConfigStatusCache;
 }
 
 /**
@@ -80,11 +137,18 @@ export function findLocalDestination(idOrQuery) {
   let found = DESTINATIONS.find((d) => d.id.toLowerCase() === q);
   if (found) return found;
 
-  // 2. Exact or clean name match
+  // 2. Direct city / landmark alias match (e.g. 'zurich' -> 'switzerland')
+  const aliasTargetId = KNOWN_GLOBAL_CITY_ALIASES[q];
+  if (aliasTargetId) {
+    found = DESTINATIONS.find((d) => d.id.toLowerCase() === aliasTargetId);
+    if (found) return found;
+  }
+
+  // 3. Exact or clean name match
   found = DESTINATIONS.find((d) => d.name.toLowerCase() === q);
   if (found) return found;
 
-  // 3. Known aliases & sub-slugs (e.g. 'shimla' matches 'shimla-kufri', 'manali' matches 'manali-spiti')
+  // 4. Known aliases & sub-slugs (e.g. 'shimla' matches 'shimla-kufri', 'manali' matches 'manali-spiti')
   found = DESTINATIONS.find((d) => {
     const idParts = d.id.toLowerCase().split('-');
     const nameParts = d.name.toLowerCase().replace(/[^a-z0-9]/g, ' ').split(/\s+/);
@@ -92,7 +156,7 @@ export function findLocalDestination(idOrQuery) {
   });
   if (found) return found;
 
-  // 4. Substring inclusion
+  // 5. Substring inclusion
   found = DESTINATIONS.find((d) => {
     return d.name.toLowerCase().includes(q) || d.country.toLowerCase().includes(q) || d.id.toLowerCase().includes(q);
   });
@@ -101,10 +165,18 @@ export function findLocalDestination(idOrQuery) {
 }
 
 /**
- * Search Google Places API (New) via local secure proxy
+ * Search Google Places API (New) via local secure proxy with strict timeout
  */
 async function fetchGooglePlace(query) {
   try {
+    const status = await isApiConfigured();
+    if (!status.googlePlaces) {
+      return null;
+    }
+
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), 2000);
+
     const response = await fetch('/api/places/search', {
       method: 'POST',
       headers: {
@@ -113,8 +185,10 @@ async function fetchGooglePlace(query) {
       body: JSON.stringify({
         textQuery: `${query} travel destination`,
         languageCode: 'en'
-      })
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeoutTimer);
 
     if (!response.ok) {
       return null;
@@ -172,6 +246,11 @@ function extractPlacePhotos(place) {
  * Use Gemini API via local secure proxy to generate concise destination descriptions
  */
 async function generateGeminiContent(placeName, address, rating, types) {
+  const status = await isApiConfigured();
+  if (!status.gemini) {
+    return null;
+  }
+
   const prompt = `You are a travel expert for Travio. Provide a structured JSON travel guide for "${placeName}" (${address || 'Global Destination'}).
 Return ONLY valid JSON matching this schema:
 {
@@ -194,38 +273,40 @@ Return ONLY valid JSON matching this schema:
   ]
 }`;
 
-  const models = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.5-flash'];
-  for (const model of models) {
-    try {
-      const response = await fetch('/api/gemini', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          prompt,
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 1200
-          }
-        })
-      });
+  try {
+    const controller = new AbortController();
+    const timeoutTimer = setTimeout(() => controller.abort(), 2000);
 
-      if (!response.ok) {
-        continue;
-      }
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gemini-3.8-flash',
+        prompt,
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 1200
+        }
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutTimer);
 
-      const data = await response.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) continue;
-
-      // Clean potential markdown fences (```json ... ```)
-      const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
-    } catch (error) {
-      // Continue to next model on error
+    if (!response.ok) {
+      return null;
     }
+
+    const data = await response.json();
+    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) return null;
+
+    // Clean potential markdown fences (```json ... ```)
+    const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+    return JSON.parse(cleaned);
+  } catch (error) {
+    // Fail fast to instant synthesized fallback
+    return null;
   }
-  return null;
 }
 
 /**

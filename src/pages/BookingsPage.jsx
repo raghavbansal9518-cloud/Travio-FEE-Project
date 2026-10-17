@@ -543,6 +543,22 @@ export default function BookingsPage() {
                         <span>E-Ticket</span>
                       </button>
 
+                      {/* Journal Memory Link */}
+                      <button
+                        type="button"
+                        className="btn-dest-explore"
+                        style={{
+                          background: 'rgba(192, 132, 252, 0.12)',
+                          color: '#c084fc',
+                          borderColor: 'rgba(192, 132, 252, 0.3)'
+                        }}
+                        onClick={() => navigate(`/journal?new=true&tripId=${encodeURIComponent(b.id)}&destination=${encodeURIComponent(b.destinationName || b.title)}`)}
+                        title="Write a travel story for this trip in your Journal"
+                      >
+                        <span className="material-symbols-rounded" style={{ fontSize: '15px' }}>menu_book</span>
+                        <span>Journal</span>
+                      </button>
+
                       {/* Destination Explore Link */}
                       {b.destinationId && (
                         <button
@@ -799,6 +815,34 @@ export default function BookingsPage() {
                     >
                       <i className="fa-solid fa-print"></i>
                       <span>Print / Save E-Ticket</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-dest-explore"
+                      style={{
+                        padding: '10px 18px',
+                        background: 'rgba(192, 132, 252, 0.15)',
+                        color: '#c084fc',
+                        border: '1px solid rgba(192, 132, 252, 0.35)',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => {
+                        const tripId = selectedTicket.id;
+                        const dest = selectedTicket.destinationName || selectedTicket.title;
+                        setSelectedTicket(null);
+                        navigate(`/journal?new=true&tripId=${encodeURIComponent(tripId)}&destination=${encodeURIComponent(dest)}`);
+                      }}
+                      title="Write a travel story for this ticket in your Journal"
+                    >
+                      <span className="material-symbols-rounded" style={{ fontSize: '16px' }}>menu_book</span>
+                      <span>Story Journal</span>
                     </button>
 
                     <button

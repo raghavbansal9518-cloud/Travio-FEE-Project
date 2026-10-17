@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getTodayDate, getFutureDate } from '../utils/dateUtils';
+import { calculateBadgeProgress, recordBadgeUnlocks } from '../services/badgeService';
+import { loadJournalData } from '../services/journalService';
 
 const TravelContext = createContext(null);
 
@@ -355,6 +357,70 @@ export const TravelProvider = ({ children }) => {
     }
   }, [bookings]);
 
+  // --- Live Badges & Journal Synchronization ---
+  const [badgeState, setBadgeState] = useState(() => {
+    try {
+      return calculateBadgeProgress(wishlist, bookings);
+    } catch {
+      return [];
+    }
+  });
+
+  const [journalCount, setJournalCount] = useState(() => {
+    try {
+      const data = loadJournalData();
+      return (data.userEntries || []).length;
+    } catch {
+      return 0;
+    }
+  });
+
+  const checkBadgeUnlocks = useCallback((customWishlist, customBookings) => {
+    try {
+      const activeWishlist = customWishlist || wishlist;
+      const activeBookings = customBookings || bookings;
+      const computed = calculateBadgeProgress(activeWishlist, activeBookings);
+      setBadgeState(computed);
+
+      const { newlyUnlocked } = recordBadgeUnlocks(computed);
+      if (newlyUnlocked && newlyUnlocked.length > 0) {
+        newlyUnlocked.forEach((id) => {
+          const badge = computed.find((b) => b.id === id);
+          if (badge) {
+            showToast(`🎉 Achievement Unlocked: ${badge.name}!`, 'success');
+          }
+        });
+      }
+
+      try {
+        const jData = loadJournalData();
+        setJournalCount((jData.userEntries || []).length);
+      } catch {}
+
+      return computed;
+    } catch (err) {
+      console.error('Error recalculating badges:', err);
+    }
+  }, [wishlist, bookings]);
+
+  // Recalculate on wishlist or bookings update
+  useEffect(() => {
+    checkBadgeUnlocks(wishlist, bookings);
+  }, [wishlist, bookings, checkBadgeUnlocks]);
+
+  // Listen to cross-feature storage or custom update events (e.g. from Journal or Packing Assistant)
+  useEffect(() => {
+    const handleDataChanged = () => {
+      checkBadgeUnlocks();
+    };
+    window.addEventListener('travio_data_changed', handleDataChanged);
+    window.addEventListener('storage', handleDataChanged);
+    return () => {
+      window.removeEventListener('travio_data_changed', handleDataChanged);
+      window.removeEventListener('storage', handleDataChanged);
+    };
+  }, [checkBadgeUnlocks]);
+
   // Wishlist Helpers
   const isWishlisted = (id) => {
     if (!id) return false;
@@ -481,6 +547,11 @@ export const TravelProvider = ({ children }) => {
         addBooking,
         cancelBooking,
         deleteBooking,
+        badges: badgeState,
+        unlockedBadgesCount: badgeState.filter((b) => b.unlocked).length,
+        journalCount,
+        checkBadgeUnlocks,
+        refreshBadges: checkBadgeUnlocks,
         showToast
       }}
     >

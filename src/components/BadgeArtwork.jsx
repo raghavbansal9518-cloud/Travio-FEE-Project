@@ -118,6 +118,26 @@ const artwork = {
     <path d="M71 45q-7-10 0-16 3 7 8 9 4 6-1 11" fill="#ff8a43" />
     <path d="M35 90q12-10 26 0t28 0" fill="none" stroke="#ff693d" strokeWidth="5" />
     <circle cx="34" cy="48" r="3" fill="#ffd269" /><circle cx="88" cy="43" r="4" fill="#ff8c4d" />
+  </g>,
+  storyteller: <g>
+    <path d="M28 45c10-6 22-5 32 3 10-8 22-9 32-3v45c-10-6-22-5-32 3-10-8-22-9-32-3Z" fill="#7c3aed" stroke="#c084fc" strokeWidth="2.5" />
+    <path d="M60 48v45" stroke="#e9d5ff" strokeWidth="2" strokeDasharray="2 2" />
+    <path d="M34 56h18M34 64h18M34 72h14M68 56h18M68 64h18M68 72h12" stroke="#f3e8ff" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="88" cy="40" r="10" fill="#ffd451" />
+    <path d="m88 34 2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1Z" fill="#fff" />
+  </g>,
+  'wishlist-dreamer': <g>
+    <circle cx="60" cy="62" r="28" fill="#881337" opacity=".4" />
+    <path d="M60 84s-24-15-24-28a12 12 0 0 1 21-8l3 3 3-3a12 12 0 0 1 21 8c0 13-24 28-24 28Z" fill="#f43f5e" stroke="#fda4af" strokeWidth="3" />
+    <circle cx="48" cy="50" r="3" fill="#ffe4e6" opacity=".8" />
+    <path d="m30 36 2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1Zm58 6 1.5 3 3 1-2.5 2.5 1 3-3-1.5-3 1.5 1-3-2.5-2.5 3-1Z" fill="#ffd54f" />
+  </g>,
+  'master-packer': <g>
+    <rect x="34" y="42" width="52" height="48" rx="8" fill="#0284c7" stroke="#7dd3fc" strokeWidth="3" />
+    <path d="M48 42V35a6 6 0 0 1 12 0v7M60 35v7" stroke="#e0f2fe" strokeWidth="3" fill="none" strokeLinecap="round" />
+    <path d="M34 58h52M45 42v48M75 42v48" stroke="#38bdf8" strokeWidth="2.5" />
+    <circle cx="60" cy="58" r="4" fill="#fbbf24" stroke="#fff" strokeWidth="1.5" />
+    <path d="M52 74l6 6 12-12" fill="none" stroke="#4ade80" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
   </g>
 };
 

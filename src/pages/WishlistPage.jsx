@@ -488,6 +488,20 @@ export default function WishlistPage() {
                             <span>Book This Trip</span>
                           </button>
 
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigate(`/journal?new=true&destination=${encodeURIComponent(dest.name)}`);
+                              setOpenDropdownId(null);
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#cbd5e1', padding: '8px 12px', fontSize: '12px', textAlign: 'left', cursor: 'pointer', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}
+                            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'none'}
+                          >
+                            <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#c084fc' }}>menu_book</span>
+                            <span>Write in Journal</span>
+                          </button>
+
                           <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '2px 0' }} />
 
                           <button

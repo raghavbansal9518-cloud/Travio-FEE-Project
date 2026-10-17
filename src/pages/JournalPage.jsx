@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
 import { DEFAULT_DEMO_FAVORITES, DEMO_JOURNAL_ENTRIES } from '../data/journalEntries';
@@ -132,6 +132,30 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
 
   const update = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
+  };
+
+  const handleTripChange = (event) => {
+    const selectedTripId = event.target.value;
+    const selectedBooking = bookings.find((b) => b.id === selectedTripId);
+    setForm((current) => {
+      const nextDest = (!current.destination || current.destination === 'Goa') && selectedBooking
+        ? (selectedBooking.destinationName || selectedBooking.title)
+        : current.destination;
+      const nextDate = selectedBooking?.departureDate ? normalizeDate(selectedBooking.departureDate) : current.date;
+      const nextEndDate = selectedBooking?.returnDate ? normalizeDate(selectedBooking.returnDate) : current.endDate;
+      const nextImage = !current.image && selectedBooking?.destinationImage ? selectedBooking.destinationImage : current.image;
+      const nextTitle = !current.title && selectedBooking ? `Memories from ${selectedBooking.destinationName || selectedBooking.title}` : current.title;
+
+      return {
+        ...current,
+        tripId: selectedTripId,
+        destination: nextDest,
+        date: nextDate,
+        endDate: nextEndDate,
+        image: nextImage,
+        title: nextTitle
+      };
+    });
   };
 
   const handleImageUpload = (event) => {
@@ -275,8 +299,8 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
       <section className="journal-modal" role="dialog" aria-modal="true" aria-labelledby="journal-modal-title">
         <div className="journal-modal__heading">
           <div>
-            <span className="journal-eyebrow">{entry ? 'YOUR STORY, YOUR WAY' : 'A NEW MEMORY'}</span>
-            <h2 id="journal-modal-title">{entry ? 'Edit journal entry' : 'Create a journal entry'}</h2>
+            <span className="journal-eyebrow">{entry?.id ? 'YOUR STORY, YOUR WAY' : 'A NEW MEMORY'}</span>
+            <h2 id="journal-modal-title">{entry?.id ? 'Edit journal entry' : 'Create a journal entry'}</h2>
           </div>
           <button className="journal-icon-button" type="button" aria-label="Close dialog" onClick={onCancel}>
             <span className="material-symbols-rounded">close</span>
@@ -370,7 +394,7 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
           </label>
           <label className="journal-field">
             <span>Associate with a trip</span>
-            <select value={form.tripId} onChange={update('tripId')}>
+            <select value={form.tripId} onChange={handleTripChange}>
               <option value="">No trip association</option>
               {bookings.map((booking) => (
                 <option key={booking.id} value={booking.id}>
@@ -399,7 +423,7 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
             </button>
             <button className="journal-button journal-button--primary" type="submit" value="published" disabled={isReadingImage}>
               <span className="material-symbols-rounded" aria-hidden="true">publish</span>
-              {isReadingImage ? 'Preparing photo…' : entry?.status === 'published' ? 'Save & Publish' : 'Publish Story'}
+              {isReadingImage ? 'Preparing photo…' : (entry?.id && entry?.status === 'published') ? 'Save & Publish' : 'Publish Story'}
             </button>
           </div>
         </form>}
@@ -482,13 +506,43 @@ function JournalCard({ entry, isDemo, favorite, bookmarked, menuOpen, readOnly, 
 
 export default function JournalPage() {
   const navigate = useNavigate();
-  const { bookings, wishlist, showToast } = useTravel();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { bookings, wishlist, showToast, refreshBadges } = useTravel();
   const [initialData, setInitialData] = useState(getInitialData);
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [modalEntry, setModalEntry] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
+
+  // Auto-open modal if directed from Bookings or Wishlist with ?new=true
+  useEffect(() => {
+    if (searchParams.get('new') === 'true') {
+      const tripId = searchParams.get('tripId') || '';
+      const destParam = searchParams.get('destination') || '';
+      const matchedTrip = tripId ? bookings.find((b) => b.id === tripId) : null;
+
+      const prefilledTitle = matchedTrip
+        ? `Memories from ${matchedTrip.destinationName || matchedTrip.title}`
+        : (destParam ? `Exploring ${destParam}` : '');
+      const prefilledDest = destParam || matchedTrip?.destinationName || '';
+
+      setModalEntry({
+        title: prefilledTitle,
+        destination: prefilledDest,
+        tripId,
+        date: matchedTrip?.departureDate ? normalizeDate(matchedTrip.departureDate) : getToday(),
+        endDate: matchedTrip?.returnDate ? normalizeDate(matchedTrip.returnDate) : '',
+        description: '',
+        fullStory: '',
+        image: matchedTrip?.destinationImage || '',
+        tags: matchedTrip?.type ? [matchedTrip.type] : [],
+        kind: 'trip'
+      });
+      setIsCreating(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, bookings, setSearchParams]);
 
   const visibleDemoEntries = useMemo(() => DEMO_JOURNAL_ENTRIES
     .filter((entry) => !initialData.demoState.hidden.includes(entry.id))
@@ -599,6 +653,10 @@ export default function JournalPage() {
       setModalEntry(null);
       setIsCreating(false);
       setOpenMenuId(null);
+      window.dispatchEvent(new Event('travio_data_changed'));
+      if (typeof refreshBadges === 'function') {
+        refreshBadges();
+      }
     } catch (error) {
       setFormError(`Could not save this entry. ${error.message || 'Check available storage and try again.'}`);
     }
@@ -643,6 +701,10 @@ export default function JournalPage() {
       }
       setOpenMenuId(null);
       showToast(entry.isDemo ? 'Sample entry removed.' : 'Journal entry deleted.', 'success');
+      window.dispatchEvent(new Event('travio_data_changed'));
+      if (typeof refreshBadges === 'function') {
+        refreshBadges();
+      }
     } catch (error) {
       showToast(`Could not delete this entry. ${error.message || 'Please try again.'}`, 'error');
     }
@@ -789,7 +851,7 @@ export default function JournalPage() {
 
       {(isCreating || modalEntry) && (
         <JournalEntryForm
-          key={modalEntry?.id || 'new-entry'}
+          key={modalEntry?.id || (modalEntry ? `new-${modalEntry.tripId || modalEntry.destination || 'entry'}` : 'new-entry')}
           entry={modalEntry}
           bookings={bookings}
           onCancel={() => {

@@ -8,17 +8,20 @@ export const BADGE_DEFINITIONS = [
   { id: 'city-wanderer', name: 'City Wanderer', category: 'Destinations', filter: 'destinations', description: 'Lose yourself in the energy of five major cities.', requirement: 'Visit 5 major cities', target: 5, metric: 'cities', accent: '#ffad55', image: '/images/paris_bg.png', related: ['cities'] },
   { id: 'beach-lover', name: 'Beach Lover', category: 'Destinations', filter: 'destinations', description: 'Discover five coastlines, coves, and sunlit shores.', requirement: 'Visit 5 beach destinations', target: 5, metric: 'beaches', accent: '#28dfd3', image: '/images/beach.jpg', related: ['beaches'] },
   { id: 'cultural-traveller', name: 'Cultural Traveller', category: 'Exploration', filter: 'exploration', description: 'Explore the stories and landmarks of five cultural destinations.', requirement: 'Visit 5 historical or cultural sites', target: 5, metric: 'culture', accent: '#ff71cf', image: '/images/japan.jpg', related: ['historical'] },
-  { id: 'first-adventure', name: 'First Adventure', category: 'Milestones', filter: 'milestones', description: 'Every great travel story starts with one journey.', requirement: 'Complete your first trip', target: 1, metric: 'trips', accent: '#ffd451', image: '/images/hero-bg.jpg', related: ['adventure'] },
+  { id: 'first-adventure', name: 'First Adventure', category: 'Milestones', filter: 'milestones', description: 'Every great travel story starts with one journey.', requirement: 'Book or complete your first trip', target: 1, metric: 'trips', accent: '#ffd451', image: '/images/hero-bg.jpg', related: ['adventure'] },
   { id: 'global-explorer', name: 'Global Explorer', category: 'Exploration', filter: 'exploration', description: 'Collect passport-worthy memories across the globe.', requirement: 'Visit 10 different countries', target: 10, metric: 'countries', accent: '#4ee5c1', image: '/images/featured-destination.jpg', related: ['cities'] },
-  { id: 'photo-master', name: 'Photo Master', category: 'Activities', filter: 'activities', description: 'Build a gallery of travel moments worth revisiting.', requirement: 'Save 50 travel photos in your journal', target: 50, metric: 'photos', accent: '#65c8ff', image: '/images/japan.jpg', related: ['nature'] },
-  { id: 'adventure-seeker', name: 'Adventure Seeker', category: 'Activities', filter: 'activities', description: 'Earn your stripes through five completed adventures.', requirement: 'Complete 5 adventure activities', target: 5, metric: 'adventures', accent: '#ff9a56', image: '/images/adventure.jpg', related: ['adventure'] },
+  { id: 'photo-master', name: 'Photo Master', category: 'Activities', filter: 'activities', description: 'Build a gallery of travel moments worth revisiting.', requirement: 'Save 10 travel photos in your journal', target: 10, metric: 'photos', accent: '#65c8ff', image: '/images/japan.jpg', related: ['nature'] },
+  { id: 'adventure-seeker', name: 'Adventure Seeker', category: 'Activities', filter: 'activities', description: 'Earn your stripes through five completed adventures.', requirement: 'Complete 5 adventure activities or stories', target: 5, metric: 'adventures', accent: '#ff9a56', image: '/images/adventure.jpg', related: ['adventure'] },
   { id: 'foodie', name: 'Foodie', category: 'Activities', filter: 'activities', description: 'Follow your appetite to local flavors in five destinations.', requirement: 'Record local food experiences in 5 destinations', target: 5, metric: 'food', accent: '#ff7c60', image: '/images/food.jpg', related: ['cities'] },
   { id: 'frequent-traveller', name: 'Frequent Traveller', category: 'Milestones', filter: 'milestones', description: 'Keep collecting miles, memories, and new horizons.', requirement: 'Complete 10 trips', target: 10, metric: 'trips', accent: '#b68aff', image: '/images/hero-bg.jpg', related: ['cities'] },
   { id: 'winter-voyager', name: 'Winter Voyager', category: 'Special', filter: 'special', description: 'Experience a destination at its most magical in winter.', requirement: 'Record a visit during winter (December–February)', target: 1, metric: 'winter', accent: '#d3ecff', image: '/images/iceland_bg.png', related: ['mountains'] },
   { id: 'desert-nomad', name: 'Desert Nomad', category: 'Destinations', filter: 'destinations', description: 'Follow the dunes and discover the beauty of the desert.', requirement: 'Visit a desert destination', target: 1, metric: 'desert', accent: '#ffc56b', image: '/images/dubai_bg.png', related: ['historical'] },
   { id: 'forest-trekker', name: 'Forest Trekker', category: 'Exploration', filter: 'exploration', description: 'Find your path through five forests and national parks.', requirement: 'Visit 5 forests or national parks', target: 5, metric: 'forest', accent: '#78dfa2', image: '/images/new_zealand_bg.png', related: ['nature'] },
   { id: 'island-hopper', name: 'Island Hopper', category: 'Destinations', filter: 'destinations', description: 'Make three different islands part of your story.', requirement: 'Visit 3 different islands', target: 3, metric: 'islands', accent: '#45e8d6', image: '/images/maldives.jpg', related: ['beaches'] },
-  { id: 'volcano-conqueror', name: 'Volcano Conqueror', category: 'Special', filter: 'special', description: 'Stand in awe of the power and beauty of a volcano.', requirement: 'Record a visit to an active volcano', target: 1, metric: 'volcano', accent: '#ff7455', image: '/images/bali_bg.png', related: ['adventure'] }
+  { id: 'volcano-conqueror', name: 'Volcano Conqueror', category: 'Special', filter: 'special', description: 'Stand in awe of the power and beauty of a volcano.', requirement: 'Record a visit to an active volcano', target: 1, metric: 'volcano', accent: '#ff7455', image: '/images/bali_bg.png', related: ['adventure'] },
+  { id: 'storyteller', name: 'Storyteller', category: 'Milestones', filter: 'milestones', description: 'Share your personal adventures and memories with the world.', requirement: 'Publish 3 travel stories in your journal', target: 3, metric: 'stories', accent: '#c084fc', image: '/images/hero-bg.jpg', related: ['cities', 'adventure'] },
+  { id: 'wishlist-dreamer', name: 'Wishlist Dreamer', category: 'Exploration', filter: 'exploration', description: 'Curate your wanderlust bucket list of dream places.', requirement: 'Save 3 destinations to your wishlist', target: 3, metric: 'wishlist', accent: '#f43f5e', image: '/images/featured-destination.jpg', related: ['beaches', 'mountains'] },
+  { id: 'master-packer', name: 'Master Packer', category: 'Activities', filter: 'activities', description: 'Stay prepared for every journey with your gear checked off.', requirement: 'Check off 3 packed items in Packing Assistant', target: 3, metric: 'packing', accent: '#38bdf8', image: '/images/adventure.jpg', related: ['adventure'] }
 ];
 
 const DESTINATION_TYPES = {
@@ -149,31 +152,41 @@ function isFoodBooking(booking) {
 }
 
 export function calculateBadgeProgress(wishlist, bookings) {
-  const entries = safeArray(loadJournalData().userEntries)
-    .filter((entry) => entry && entry.status !== 'draft');
+  let entries = [];
+  try {
+    entries = safeArray(loadJournalData().userEntries)
+      .filter((entry) => entry && entry.status !== 'draft');
+  } catch {
+    entries = [];
+  }
+
+  // 1. Visited destinations from wishlist
   const visitedFromWishlist = safeArray(wishlist)
-    .filter((destination) => destination.status === 'visited' && destination.demoRecord !== true)
+    .filter((destination) => destination.status === 'visited')
     .map((destination) => normalizeVisit(destination, 'visited destination'));
-  const completedBookings = safeArray(bookings).filter((booking) =>
-    booking.demoRecord !== true
-    && booking.status === 'Confirmed'
-    && beforeToday(booking.returnDate || booking.departureDate)
+
+  // 2. Confirmed user bookings (all confirmed trips count towards milestones)
+  const confirmedUserBookings = safeArray(bookings).filter((booking) =>
+    booking.status === 'Confirmed'
   );
-  const completedExperiences = completedBookings.filter((booking) =>
+
+  const completedExperiences = confirmedUserBookings.filter((booking) =>
     String(booking.type || booking.travelStyle || '').toUpperCase() === 'EXPERIENCE'
   );
-  const tripBookings = completedBookings.filter((booking) =>
-    ['FLIGHT', 'TRAIN', 'BUS', 'CAB'].includes(String(booking.type || booking.travelStyle || '').toUpperCase())
+
+  const tripBookings = confirmedUserBookings.filter((booking) =>
+    ['FLIGHT', 'TRAIN', 'BUS', 'CAB', 'HOTEL', 'STAY'].includes(String(booking.type || booking.travelStyle || '').toUpperCase())
   );
+
   const journalTravelEntries = entries.filter((entry) =>
     ['trip', 'photo'].includes(entry.kind)
-    && !entry.demo
-    && onOrBeforeToday(entry.date)
   );
   const journalTrips = journalTravelEntries.filter((entry) => entry.kind === 'trip');
-  const bookingVisits = completedBookings
+
+  const bookingVisits = confirmedUserBookings
     .filter((booking) => String(booking.type || booking.travelStyle || '').toUpperCase() !== 'EXPERIENCE')
-    .map((booking) => normalizeVisit(booking, 'completed trip'));
+    .map((booking) => normalizeVisit(booking, 'confirmed trip'));
+
   const journalVisits = journalTravelEntries.map((entry) => normalizeVisit({
     id: entry.id,
     destination: entry.destination || entry.location,
@@ -181,30 +194,34 @@ export function calculateBadgeProgress(wishlist, bookings) {
     date: entry.date,
     image: entry.image
   }, 'journal entry'));
+
   const visits = uniqueBy(
     [...bookingVisits, ...journalVisits, ...visitedFromWishlist],
     destinationKey
   );
+
   const countries = uniqueBy(
     visits.map((visit) => ({ ...visit, country: visit.country || countryName(visit.name) })),
     (visit) => String(visit.country || '').toLowerCase()
   ).filter((visit) => visit.country);
+
   const tripRecords = uniqueBy([
     ...tripBookings.map((booking) => ({
-      key: `${destinationKey(normalizeVisit(booking, 'completed trip'))}-${String(booking.departureDate || '').slice(0, 10)}`,
+      key: `${destinationKey(normalizeVisit(booking, 'confirmed trip'))}-${String(booking.departureDate || booking.id).slice(0, 10)}`,
       id: booking.id,
-      name: booking.destinationName || 'Completed trip',
+      name: booking.destinationName || booking.title || 'Travel booking',
       date: booking.departureDate,
-      source: 'Completed booking'
+      source: 'Confirmed booking'
     })),
     ...journalTrips.map((entry) => ({
-      key: `${destinationKey(normalizeVisit(entry, 'journal entry'))}-${String(entry.date || '').slice(0, 10)}`,
+      key: `${destinationKey(normalizeVisit(entry, 'journal entry'))}-${String(entry.date || entry.id).slice(0, 10)}`,
       id: entry.id,
       name: entry.destination || entry.location || entry.title,
       date: entry.date,
       source: 'Journal entry'
     }))
   ], (trip) => trip.key);
+
   const photos = uniqueBy(entries.flatMap((entry) => {
     const gallery = safeArray(entry.gallery).map((photo) => typeof photo === 'string' ? photo : photo?.image || photo?.url);
     return [entry.image, ...gallery].filter((image) => typeof image === 'string' && image.trim()).map((image, index) => ({
@@ -215,22 +232,61 @@ export function calculateBadgeProgress(wishlist, bookings) {
       source: 'Journal photo'
     }));
   }), (photo) => photo.image);
+
   const foodVisits = uniqueBy([
-    ...entries.filter((entry) =>
-      isFoodStory(entry)
-      && onOrBeforeToday(entry.date)
-      && (entry.destination || entry.location)
-    ).map((entry) => normalizeVisit(entry, 'food journal entry')),
-    ...completedExperiences.filter(isFoodBooking).map((booking) => normalizeVisit(booking, 'completed food experience'))
+    ...entries.filter((entry) => isFoodStory(entry) && (entry.destination || entry.location))
+      .map((entry) => normalizeVisit(entry, 'food journal entry')),
+    ...confirmedUserBookings.filter(isFoodBooking).map((booking) => normalizeVisit(booking, 'food experience booking'))
   ], destinationKey);
-  const adventures = uniqueBy(
-    completedExperiences.filter(isAdventureBooking),
-    (booking) => String(booking.id || `${booking.title}-${booking.departureDate}`)
-  );
+
+  const adventures = uniqueBy([
+    ...completedExperiences.filter(isAdventureBooking),
+    ...entries.filter((entry) =>
+      /\b(adventure|hike|hiking|trek|trekking|climb|rafting|paraglid|safari|kayak|dive|diving)\b/i.test(
+        `${entry.title || ''} ${entry.description || ''} ${(entry.tags || []).join(' ')}`
+      )
+    ).map((entry) => ({
+      id: entry.id,
+      title: entry.title || 'Adventure Story',
+      departureDate: entry.date,
+      source: 'Adventure story'
+    }))
+  ], (booking) => String(booking.id || `${booking.title}-${booking.departureDate}`));
+
   const winterVisits = visits.filter((visit) => {
     const date = asDate(visit.date);
     return date && [11, 0, 1].includes(date.getMonth());
   });
+
+  const storyRecords = entries.map((entry) => ({
+    id: entry.id,
+    name: entry.title || 'Journal story',
+    date: entry.date,
+    source: 'Travel journal'
+  }));
+
+  const wishlistRecords = safeArray(wishlist).map((item) => ({
+    id: item.id,
+    name: item.name,
+    source: 'Wishlist'
+  }));
+
+  let packedItemsCount = 0;
+  try {
+    const packingSaved = localStorage.getItem('travio_packing_items');
+    if (packingSaved) {
+      const parsed = JSON.parse(packingSaved);
+      if (Array.isArray(parsed)) {
+        packedItemsCount = parsed.filter((item) => item.checked).length;
+      }
+    }
+  } catch {}
+  const packingRecords = Array.from({ length: packedItemsCount }, (_, i) => ({
+    id: `packed-item-${i}`,
+    name: `Packed item #${i + 1}`,
+    source: 'Packing Assistant'
+  }));
+
   const metrics = {
     mountains: visits.filter((visit) => visit.categories.mountains),
     cities: visits.filter((visit) => visit.categories.cities),
@@ -245,7 +301,10 @@ export function calculateBadgeProgress(wishlist, bookings) {
     desert: visits.filter((visit) => visit.categories.desert),
     forest: visits.filter((visit) => visit.categories.forest),
     islands: visits.filter((visit) => visit.categories.islands),
-    volcano: visits.filter((visit) => visit.categories.volcano)
+    volcano: visits.filter((visit) => visit.categories.volcano),
+    stories: storyRecords,
+    wishlist: wishlistRecords,
+    packing: packingRecords
   };
 
   return BADGE_DEFINITIONS.map((badge) => {

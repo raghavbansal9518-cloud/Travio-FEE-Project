@@ -6,7 +6,7 @@ import { useTravel } from '../context/TravelContext';
 const Sidebar = ({ isHome }) => {
   // State to handle sidebar expansion on mobile devices
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
-  const { wishlistCount, bookingsCount } = useTravel();
+  const { wishlistCount, bookingsCount, unlockedBadgesCount, journalCount } = useTravel();
 
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -53,6 +53,7 @@ const Sidebar = ({ isHome }) => {
             <NavLink to="/wishlist">
               <span className="material-symbols-rounded">favorite</span>
               <span className="nav-text">Wishlist</span>
+              {wishlistCount > 0 && <span className="nav-badge badge-rose">{wishlistCount}</span>}
             </NavLink>
           </li>
           
@@ -80,8 +81,20 @@ const Sidebar = ({ isHome }) => {
           
           {/* User Specific Pages */}
 
-          <li><NavLink to="/journal"><span className="material-symbols-rounded">menu_book</span><span className="nav-text">Journal</span></NavLink></li>
-          <li><NavLink to="/badges"><span className="material-symbols-rounded">workspace_premium</span><span className="nav-text">Badges</span></NavLink></li>
+          <li>
+            <NavLink to="/journal">
+              <span className="material-symbols-rounded">menu_book</span>
+              <span className="nav-text">Journal</span>
+              {journalCount > 0 && <span className="nav-badge badge-purple">{journalCount}</span>}
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/badges">
+              <span className="material-symbols-rounded">workspace_premium</span>
+              <span className="nav-text">Badges</span>
+              {unlockedBadgesCount > 0 && <span className="nav-badge badge-amber">{unlockedBadgesCount}</span>}
+            </NavLink>
+          </li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">Settings</span></NavLink></li>
         </ul>
 

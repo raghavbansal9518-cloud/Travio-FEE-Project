@@ -10,7 +10,7 @@ import RecommendedSection from './components/RecommendedSection';
 import FilterModal from './components/FilterModal';
 import DestinationCard from './components/DestinationCard';
 import { DESTINATIONS } from './data/destinationsData';
-import { searchDestination } from './services/destinationService';
+import { searchDestination, KNOWN_GLOBAL_CITY_ALIASES } from './services/destinationService';
 import './Explore.css';
 
 export default function Explore() {
@@ -56,17 +56,25 @@ export default function Explore() {
     return count;
   }, [advancedFilters]);
 
-  // Dynamic Destination Filtering
+  // Dynamic Destination Filtering with smart alias and keyword recognition
   const filteredDestinations = useMemo(() => {
     return DESTINATIONS.filter((dest) => {
       // 1. Search Query Match
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
+        const aliasTarget = KNOWN_GLOBAL_CITY_ALIASES?.[q];
+        const matchesAlias = Boolean(
+          aliasTarget && (
+            dest.id.toLowerCase() === aliasTarget ||
+            dest.country.toLowerCase() === aliasTarget ||
+            dest.id.toLowerCase().startsWith(aliasTarget)
+          )
+        );
         const matchesName = dest.name.toLowerCase().includes(q);
         const matchesCountry = dest.country.toLowerCase().includes(q);
         const matchesTagline = dest.tagline?.toLowerCase().includes(q);
         const matchesDesc = dest.description?.toLowerCase().includes(q);
-        if (!matchesName && !matchesCountry && !matchesTagline && !matchesDesc) {
+        if (!matchesAlias && !matchesName && !matchesCountry && !matchesTagline && !matchesDesc) {
           return false;
         }
       }
@@ -126,6 +134,7 @@ export default function Explore() {
     }
 
     setIsSearchingDynamic(true);
+    setDynamicDestination(null);
     let isCancelled = false;
 
     const timer = setTimeout(async () => {
@@ -143,7 +152,7 @@ export default function Explore() {
           setIsSearchingDynamic(false);
         }
       }
-    }, 450);
+    }, 250);
 
     return () => {
       isCancelled = true;

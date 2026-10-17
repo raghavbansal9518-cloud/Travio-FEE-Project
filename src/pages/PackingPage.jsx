@@ -48,6 +48,7 @@ export default function PackingPage() {
   useEffect(() => {
     try {
       localStorage.setItem('travio_packing_items', JSON.stringify(items));
+      window.dispatchEvent(new Event('travio_data_changed'));
     } catch (e) {}
   }, [items]);
 

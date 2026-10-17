@@ -74,14 +74,19 @@ export async function handleApiProxy(req, res, env = {}) {
 
       const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${geminiKey}`;
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+
       const apiRes = await fetch(geminiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents,
           generationConfig
-        })
+        }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const responseData = await apiRes.json();
       res.setHeader('Content-Type', 'application/json');
@@ -90,8 +95,8 @@ export async function handleApiProxy(req, res, env = {}) {
       return true;
     } catch (err) {
       res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 500;
-      res.end(JSON.stringify({ error: err.message || 'Error proxying to Gemini API' }));
+      res.statusCode = 504;
+      res.end(JSON.stringify({ error: err.name === 'AbortError' ? 'Gemini API request timed out' : (err.message || 'Error proxying to Gemini API') }));
       return true;
     }
   }
@@ -112,6 +117,9 @@ export async function handleApiProxy(req, res, env = {}) {
       const textQuery = body.textQuery || '';
       const languageCode = body.languageCode || 'en';
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const placesEndpoint = 'https://places.googleapis.com/v1/places:searchText';
       const apiRes = await fetch(placesEndpoint, {
         method: 'POST',
@@ -123,8 +131,10 @@ export async function handleApiProxy(req, res, env = {}) {
         body: JSON.stringify({
           textQuery,
           languageCode
-        })
+        }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
       const responseData = await apiRes.json();
       res.setHeader('Content-Type', 'application/json');
@@ -133,8 +143,8 @@ export async function handleApiProxy(req, res, env = {}) {
       return true;
     } catch (err) {
       res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 500;
-      res.end(JSON.stringify({ error: err.message || 'Error proxying to Google Places API' }));
+      res.statusCode = 504;
+      res.end(JSON.stringify({ error: err.name === 'AbortError' ? 'Google Places API request timed out' : (err.message || 'Error proxying to Google Places API') }));
       return true;
     }
   }

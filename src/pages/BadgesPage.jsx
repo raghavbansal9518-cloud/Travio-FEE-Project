@@ -36,7 +36,10 @@ const BADGE_TIPS = {
   'desert-nomad': ['Record a completed visit to a desert destination in your journal or trips.', 'Searching or browsing a place does not count as a visit.'],
   'forest-trekker': ['Record visits to forests, nature reserves, and national parks.', 'Each destination contributes once.'],
   'island-hopper': ['Record visits to three different islands or island destinations.', 'Your completed destinations are deduplicated.'],
-  'volcano-conqueror': ['Record a completed visit to a volcano destination.', 'A saved destination or search alone does not count.']
+  'volcano-conqueror': ['Record a completed visit to a volcano destination.', 'A saved destination or search alone does not count.'],
+  storyteller: ['Publish personal stories in your travel journal.', 'Share 3 journeys with photos and memories to earn this badge.'],
+  'wishlist-dreamer': ['Browse Explore and save destinations you want to visit.', 'Keep 3 or more dream places in your wishlist.'],
+  'master-packer': ['Check off your essential items in the Packing Assistant.', 'Get packing ready before you set out!']
 };
 
 function formatUnlockDate(value) {
