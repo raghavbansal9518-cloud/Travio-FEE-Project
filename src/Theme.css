@@ -1,0 +1,326 @@
+:root {
+  --primary-color: #7c3aed;
+  --primary-hover: #a855f7;
+  --secondary-color: #24183d;
+  --accent-purple: #a855f7;
+  --bg-color: #0b0b12;
+  --card-bg: #1a1a2e;
+  --text-dark: #ede9fe;
+  --text-muted: #a1a1b5;
+  --text-secondary: #c7c5d5;
+  --border-color: #30204e;
+  --input-bg: #131326;
+  --focus-ring: #a855f7;
+  --color-bg: #0b0b12;
+  --color-surface-card: #1a1a2e;
+  --color-border: #30204e;
+  --color-border-focus: #a855f7;
+  --color-text-primary: #ede9fe;
+  --color-text-secondary: #c7c5d5;
+  --color-text-muted: #a1a1b5;
+  --color-text-link: #a855f7;
+  --shadow-sm: 0 4px 14px rgba(124, 58, 237, 0.12);
+  --shadow-md: 0 10px 28px rgba(124, 58, 237, 0.18);
+  --shadow-hover: 0 16px 36px rgba(124, 58, 237, 0.24);
+}
+
+.travio-theme {
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-dark);
+}
+
+.travio-theme .home-theme {
+  --primary-color: #7c3aed;
+  --primary-hover: #a855f7;
+  --secondary-color: #24183d;
+  --bg-color: #0b0b12;
+  --card-bg: #1a1a2e;
+  --text-dark: #ede9fe;
+  --text-muted: #a1a1b5;
+  --border-color: #30204e;
+  --color-bg: #0b0b12;
+  --color-surface-card: #1a1a2e;
+  --color-border: #30204e;
+  --color-border-focus: #a855f7;
+  --color-text-primary: #ede9fe;
+  --color-text-secondary: #c7c5d5;
+  --color-text-muted: #a1a1b5;
+  --color-text-link: #a855f7;
+  --shadow-sm: 0 4px 14px rgba(124, 58, 237, 0.12);
+  --shadow-md: 0 10px 28px rgba(124, 58, 237, 0.18);
+  --shadow-hover: 0 16px 36px rgba(124, 58, 237, 0.24);
+  background-color: var(--bg-color);
+}
+
+html,
+body,
+#root {
+  background-color: var(--bg-color);
+}
+
+.travio-theme .sidebar {
+  background: #0b0b12;
+  border-color: var(--border-color);
+}
+
+.travio-theme .main-content {
+  background-color: var(--bg-color);
+}
+
+.travio-theme .top-header,
+.travio-theme .home-theme .top-header {
+  background: rgba(11, 11, 18, 0.92);
+  border-color: var(--border-color);
+}
+
+.travio-theme .search-bar,
+.travio-theme .home-theme .search-bar {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+}
+
+.travio-theme .home-theme .search-bar:focus-within {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+}
+
+.travio-theme .home-theme .notification-menu,
+.travio-theme .home-theme .profile-dropdown-menu {
+  background: #1a1a2e;
+  border-color: var(--border-color);
+}
+
+.travio-theme .support-card,
+.travio-theme .home-theme .support-card {
+  background: #131326;
+  border-color: var(--border-color);
+}
+
+.travio-theme .nav-list a {
+  color: var(--text-secondary);
+}
+
+.travio-theme .nav-list a:hover {
+  background: #24183d;
+  color: #ede9fe;
+}
+
+.travio-theme .nav-list a.active {
+  background: #3b1c68;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.28);
+}
+
+.travio-theme .home-theme .premium-btn {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.24));
+  border-color: rgba(168, 85, 247, 0.38);
+  color: #e9d5ff;
+}
+
+.travio-theme .primary-btn,
+.travio-theme .landing-start-btn,
+.travio-theme .btn-glowing-cyan,
+.travio-theme .search-main-action-btn,
+.travio-theme .plan-trip-btn,
+.travio-theme .btn-book-new-trip,
+.travio-theme button[class*="primary"],
+.travio-theme a[class*="primary"],
+.travio-theme [class*="btn-primary"] {
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border-color: transparent;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.travio-theme .primary-btn:hover,
+.travio-theme .landing-start-btn:hover,
+.travio-theme .btn-glowing-cyan:hover:not(:disabled),
+.travio-theme .search-main-action-btn:hover:not(:disabled),
+.travio-theme .plan-trip-btn:hover:not(:disabled),
+.travio-theme .btn-book-new-trip:hover:not(:disabled),
+.travio-theme button[class*="primary"]:hover,
+.travio-theme a[class*="primary"]:hover,
+.travio-theme [class*="btn-primary"]:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #8b5cf6, #c084fc);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+.travio-theme .secondary-btn,
+.travio-theme .btn-glass,
+.travio-theme .btn-select-action,
+.travio-theme .btn-action-glass,
+.travio-theme .btn-empty-secondary,
+.travio-theme .btn-outline,
+.travio-theme button[class*="secondary"],
+.travio-theme a[class*="secondary"] {
+  color: #e9d5ff;
+  background: #131326;
+  border: 1px solid #7c3aed;
+}
+
+.travio-theme .secondary-btn:hover,
+.travio-theme .btn-glass:hover:not(:disabled),
+.travio-theme .btn-select-action:hover:not(:disabled),
+.travio-theme .btn-action-glass:hover:not(:disabled),
+.travio-theme .btn-empty-secondary:hover:not(:disabled),
+.travio-theme .btn-outline:hover:not(:disabled),
+.travio-theme button[class*="secondary"]:hover,
+.travio-theme a[class*="secondary"]:hover {
+  background: #24183d;
+  border-color: #a855f7;
+}
+
+.travio-theme .dest-tab-bar {
+  background: #131326;
+  border-color: var(--border-color);
+}
+
+.travio-theme .dest-tab-btn.active,
+.travio-theme [role="tab"][aria-selected="true"] {
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.32);
+}
+
+.travio-theme .dest-tab-btn:not(.active) {
+  color: var(--text-muted);
+}
+
+.travio-theme .dest-tab-btn:not(.active):hover {
+  color: #fff;
+  background: #24183d;
+}
+
+.travio-theme [class*="tab"].active:not(.geoweather-container *),
+.travio-theme [class*="tab"].is-active:not(.geoweather-container *),
+.travio-theme [class*="filter"].active:not(.geoweather-container *),
+.travio-theme [class*="filter"].is-active:not(.geoweather-container *),
+.travio-theme button[aria-pressed="true"]:not(.geoweather-container *) {
+  color: #fff;
+  background-color: #3b1c68;
+  border-color: #a855f7;
+}
+
+.travio-theme .explore-hero {
+  background-color: #0b0b12;
+  border-color: var(--border-color);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45), 0 0 30px rgba(124, 58, 237, 0.16);
+}
+
+.travio-theme .hero-glow-blob {
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.34) 0%, transparent 70%);
+}
+
+.travio-theme .hero-tag {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #d8b4fe;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.24);
+}
+
+.travio-theme .hero-slide-dot.active {
+  background: #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+}
+
+.travio-theme .auth-container,
+.travio-theme .landing-glass-card {
+  background-color: #1a1a2e;
+  border-color: var(--border-color);
+}
+
+.travio-theme .landing-container {
+  background-color: #0b0b12;
+}
+
+.travio-theme .landing-logo {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 10px 25px rgba(124, 58, 237, 0.32);
+}
+
+.travio-theme .badges-page,
+.travio-theme .bookings-page-root,
+.travio-theme .journal-page,
+.travio-theme .journal-story-page,
+.travio-theme .booking-page-root {
+  background-color: #0b0b12;
+}
+
+.travio-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.geoweather-container *),
+.travio-theme textarea:not(.geoweather-container *),
+.travio-theme select:not(.geoweather-container *) {
+  color: var(--text-dark);
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+}
+
+.travio-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.geoweather-container *)::placeholder,
+.travio-theme textarea:not(.geoweather-container *)::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.travio-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(.geoweather-container *):focus,
+.travio-theme textarea:not(.geoweather-container *):focus,
+.travio-theme select:not(.geoweather-container *):focus {
+  border-color: var(--focus-ring);
+  outline-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.18);
+}
+
+.travio-theme h1:not(.geoweather-container *),
+.travio-theme h2:not(.geoweather-container *),
+.travio-theme h3:not(.geoweather-container *),
+.travio-theme h4:not(.geoweather-container *),
+.travio-theme h5:not(.geoweather-container *),
+.travio-theme h6:not(.geoweather-container *) {
+  color: #fff;
+}
+
+.travio-theme p:not([class*="error"]):not([class*="warning"]):not([class*="success"]):not(.geoweather-container *) {
+  color: var(--text-secondary);
+}
+
+.travio-theme small:not(.geoweather-container *),
+.travio-theme time:not(.geoweather-container *),
+.travio-theme [class*="muted"]:not(.geoweather-container *),
+.travio-theme [class*="metadata"]:not(.geoweather-container *) {
+  color: var(--text-muted);
+}
+
+.travio-theme a:not([class*="primary"]):not([class*="secondary"]):not(.geoweather-container *) {
+  color: var(--primary-hover);
+}
+
+.travio-theme a:not([class*="primary"]):not([class*="secondary"]):not(.geoweather-container *):hover {
+  color: #d8b4fe;
+}
+
+.travio-theme [class*="card"]:not([class*="destination"]):not([class*="image"]):not([class*="media"]):not([class*="btn"]):not([class*="button"]):not([class*="favorite"]):not(.geoweather-container *),
+.travio-theme [class*="panel"]:not([class*="btn"]):not([class*="button"]):not([class*="icon"]):not(.geoweather-container *),
+.travio-theme [class*="modal"]:not([class*="overlay"]):not([class*="backdrop"]):not([class*="close"]):not([class*="btn"]):not([class*="button"]):not(.geoweather-container *),
+.travio-theme [class*="dropdown"]:not([class*="btn"]):not([class*="button"]):not(.geoweather-container *),
+.travio-theme [class*="popover"]:not([class*="btn"]):not([class*="button"]):not([class*="icon"]):not(.geoweather-container *) {
+  border-color: var(--border-color);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  background-color: #1a1a2e;
+}
+
+.travio-theme .notification-menu,
+.travio-theme .profile-dropdown-menu {
+  background-color: #1a1a2e;
+  border-color: var(--border-color);
+}
+
+.travio-theme :focus-visible:not(.geoweather-container *) {
+  outline-color: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .travio-theme button:not(.geoweather-container *),
+  .travio-theme a:not(.geoweather-container *) {
+    transition-duration: 0.2s;
+  }
+}
