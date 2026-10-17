@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import BadgeArtwork from '../components/BadgeArtwork';
+import { BADGE_DEFINITIONS, loadBadgeAchievements } from '../services/badgeService';
 import { useTravel } from '../context/TravelContext';
 import { getCurrentTime12 } from '../utils/dateUtils';
 
@@ -17,6 +20,45 @@ const DEFAULT_PROFILE = {
   notificationsEnabled: true,
   whatsAppAlerts: true
 };
+
+function ProfileBadgesShowcase() {
+  const [earned, setEarned] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    try {
+      const achievements = loadBadgeAchievements();
+      setEarned(BADGE_DEFINITIONS.filter((badge) => achievements[badge.id]));
+      setError('');
+    } catch (loadError) {
+      setError(loadError.message || 'Your achievements could not be loaded.');
+    }
+  }, []);
+
+  return (
+    <section className="profile-badges-showcase" aria-labelledby="profile-badges-heading">
+      <div className="profile-badges-showcase__heading">
+        <div>
+          <h2 id="profile-badges-heading">Travel Achievements</h2>
+          <p>{earned.length} badges earned · private to this browser profile</p>
+        </div>
+        <Link to="/badges">Explore all badges <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span></Link>
+      </div>
+      {error ? <p className="profile-badges-showcase__message" role="alert">{error}</p> : earned.length ? (
+        <div className="profile-badges-showcase__list">
+          {earned.slice(0, 5).map((badge) => (
+            <Link key={badge.id} to={`/badges/${badge.id}`} aria-label={`View ${badge.name} badge`}>
+              <BadgeArtwork badgeId={badge.id} className="profile-badge-art" />
+              <span>{badge.name}</span>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="profile-badges-showcase__message">Complete recorded trips and journal achievements to see your badges here.</p>
+      )}
+    </section>
+  );
+}
 
 export default function SettingsPage({ defaultTab = 'profile' }) {
   const { showToast } = useTravel();
@@ -330,6 +372,7 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
                 <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>save</span>
                 Save Profile Changes
               </button>
+              <ProfileBadgesShowcase />
             </div>
           )}
 

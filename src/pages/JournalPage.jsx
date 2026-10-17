@@ -665,7 +665,7 @@ export default function JournalPage() {
 
   return (
     <>
-      <Header />
+      <Header variant="journal" />
       <main className="journal-page">
         <section className="journal-hero" aria-labelledby="journal-title">
           <div className="journal-hero__image" aria-hidden="true" />

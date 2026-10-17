@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function Header() {
+export default function Header({ variant = '' }) {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
@@ -13,7 +13,7 @@ export default function Header() {
   };
 
   return (
-    <header className="top-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 28px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(11, 15, 25, 0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
+    <header className={`top-header${variant ? ` top-header--${variant}` : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 28px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(11, 15, 25, 0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
       {/* Search Input Bar (Matching Screenshot) */}
       <div style={{ flex: '1', maxWidth: '440px', position: 'relative' }}>
         <span 
@@ -35,7 +35,7 @@ export default function Header() {
             background: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             color: '#ffffff',
-            fontSize: '13px',
+            fontSize: variant === 'journal' ? '15px' : '13px',
             outline: 'none',
             transition: 'border-color 0.2s ease, background 0.2s ease'
           }}
@@ -191,7 +191,7 @@ export default function Header() {
             >
               RB
             </div>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: variant === 'journal' ? '15px' : '13px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '4px' }}>
               Raghav <i className="fa-solid fa-chevron-down" style={{ fontSize: '10px', color: '#94a3b8' }}></i>
             </span>
           </Link>

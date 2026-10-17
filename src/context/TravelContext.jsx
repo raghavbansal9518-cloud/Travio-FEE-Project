@@ -173,7 +173,7 @@ export const DEFAULT_BOOKINGS = [
     status: 'Confirmed',
     createdAt: new Date().toISOString()
   }
-];
+].map((booking) => ({ ...booking, demoRecord: true }));
 
 export const normalizeBooking = (b) => {
   if (!b) return null;
@@ -277,30 +277,27 @@ export const TravelProvider = ({ children }) => {
                 String(d.name || '').toLowerCase() === String(item.name || '').toLowerCase()
             );
             const status = item.status || defaultMatch?.status || 'saved';
+            const isSeededDemo = item.demoRecord === true || (
+              item.demoRecord !== false
+              && defaultMatch
+              && item.addedDate === defaultMatch.addedDate
+              && item.description === defaultMatch.description
+              && item.cardImage === defaultMatch.cardImage
+            );
             return {
               ...item,
               addedDate: item.addedDate ? item.addedDate.replace('2025', '2026') : '15 Oct 2026',
-              status
+              status,
+              demoRecord: !!isSeededDemo
             };
           });
-
-          // Ensure if user currently has no visited destination, at least one (like Goa or last item) has visited status so Visited works out of the box
-          const hasVisited = items.some((i) => i.status === 'visited');
-          if (!hasVisited && items.length > 0) {
-            const targetIdx = items.findIndex((i) => String(i.id).toLowerCase().includes('goa') || String(i.name).toLowerCase().includes('goa'));
-            if (targetIdx !== -1) {
-              items[targetIdx].status = 'visited';
-            } else {
-              items[items.length - 1].status = 'visited';
-            }
-          }
           return items;
         }
       }
-      return DEFAULT_WISHLIST;
+      return DEFAULT_WISHLIST.map((item) => ({ ...item, demoRecord: true }));
     } catch (e) {
       console.error('Error loading wishlist from storage:', e);
-      return DEFAULT_WISHLIST;
+      return DEFAULT_WISHLIST.map((item) => ({ ...item, demoRecord: true }));
     }
   });
 
@@ -311,13 +308,19 @@ export const TravelProvider = ({ children }) => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map(b => normalizeBooking(b)).filter(Boolean);
+          return parsed.map((booking) => {
+            const normalized = normalizeBooking(booking);
+            const defaultMatch = DEFAULT_BOOKINGS.find((item) => item.id === booking.id && item.title === booking.title);
+            return normalized
+              ? { ...normalized, demoRecord: booking.demoRecord === true || (!!defaultMatch && booking.demoRecord !== false) }
+              : null;
+          }).filter(Boolean);
         }
       }
       return DEFAULT_BOOKINGS.map(b => normalizeBooking(b)).filter(Boolean);
     } catch (e) {
       console.error('Error loading bookings from storage:', e);
-      return DEFAULT_BOOKINGS;
+      return DEFAULT_BOOKINGS.map((booking) => normalizeBooking(booking)).filter(Boolean);
     }
   });
 
@@ -401,7 +404,7 @@ export const TravelProvider = ({ children }) => {
         status: destination.status || 'saved'
       };
 
-      setWishlist((prev) => [normalizedItem, ...prev]);
+      setWishlist((prev) => [{ ...normalizedItem, demoRecord: false }, ...prev]);
       showToast(`Added "${destination.name}" to your Dream Wishlist! ❤️`, 'success');
     }
   };
@@ -413,7 +416,7 @@ export const TravelProvider = ({ children }) => {
       prev.map((item) => {
         const matchId = String(item.id || '').toLowerCase().trim() === cleanId;
         const matchName = String(item.name || '').toLowerCase().trim() === cleanId;
-        return matchId || matchName ? { ...item, status: newStatus } : item;
+        return matchId || matchName ? { ...item, status: newStatus, demoRecord: false } : item;
       })
     );
     const label = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
@@ -439,6 +442,7 @@ export const TravelProvider = ({ children }) => {
   const addBooking = (bookingData = {}) => {
     const raw = {
       ...bookingData,
+      demoRecord: false,
       destinationId: bookingData.destination?.id || bookingData.destinationId,
       destinationName: bookingData.destination?.name || bookingData.destinationName,
       status: 'Confirmed',

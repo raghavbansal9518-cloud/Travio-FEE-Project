@@ -81,6 +81,7 @@ const Sidebar = ({ isHome }) => {
           {/* User Specific Pages */}
 
           <li><NavLink to="/journal"><span className="material-symbols-rounded">menu_book</span><span className="nav-text">Journal</span></NavLink></li>
+          <li><NavLink to="/badges"><span className="material-symbols-rounded">workspace_premium</span><span className="nav-text">Badges</span></NavLink></li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">Settings</span></NavLink></li>
         </ul>
 
