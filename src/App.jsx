@@ -16,6 +16,7 @@ import Activities from './pages/Activities';
 import PackingPage from './pages/PackingPage';
 import WishlistPage from './pages/WishlistPage';
 import JournalPage from './pages/JournalPage';
+import JournalStoryPage from './pages/JournalStoryPage';
 import ReviewsPage from './pages/ReviewsPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -93,6 +94,7 @@ export default function App() {
               <Route path="/packing" element={<PackingPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/journal" element={<JournalPage />} />
+              <Route path="/journal/:entryId" element={<JournalStoryPage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/profile" element={<SettingsPage defaultTab="profile" />} />
