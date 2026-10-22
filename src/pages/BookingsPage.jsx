@@ -91,6 +91,8 @@ export default function BookingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [cancellationTarget, setCancellationTarget] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('Change of travel schedule');
 
   // Filter bookings based on status, category, and search query
   const filteredBookings = useMemo(() => {
@@ -576,12 +578,8 @@ export default function BookingsPage() {
                         <button
                           type="button"
                           className="btn-cancel-trip"
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to cancel this booking (${b.title || b.destinationName})?`)) {
-                              cancelBooking(b.id);
-                            }
-                          }}
-                          title="Cancel Trip Reservation"
+                          onClick={() => setCancellationTarget(b)}
+                          title="Cancel Trip Reservation & View Refund Policy"
                         >
                           Cancel
                         </button>
@@ -871,6 +869,241 @@ export default function BookingsPage() {
           </div>
         </div>
       )}
+
+      {/* ==========================================================================
+          DYNAMIC CANCELLATION & REFUND BREAKDOWN MODAL (Aviation Regulation Compliance)
+          ========================================================================== */}
+      {cancellationTarget && (() => {
+        const grossFare = Number(cancellationTarget.totalCost) || 0;
+        const cancellationCharge = Math.round(grossFare * 0.15); // 15% cancellation fee
+        const netRefund = Math.max(0, grossFare - cancellationCharge); // 85% net refund
+        const refundArn = `TRV-ARN-${Math.floor(100000 + Math.random() * 900000)}`;
+
+        const handleProcessCancellation = () => {
+          cancelBooking(cancellationTarget.id);
+          setCancellationTarget(null);
+          showToast?.(
+            `Cancellation confirmed for #${cancellationTarget.id}. Refund of ₹${netRefund.toLocaleString('en-IN')} initiated to original payment method (ARN: ${refundArn}).`,
+            'info'
+          );
+        };
+
+        return (
+          <div className="ticket-modal-overlay" onClick={() => setCancellationTarget(null)}>
+            <div
+              className="ticket-modal-container"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: '540px',
+                padding: '32px 28px',
+                background: 'linear-gradient(145deg, #181b24, #0f1218)',
+                borderRadius: '24px',
+                border: '1px solid rgba(244, 63, 94, 0.35)',
+                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(244, 63, 94, 0.15)',
+                color: '#ffffff'
+              }}
+            >
+              {/* Modal Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '12px',
+                      background: 'rgba(244, 63, 94, 0.15)',
+                      border: '1px solid rgba(244, 63, 94, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#f43f5e'
+                    }}
+                  >
+                    <span className="material-symbols-rounded">cancel</span>
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Cancel Reservation</h3>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+                      Airline Regulation & Refund Breakdown
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCancellationTarget(null)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>close</span>
+                </button>
+              </div>
+
+              {/* Service & Ticket Target Card */}
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '14px',
+                  padding: '16px',
+                  marginBottom: '20px'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <strong style={{ fontSize: '1.05rem', color: '#fff' }}>
+                    {cancellationTarget.title || cancellationTarget.destinationName}
+                  </strong>
+                  <span
+                    style={{
+                      background: 'rgba(56, 189, 248, 0.15)',
+                      color: '#38bdf8',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '6px'
+                    }}
+                  >
+                    REF: {cancellationTarget.id}
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  <span><i className="fa-regular fa-calendar" style={{ marginRight: '6px', color: '#38bdf8' }}></i> {cancellationTarget.departureDate}</span>
+                  {cancellationTarget.seats && <span><i className="fa-solid fa-couch" style={{ marginRight: '6px', color: '#a78bfa' }}></i> {cancellationTarget.seats}</span>}
+                </div>
+              </div>
+
+              {/* Refund Calculation Breakdown Box */}
+              <div
+                style={{
+                  background: 'rgba(0, 0, 0, 0.35)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '14px',
+                  padding: '18px',
+                  marginBottom: '20px'
+                }}
+              >
+                <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px' }}>
+                  Statutory Fare & Refund Computation
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Total Ticket Fare Paid</span>
+                  <span style={{ fontWeight: 600 }}>₹{grossFare.toLocaleString('en-IN')}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem' }}>
+                  <span style={{ color: '#f87171' }}>Airline Cancellation Fee (15% Deduction)</span>
+                  <span style={{ fontWeight: 600, color: '#f87171' }}>- ₹{cancellationCharge.toLocaleString('en-IN')}</span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '0.9rem' }}>
+                  <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Convenience Fee & Taxes</span>
+                  <span style={{ fontWeight: 600, color: '#34d399' }}>Waived (₹0)</span>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: '1px dashed rgba(255, 255, 255, 0.15)',
+                    paddingTop: '12px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline'
+                  }}
+                >
+                  <div>
+                    <strong style={{ fontSize: '1rem', color: '#38bdf8' }}>Net Refund Amount</strong>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)' }}>85% of Gross Value Credited</div>
+                  </div>
+                  <strong style={{ fontSize: '1.4rem', color: '#38bdf8', fontWeight: 800 }}>
+                    ₹{netRefund.toLocaleString('en-IN')}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Cancellation Reason Dropdown */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '6px' }}>
+                  Reason for Cancellation
+                </label>
+                <select
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: '#fff',
+                    fontSize: '0.88rem',
+                    outline: 'none'
+                  }}
+                >
+                  <option value="Change of travel schedule" style={{ background: '#1e293b', color: '#fff' }}>Change of travel schedule</option>
+                  <option value="Personal or medical emergency" style={{ background: '#1e293b', color: '#fff' }}>Personal or medical emergency</option>
+                  <option value="Flight rescheduled or delayed by operator" style={{ background: '#1e293b', color: '#fff' }}>Flight rescheduled or delayed by operator</option>
+                  <option value="Booked alternate flight / transport" style={{ background: '#1e293b', color: '#fff' }}>Booked alternate flight / transport</option>
+                  <option value="Other reason" style={{ background: '#1e293b', color: '#fff' }}>Other reason</option>
+                </select>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  type="button"
+                  onClick={() => setCancellationTarget(null)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    color: '#fff',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Keep Reservation
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleProcessCancellation}
+                  style={{
+                    flex: 1.4,
+                    padding: '12px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                    border: 'none',
+                    color: '#fff',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>check_circle</span>
+                  <span>Confirm & Refund ₹{netRefund.toLocaleString('en-IN')}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

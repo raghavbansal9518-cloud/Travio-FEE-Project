@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Header({ variant = '' }) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [showNotifications, setShowNotifications] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
 
@@ -24,7 +27,7 @@ export default function Header({ variant = '' }) {
         </span>
         <input 
           type="text" 
-          placeholder="Search destinations..."
+          placeholder={t('header.searchPlaceholder', 'Search destinations...')}
           value={headerSearch}
           onChange={(e) => setHeaderSearch(e.target.value)}
           onKeyDown={handleSearchSubmit}
@@ -170,6 +173,9 @@ export default function Header({ variant = '' }) {
         >
           <span className="material-symbols-rounded" style={{ fontSize: '20px' }}>favorite</span>
         </Link>
+
+        {/* 🌐 Language Switcher Dropdown */}
+        <LanguageSelector />
 
         {/* 🟣 Raghav "RB" Profile (Matching Screenshot) */}
         <div className="profile-dropdown-container" style={{ position: 'relative' }}>

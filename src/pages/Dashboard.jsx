@@ -6,7 +6,9 @@ import TravelCalendar from '../components/TravelCalendar';
 import WeatherCard from '../components/WeatherCard';
 import PackingAssistant from '../components/PackingAssistant';
 import DestinationsCarousel from '../components/DestinationsCarousel';
+import LanguageSelector from '../components/LanguageSelector';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 
 // Array of images for the hero slider
@@ -26,6 +28,7 @@ const heroImages = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const { wishlistCount } = useTravel();
+  const { t } = useLanguage();
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -142,6 +145,9 @@ const Dashboard = () => {
             <span className="material-symbols-rounded">favorite</span>
           </Link>
 
+          {/* 🌐 Language Switcher Dropdown */}
+          <LanguageSelector />
+
           <div 
             className={`profile-dropdown-container ${isProfileOpen ? 'open' : ''}`} 
             style={{ position: 'relative' }}
@@ -203,19 +209,27 @@ const Dashboard = () => {
           >
             <label htmlFor="main-search" className="visually-hidden">Search destinations</label>
             <span className="material-symbols-rounded search-icon" style={{ color: 'var(--text-muted)', paddingLeft: '0.5rem' }}>search</span>
-            <input type="search" id="main-search" name="search" placeholder="Search destinations, hotels, activities..." autoComplete="off" />
+            <input
+              type="search"
+              id="main-search"
+              name="search"
+              placeholder={t('dashboard.searchWhere', 'Search destinations, hotels, activities...')}
+              autoComplete="off"
+            />
           </form>
 
           <p className="hero-small-text">Discover your next adventure</p>
-          <h2>Explore the World</h2>
-          <p style={{ marginBottom: '0.5rem' }}>Discover amazing places, plan unforgettable trips and create memories that last forever.</p>
+          <h2>{t('dashboard.heroTitle', 'Explore the World')}</h2>
+          <p style={{ marginBottom: '0.5rem' }}>
+            {t('dashboard.heroSubtitle', 'Discover amazing places, plan unforgettable trips and create memories that last forever.')}
+          </p>
           
           <div className="hero-buttons">
             <button onClick={() => navigate('/explore')} className="btn primary-btn">
-              Explore Destinations
+              {t('common.exploreMore', 'Explore Destinations')}
             </button>
             <button onClick={handlePlanTrip} className="btn secondary-btn">
-              Plan My Trip
+              {t('dashboard.planTrip', 'Plan My Trip')}
             </button>
           </div>
         </div>

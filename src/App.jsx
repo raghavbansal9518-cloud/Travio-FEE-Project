@@ -20,13 +20,17 @@ import JournalStoryPage from './pages/JournalStoryPage';
 import BadgesPage from './pages/BadgesPage';
 import ReviewsPage from './pages/ReviewsPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminPage from './pages/AdminPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Components
 import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Context
 import { TravelProvider } from './context/TravelContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Main persistent layout with sidebar and main content area
 function MainLayout() {
@@ -71,46 +75,55 @@ function HomeOrLanding() {
 export default function App() {
   return (
     <ErrorBoundary>
-      <TravelProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* --- Root: Landing splash if first visit, else redirect to dashboard --- */}
-            <Route path="/" element={<HomeOrLanding />} />
+      <LanguageProvider>
+        <TravelProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* --- Root: Landing splash if first visit, else redirect to dashboard --- */}
+              <Route path="/" element={<HomeOrLanding />} />
 
-            {/* --- Auth Page (Full screen, no sidebar) --- */}
-            <Route path="/auth" element={<AuthPage />} />
+              {/* --- Auth Page (Full screen, no sidebar) --- */}
+              <Route path="/auth" element={<AuthPage />} />
 
-            {/* --- Main App Routes (Wrapped in MainLayout with Sidebar) --- */}
-            <Route element={<MainLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/explore" element={<ExplorePage />} />
-              <Route path="/destination/:id" element={<DestinationDetails />} />
-              <Route path="/booking" element={<Booking />} />
-              <Route path="/bookings" element={<BookingsPage />} />
-              <Route path="/trips" element={<BookingsPage />} />
-              <Route path="/transport" element={<TransportPage />} />
-              <Route path="/geoweather" element={<GeoWeather />} />
-              <Route path="/food-guide" element={<FoodGuide />} />
-              <Route path="/activities" element={<Activities />} />
-              <Route path="/packing" element={<PackingPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/journal" element={<JournalPage />} />
-              <Route path="/journal/:entryId" element={<JournalStoryPage />} />
-              <Route path="/badges" element={<BadgesPage />} />
-              <Route path="/badges/:badgeId" element={<BadgesPage />} />
-              <Route path="/reviews" element={<ReviewsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/profile" element={<SettingsPage defaultTab="profile" />} />
-              <Route path="/membership" element={<SettingsPage defaultTab="membership" />} />
-              <Route path="/hotels" element={<Booking />} />
-              <Route path="/flights" element={<Booking />} />
-            </Route>
+              {/* --- Main App Routes (Wrapped in MainLayout with Sidebar) --- */}
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/explore" element={<ExplorePage />} />
+                <Route path="/destination/:id" element={<DestinationDetails />} />
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/transport" element={<TransportPage />} />
+                <Route path="/geoweather" element={<GeoWeather />} />
+                <Route path="/food-guide" element={<FoodGuide />} />
+                <Route path="/activities" element={<Activities />} />
+                <Route path="/packing" element={<PackingPage />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/badges" element={<BadgesPage />} />
+                <Route path="/badges/:badgeId" element={<BadgesPage />} />
+                <Route path="/reviews" element={<ReviewsPage />} />
+                <Route path="/hotels" element={<Booking />} />
+                <Route path="/flights" element={<Booking />} />
 
-            {/* --- Fallback for any unknown route --- */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </TravelProvider>
+                {/* Protected Routes (Authentication Required) */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/bookings" element={<BookingsPage />} />
+                  <Route path="/trips" element={<BookingsPage />} />
+                  <Route path="/journal" element={<JournalPage />} />
+                  <Route path="/journal/:entryId" element={<JournalStoryPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/profile" element={<SettingsPage defaultTab="profile" />} />
+                  <Route path="/membership" element={<SettingsPage defaultTab="membership" />} />
+                </Route>
+
+                {/* Admin Management Console (Airline Management System) */}
+                <Route path="/admin" element={<AdminPage />} />
+              </Route>
+
+              {/* --- Dedicated 404 Page for Any Unknown Route --- */}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </BrowserRouter>
+        </TravelProvider>
+      </LanguageProvider>
     </ErrorBoundary>
   );
 }

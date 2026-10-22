@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import BadgeArtwork from '../components/BadgeArtwork';
 import { BADGE_DEFINITIONS, loadBadgeAchievements } from '../services/badgeService';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getCurrentTime12 } from '../utils/dateUtils';
 
 const DEFAULT_PROFILE = {
@@ -62,6 +63,7 @@ function ProfileBadgesShowcase() {
 
 export default function SettingsPage({ defaultTab = 'profile' }) {
   const { showToast } = useTravel();
+  const { currentLanguage, changeLanguage, languages, t } = useLanguage();
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [currentTime, setCurrentTime] = useState(getCurrentTime12());
 
@@ -515,6 +517,36 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
                     <option value="INR (₹)">Indian Rupee (INR ₹)</option>
                     <option value="USD ($)">US Dollar (USD $)</option>
                     <option value="EUR (€)">Euro (EUR €)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                    Interface Language (i18n Context)
+                  </label>
+                  <select
+                    value={currentLanguage}
+                    onChange={(e) => {
+                      changeLanguage(e.target.value);
+                      showToast?.(`Language switched to ${languages.find(l => l.code === e.target.value)?.name}! 🌐`, 'success');
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid var(--border-color)',
+                      color: 'var(--text-dark)',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    {languages.map((l) => (
+                      <option key={l.code} value={l.code} style={{ background: '#1e293b', color: '#fff' }}>
+                        {l.flag} {l.name} ({l.nativeName})
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
