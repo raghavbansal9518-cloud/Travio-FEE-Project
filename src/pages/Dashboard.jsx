@@ -207,7 +207,7 @@ const Dashboard = () => {
           </form>
 
           <p className="hero-small-text">Discover your next adventure</p>
-          <h2>Explore the World</h2>
+          <h2>Explore <span style = {{color:'red'}}>the</span> World</h2>
           <p style={{ marginBottom: '0.5rem' }}>Discover amazing places, plan unforgettable trips and create memories that last forever.</p>
           
           <div className="hero-buttons">

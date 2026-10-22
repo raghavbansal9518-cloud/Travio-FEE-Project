@@ -49,6 +49,34 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
             <span>{destination.rating}</span>
           </div>
 
+          <button
+            type="button"
+            className="card-food-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/food-guide?destination=${destination.id}`);
+            }}
+            title={`View local food guide for ${destination.name}`}
+            style={{
+              background: 'rgba(16, 12, 32, 0.75)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(168, 85, 247, 0.45)',
+              color: '#F3E8FF',
+              padding: '4px 9px',
+              borderRadius: '999px',
+              fontSize: '11px',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <i className="fa-solid fa-utensils" style={{ color: '#C084FC', fontSize: '10px' }}></i>
+            <span>Food</span>
+          </button>
+
           <button 
             type="button"
             className={`bookmark-toggle-btn ${isBookmarked ? 'saved' : ''}`}

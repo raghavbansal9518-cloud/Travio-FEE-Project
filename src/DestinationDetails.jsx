@@ -4,6 +4,7 @@ import Header from './components/Header';
 import { DESTINATIONS } from './data/destinationsData';
 import { getDestinationDetails } from './data/destinationDetailsHelper';
 import { getDestinationById, findLocalDestination } from './services/destinationService';
+import { filterFoodDishes } from './data/foodGuideData';
 import TripPlannerModal from './components/TripPlannerModal';
 import { useTravel } from './context/TravelContext';
 import './DestinationDetails.css';
@@ -125,6 +126,7 @@ export default function DestinationDetails() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: 'fa-circle-info' },
     { id: 'places', label: 'Places to Visit', icon: 'fa-landmark' },
+    { id: 'food', label: 'Food & Trails', icon: 'fa-utensils' },
     { id: 'activities', label: 'Activities & Sports', icon: 'fa-person-hiking' },
     { id: 'stay', label: 'Where to Stay', icon: 'fa-hotel' },
     { id: 'itinerary', label: 'Itinerary', icon: 'fa-calendar-days' }
@@ -209,12 +211,35 @@ export default function DestinationDetails() {
                 <button 
                   type="button"
                   className="btn-primary" 
-                  style={{ padding: '14px 30px', fontSize: '15px' }}
+                  style={{ padding: '14px 28px', fontSize: '15px' }}
                   onClick={() => setIsPlannerOpen(true)}
                 >
                   <i className="fa-solid fa-paper-plane"></i>
                   <span>Plan My Trip</span>
                 </button>
+
+                <Link
+                  to={`/food-guide?destination=${destination.id}`}
+                  className="btn-secondary"
+                  style={{
+                    padding: '14px 24px',
+                    fontSize: '15px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(168, 85, 247, 0.15)',
+                    border: '1px solid rgba(168, 85, 247, 0.4)',
+                    color: '#E9D5FF',
+                    borderRadius: '12px',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    transition: 'all 0.2s ease'
+                  }}
+                  title={`Explore authentic local dishes and food trails for ${destination.name}`}
+                >
+                  <i className="fa-solid fa-utensils" style={{ color: '#A855F7' }}></i>
+                  <span>Food Guide &amp; Trails</span>
+                </Link>
               </div>
             </div>
           </div>
@@ -378,6 +403,85 @@ export default function DestinationDetails() {
                     <div className="place-meta-footer">
                       <span><i className="fa-solid fa-ticket"></i> Entry: {place.ticket}</span>
                       <span><i className="fa-solid fa-circle-check" style={{ color: '#a855f7' }}></i> Verified</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: FOOD & TRAILS */}
+        {activeTab === 'food' && (
+          <div className="dest-tab-pane">
+            <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <div className="hero-tag" style={{ marginBottom: '8px' }}>
+                  <i className="fa-solid fa-utensils" style={{ color: '#A855F7' }}></i> CULINARY CULTURE &amp; TASTE TRAILS
+                </div>
+                <h2 style={{ fontFamily: 'var(--font-heading, inherit)', fontSize: '28px', fontWeight: 800, color: 'white' }}>
+                  Iconic Food &amp; Gastronomy in {destination.name}
+                </h2>
+                <p style={{ color: '#8E93A1', fontSize: '14px', maxWidth: '650px' }}>
+                  Authentic heritage recipes, legendary street stalls, and signature local flavors you must experience.
+                </p>
+              </div>
+
+              <Link
+                to={`/food-guide?destination=${destination.id}`}
+                className="btn-primary"
+                style={{ padding: '12px 24px', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span>Open Full Food Guide &amp; Trail</span>
+                <i className="fa-solid fa-arrow-right"></i>
+              </Link>
+            </div>
+
+            <div className="places-grid-layout" style={{ marginTop: '24px' }}>
+              {filterFoodDishes({ destinationId: destination.id }).map((dish) => (
+                <div key={dish.id} className="place-detail-card" style={{ background: 'rgba(16, 12, 32, 0.75)', border: '1px solid rgba(168, 85, 247, 0.25)' }}>
+                  <div className="place-img-box">
+                    <img 
+                      src={dish.image || DEFAULT_FALLBACK_IMG} 
+                      alt={dish.name} 
+                      className="place-img" 
+                      loading="lazy" 
+                      onError={handleImgFallback}
+                    />
+                    <div className="card-top-badges">
+                      <span className="rating-pill" style={{ color: '#FBBF24', background: 'rgba(0,0,0,0.7)' }}>
+                        <i className="fa-solid fa-star"></i> {dish.rating}
+                      </span>
+                      <span 
+                        style={{
+                          background: dish.diet === 'Veg' ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)',
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        {dish.diet}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="place-content-box">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ color: '#C084FC', fontSize: '12px', fontWeight: 600 }}>{dish.cuisine}</span>
+                      <span style={{ color: '#10B981', fontSize: '13px', fontWeight: 700 }}>₹{dish.minPrice} - ₹{dish.maxPrice}</span>
+                    </div>
+                    <h3 className="place-name" style={{ fontSize: '18px', marginBottom: '8px' }}>{dish.name}</h3>
+                    <p className="place-desc" style={{ fontSize: '13px', lineHeight: 1.5 }}>{dish.description}</p>
+                    <div className="place-meta-footer" style={{ marginTop: '14px', paddingTop: '10px' }}>
+                      <span><i className="fa-solid fa-pepper-hot" style={{ color: '#EF4444' }}></i> {dish.spiceLevel}</span>
+                      <Link 
+                        to={`/food-guide?destination=${destination.id}`}
+                        style={{ color: '#A855F7', fontWeight: 600, textDecoration: 'none', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <span>View in Guide</span>
+                        <i className="fa-solid fa-angle-right"></i>
+                      </Link>
                     </div>
                   </div>
                 </div>

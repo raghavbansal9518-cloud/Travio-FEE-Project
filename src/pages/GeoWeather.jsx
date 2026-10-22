@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import './GeoWeather.css';
@@ -19,6 +20,14 @@ const customIcon = new L.DivIcon({
   html: `<div class="marker-circle"></div>`,
   iconSize: [24, 24],
   iconAnchor: [12, 12]
+});
+
+// Custom numbered marker for Food Trail stops matching Travio black + neon purple
+const createTrailMarkerIcon = (num) => new L.DivIcon({
+  className: 'custom-trail-marker',
+  html: `<div style="background: linear-gradient(135deg, #7C3AED 0%, #B026FF 100%); color: #ffffff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; border: 2px solid #ffffff; box-shadow: 0 0 14px rgba(176,38,255,0.7); cursor: pointer;">${num}</div>`,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15]
 });
 
 const WEATHER_CODES = {
@@ -48,17 +57,29 @@ function ChangeView({ center, zoom }) {
   return null;
 }
 
-// Controller for the full modal map: invalidates container size on modal open and handles map clicks
-function MapModalController({ center, zoom, onLocationSelect }) {
+// Controller for the full modal map: invalidates container size on modal open, auto-fits trail bounds, and handles map clicks
+function MapModalController({ center, zoom, trailStops, onLocationSelect }) {
   const map = useMap();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       map.invalidateSize();
+      if (trailStops && trailStops.length > 0) {
+        const bounds = trailStops
+          .map(s => [s.lat, s.lng])
+          .filter(p => p[0] && p[1] && !isNaN(p[0]) && !isNaN(p[1]));
+        if (bounds.length > 1) {
+          map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
+          return;
+        } else if (bounds.length === 1) {
+          map.setView(bounds[0], 14);
+          return;
+        }
+      }
       if (center) map.setView(center, zoom);
     }, 150);
     return () => clearTimeout(timer);
-  }, [center, zoom, map]);
+  }, [center, zoom, map, trailStops]);
 
   useMapEvents({
     click(e) {
@@ -72,8 +93,18 @@ function MapModalController({ center, zoom, onLocationSelect }) {
 }
 
 const GeoWeather = () => {
+  const routeLocation = useLocation();
+  const navigate = useNavigate();
+  const trailStops = routeLocation.state?.trailStops || null;
+  const trailName = routeLocation.state?.trailName || null;
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [location, setLocation] = useState({ name: 'Brooklyn, New York, USA', lat: 40.6501, lon: -73.9495 });
+  const [location, setLocation] = useState(() => {
+    if (routeLocation.state?.location) {
+      return routeLocation.state.location;
+    }
+    return { name: 'Brooklyn, New York, USA', lat: 40.6501, lon: -73.9495 };
+  });
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -92,9 +123,18 @@ const GeoWeather = () => {
   });
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(() => Boolean(routeLocation.state?.trailStops));
   const [showDetails, setShowDetails] = useState(false);
   const [showAllRecent, setShowAllRecent] = useState(false);
+
+  useEffect(() => {
+    if (routeLocation.state?.location) {
+      setLocation(routeLocation.state.location);
+    }
+    if (routeLocation.state?.trailStops) {
+      setIsMapExpanded(true);
+    }
+  }, [routeLocation.state]);
 
   useEffect(() => {
     fetchWeather(location.lat, location.lon);
@@ -333,16 +373,42 @@ const GeoWeather = () => {
       {isMapExpanded && (
         <div className="map-modal-overlay" onClick={() => setIsMapExpanded(false)}>
           <div className="map-modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-tip">
-              <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: '#60a5fa' }}>touch_app</span>
-              <span>Click anywhere on the map to inspect weather</span>
-            </div>
+            {trailStops && trailStops.length > 0 ? (
+              <div className="modal-header-tip" style={{ background: 'rgba(124, 58, 237, 0.25)', border: '1px solid rgba(168, 85, 247, 0.4)', display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: '1.2rem', color: '#B026FF' }}>restaurant</span>
+                <span style={{ color: '#F8F7FF', fontWeight: 700 }}>
+                  {trailName || 'Food Trail'}: {trailStops.length} Ordered Stops Plotted
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/food-guide')}
+                  style={{
+                    marginLeft: 'auto',
+                    background: 'linear-gradient(135deg, #7C3AED 0%, #B026FF 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '5px 14px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  ← Back to Food Guide
+                </button>
+              </div>
+            ) : (
+              <div className="modal-header-tip">
+                <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: '#60a5fa' }}>touch_app</span>
+                <span>Click anywhere on the map to inspect weather</span>
+              </div>
+            )}
             <button className="close-modal-btn" onClick={() => setIsMapExpanded(false)}>
               <span className="material-symbols-rounded">close</span>
             </button>
             <MapContainer 
               center={[location.lat, location.lon]} 
-              zoom={10} 
+              zoom={trailStops && trailStops.length > 0 ? 12 : 10} 
               style={{ height: "100%", width: "100%", borderRadius: "20px" }}
               zoomControl={true}
             >
@@ -351,13 +417,112 @@ const GeoWeather = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 className="map-tiles"
               />
-              <Marker position={[location.lat, location.lon]} icon={customIcon} />
+              {trailStops && trailStops.length > 0 ? (
+                <>
+                  {trailStops.map((stop, idx) => (
+                    <Marker
+                      key={idx}
+                      position={[stop.lat || location.lat, stop.lng || location.lon]}
+                      icon={createTrailMarkerIcon(stop.stopNumber || idx + 1)}
+                    >
+                      <Popup>
+                        <div style={{ color: '#100C20', minWidth: '170px', padding: '4px' }}>
+                          <strong style={{ fontSize: '14px', display: 'block', color: '#7C3AED', marginBottom: '2px' }}>
+                            Stop #{stop.stopNumber || idx + 1}: {stop.restaurantName}
+                          </strong>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#1F2937', marginBottom: '2px' }}>
+                            🍽️ {stop.dishName}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#4B5563' }}>
+                            {stop.priceEstimate ? `${stop.priceEstimate} • ` : ''}{stop.address || stop.neighborhood}
+                          </div>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                  {trailStops.length > 1 && (
+                    <Polyline
+                      positions={trailStops.map(s => [s.lat || location.lat, s.lng || location.lon])}
+                      color="#B026FF"
+                      weight={4}
+                      dashArray="6, 8"
+                      opacity={0.85}
+                    />
+                  )}
+                </>
+              ) : (
+                <Marker position={[location.lat, location.lon]} icon={customIcon} />
+              )}
               <MapModalController 
                 center={[location.lat, location.lon]} 
-                zoom={10} 
+                zoom={trailStops && trailStops.length > 0 ? 12 : 10} 
+                trailStops={trailStops}
                 onLocationSelect={handleMapSelect} 
               />
             </MapContainer>
+
+            {trailStops && trailStops.length > 0 && (
+              <div 
+                style={{
+                  position: 'absolute',
+                  bottom: '16px',
+                  left: '16px',
+                  right: '16px',
+                  background: 'rgba(11, 11, 16, 0.88)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(168, 85, 247, 0.4)',
+                  borderRadius: '16px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  overflowX: 'auto',
+                  zIndex: 1000,
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#B026FF', fontWeight: 700, fontSize: '13px', whiteSpace: 'nowrap' }}>
+                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>route</span>
+                  <span>Trail Stops:</span>
+                </div>
+                {trailStops.map((stop, idx) => (
+                  <div 
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'rgba(124, 58, 237, 0.15)',
+                      border: '1px solid rgba(168, 85, 247, 0.3)',
+                      borderRadius: '10px',
+                      padding: '6px 12px',
+                      whiteSpace: 'nowrap',
+                      color: '#F8F7FF',
+                      fontSize: '12px'
+                    }}
+                  >
+                    <span 
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        background: '#7C3AED',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        fontWeight: 700
+                      }}
+                    >
+                      {stop.stopNumber || idx + 1}
+                    </span>
+                    <span style={{ fontWeight: 600 }}>{stop.restaurantName}</span>
+                    <span style={{ color: '#C084FC' }}>({stop.dishName})</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
