@@ -3,6 +3,7 @@ import SeatSelection from './SeatSelection';
 import PassengerForm from './PassengerForm';
 import PaymentGateway from './PaymentGateway';
 import BankOtpModal from './BankOtpModal';
+import { downloadTicketVoucher, printTicketVoucher } from './ticketExportUtils';
 import { getTodayDate, formatDisplayDate } from '../utils/dateUtils';
 
 export default function BookingCheckoutModal({ item, onClose, onBookingComplete, initialTicket }) {
@@ -10,26 +11,37 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
   const [currentStep, setCurrentStep] = useState(initialTicket ? 'TICKET' : 'SEAT');
 
   // Step 1: Seat & Customization State (Dynamic per transport mode)
+  const travelersCount = item?.travelersCount || 1;
   const [seatDetails, setSeatDetails] = useState(() => {
     if (item?.type === 'TRAIN') {
-      return { seat: 'Berth 36', seatPrice: 0, summary: item.seats || 'Coach B2 (3A) • Lower Berth' };
+      const summary = travelersCount > 1
+        ? `Coach B2 (3A) • Lower & Middle Berths (${travelersCount} Travelers)`
+        : (item.seats || 'Coach B2 (3A) • Lower Berth');
+      return { seat: 'Berths', seatPrice: 0, summary };
     }
     if (item?.type === 'BUS') {
-      return { seat: 'L4', seatPrice: 0, summary: item.seats || 'Berth L4 (Window Sleeper)' };
+      const summary = travelersCount > 1
+        ? `Berths L4, L5 (${travelersCount} Travelers)`
+        : (item.seats || 'Berth L4 (Window Sleeper)');
+      return { seat: 'L4, L5', seatPrice: 0, summary };
     }
     if (item?.type === 'CAB') {
-      return { seat: 'Sedan', seatPrice: 0, summary: item.seats || '4 Seater Sedan • AC Express' };
+      return { seat: 'Sedan', seatPrice: 0, summary: item.seats || `4 Seater Sedan • ${travelersCount} Passenger(s)` };
     }
     if (item?.type === 'HOTEL') {
-      return { seat: 'Suite', seatPrice: 0, summary: item.seats || 'Deluxe Balcony Suite (1 King Bed)' };
+      return { seat: 'Suite', seatPrice: 0, summary: item.seats || `Deluxe Balcony Suite (${travelersCount} Guest(s))` };
     }
     if (item?.type === 'EXPERIENCE') {
-      return { seat: 'Pass', seatPrice: 0, summary: item.seats || '09:00 AM (Morning Glow Batch)' };
+      return { seat: 'Pass', seatPrice: 0, summary: item.seats || `09:00 AM Batch (${travelersCount} Pass(es))` };
     }
+    const defaultSeats = travelersCount === 2 ? 'Seats 12A, 12B' 
+      : travelersCount === 3 ? 'Seats 12A, 12B, 12C'
+      : travelersCount > 3 ? `${travelersCount} Seats (Row 12)`
+      : 'Seat 12A';
     return {
-      seat: '12A',
+      seat: defaultSeats,
       seatPrice: 0,
-      summary: item?.seats ? `${item.seats} • Seat 12A` : 'Seat 12A (Standard Free)'
+      summary: `${defaultSeats} (${travelersCount} Traveler${travelersCount > 1 ? 's' : ''})`
     };
   });
 
@@ -140,13 +152,22 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
 
   // Download simulation
   const handleDownloadTicket = () => {
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 3000);
+    if (confirmedTicket) {
+      downloadTicketVoucher(confirmedTicket);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 3500);
+    }
   };
 
   const handlePrintTicket = () => {
-    window.print();
+    if (confirmedTicket) {
+      printTicketVoucher(confirmedTicket);
+    } else {
+      window.print();
+    }
   };
+
+  
 
   return (
     <div className="booking-modal-backdrop" onClick={onClose}>
@@ -403,7 +424,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
 
               <button type="button" className="btn-primary" onClick={handleDownloadTicket}>
                 <i className="fa-solid fa-file-arrow-down"></i>
-                <span>{downloadSuccess ? 'E-Ticket Downloaded!' : 'Download PDF Voucher'}</span>
+                <span>{downloadSuccess ? '✓ Voucher Downloaded!' : 'Download PDF Voucher'}</span>
               </button>
 
               <button type="button" className="btn-glass" onClick={onClose}>

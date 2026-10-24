@@ -10,6 +10,7 @@ import MyBookingsModal from './booking/MyBookingsModal';
 import ToastNotification from './booking/ToastNotification';
 import { getTodayDate, getFutureDate, formatDisplayDate } from './utils/dateUtils';
 import { useTravel } from './context/TravelContext';
+import { fetchBookingInventory } from './services/bookingService';
 import './Booking.css';
 
 // Default initial seeded bookings with dynamic latest dates for immediate CRUD demonstration
@@ -97,6 +98,24 @@ export default function Booking() {
 
   // Toast Notifications State
   const [toasts, setToasts] = useState([]);
+  const [isInventorySynced, setIsInventorySynced] = useState(false);
+
+  // Syllabus: Asynchronous dynamic inventory loading with Fetch API & useEffect
+  useEffect(() => {
+    let isMounted = true;
+    const loadDynamicData = async () => {
+      try {
+        const inventory = await fetchBookingInventory();
+        if (inventory && isMounted) {
+          setIsInventorySynced(true);
+        }
+      } catch (err) {
+        console.warn('Inventory sync note:', err);
+      }
+    };
+    loadDynamicData();
+    return () => { isMounted = false; };
+  }, []);
 
   const addToast = (title, message, type = 'success') => {
     const id = Date.now() + Math.random();
@@ -204,6 +223,25 @@ export default function Booking() {
             <div className="booking-hero-pill">
               <span className="material-symbols-rounded">rocket_launch</span>
               <span>TRAVIO FAST-TRACK RESERVATION ENGINE</span>
+              {isInventorySynced && (
+                <span style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  marginLeft: '8px', 
+                  padding: '2px 8px', 
+                  borderRadius: '12px', 
+                  background: 'rgba(34, 197, 94, 0.15)', 
+                  border: '1px solid rgba(34, 197, 94, 0.4)', 
+                  color: '#4ade80', 
+                  fontSize: '10px', 
+                  fontWeight: 600,
+                  letterSpacing: '0.5px'
+                }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80' }}></span>
+                  Dynamic Fetch API Active
+                </span>
+              )}
             </div>
 
             {/* Quick Access to My Bookings Manager (CRUD) */}

@@ -1949,3 +1949,86 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* =======================================================
+   OFFICIAL E-TICKET PRINT ENGINE STYLES (@media print)
+   ======================================================= */
+@media print {
+  body, html {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .booking-page-root,
+  .sidebar,
+  .top-header,
+  .booking-hero-header,
+  .category-nav-wrapper,
+  .booking-active-category-viewport,
+  .modal-header-bar,
+  .checkout-modal-stepper,
+  .ticket-success-celebration,
+  .ticket-actions-row,
+  .modal-close-btn,
+  .booking-modal-backdrop {
+    background: transparent !important;
+  }
+  .sidebar,
+  .top-header,
+  .booking-hero-header,
+  .category-nav-wrapper,
+  .booking-active-category-viewport,
+  .modal-header-bar,
+  .checkout-modal-stepper,
+  .ticket-success-celebration,
+  .ticket-actions-row,
+  .modal-close-btn {
+    display: none !important;
+  }
+  .booking-modal-backdrop {
+    position: static !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+  .checkout-modal-card {
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #travio-printable-ticket {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: 2px solid #0284c7 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    margin: 20px auto !important;
+    max-width: 780px !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #travio-printable-ticket * {
+    color: #0f172a !important;
+  }
+  #travio-printable-ticket .ticket-head {
+    background: #f0f9ff !important;
+    border-bottom: 2px dashed #0284c7 !important;
+  }
+  #travio-printable-ticket .th-brand,
+  #travio-printable-ticket .pnr-code,
+  #travio-printable-ticket .tb-title,
+  #travio-printable-ticket .ep-val,
+  #travio-printable-ticket .sp-val {
+    color: #0f172a !important;
+  }
+  #travio-printable-ticket .pnr-label,
+  #travio-printable-ticket .ep-lbl,
+  #travio-printable-ticket .sp-lbl {
+    color: #64748b !important;
+  }
+  #travio-printable-ticket .text-success {
+    color: #16a34a !important;
+  }
+}

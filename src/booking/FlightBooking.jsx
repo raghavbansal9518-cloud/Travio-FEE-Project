@@ -450,6 +450,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                         time: `${flight.departureTime} - ${flight.arrivalTime}`,
                         duration: flight.duration,
                         price: flight.price * totalTravelers,
+                        travelersCount: totalTravelers,
                         seats: `${totalTravelers} Traveler(s) • ${cabinClass}`,
                         extra: `${flight.aircraft} • ${flight.stops}`,
                         bookingRef: flight.airlineCode ? `TRV-${flight.airlineCode.replace(/[^a-zA-Z0-9]/g, '')}-${Math.floor(1000 + Math.random() * 9000)}` : `TRV-FL-${Math.floor(100000 + Math.random() * 900000)}`,

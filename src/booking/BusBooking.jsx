@@ -358,6 +358,7 @@ export default function BusBooking({ onSelectBookingItem }) {
                     time: `${bus.departureTime} - ${bus.arrivalTime}`,
                     duration: bus.duration,
                     price: bus.price * travelersCount,
+                    travelersCount: travelersCount,
                     seats: `${travelersCount} Seat(s) Reserved`,
                     extra: `Amenities: ${bus.amenities ? bus.amenities.join(', ') : 'AC, WiFi, Charging Port'}`,
                     bookingRef: `TRV-BS-${Math.floor(100000 + Math.random() * 900000)}`,

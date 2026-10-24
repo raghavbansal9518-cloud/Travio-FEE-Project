@@ -1,0 +1,1697 @@
+{
+  "version": "2.0-dynamic",
+  "generatedAt": "2026-10-19T11:36:46.621Z",
+  "endpoints": {
+    "flights": "/data/bookingInventory.json#flights",
+    "trains": "/data/bookingInventory.json#trains",
+    "buses": "/data/bookingInventory.json#buses",
+    "cabs": "/data/bookingInventory.json#cabs",
+    "hotels": "/data/bookingInventory.json#hotels",
+    "experiences": "/data/bookingInventory.json#experiences"
+  },
+  "flights": [
+    {
+      "id": "fl-1",
+      "airline": "Air India",
+      "airlineCode": "AI-805",
+      "logo": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=120&auto=format&fit=crop&q=80",
+      "fromCity": "Delhi",
+      "fromCode": "DEL",
+      "fromAirport": "Indira Gandhi Intl (T3)",
+      "departureTime": "06:00",
+      "toCity": "Mumbai",
+      "toCode": "BOM",
+      "toAirport": "Chhatrapati Shivaji Intl (T2)",
+      "arrivalTime": "08:15",
+      "duration": "2h 15m",
+      "stops": "Non-stop",
+      "price": 5420,
+      "cabinClass": "Economy",
+      "seatsLeft": 4,
+      "refundable": true,
+      "aircraft": "Airbus A350-900"
+    },
+    {
+      "id": "fl-2",
+      "airline": "IndiGo",
+      "airlineCode": "6E-2041",
+      "logo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=120&auto=format&fit=crop&q=80",
+      "fromCity": "Delhi",
+      "fromCode": "DEL",
+      "fromAirport": "Indira Gandhi Intl (T1)",
+      "departureTime": "08:45",
+      "toCity": "Mumbai",
+      "toCode": "BOM",
+      "toAirport": "Chhatrapati Shivaji Intl (T1)",
+      "arrivalTime": "11:00",
+      "duration": "2h 15m",
+      "stops": "Non-stop",
+      "price": 4699,
+      "cabinClass": "Economy",
+      "seatsLeft": 9,
+      "refundable": false,
+      "aircraft": "Airbus A321neo"
+    },
+    {
+      "id": "fl-3",
+      "airline": "Vistara (Air India)",
+      "airlineCode": "UK-995",
+      "logo": "https://images.unsplash.com/photo-1520437358207-323b43b50729?w=120&auto=format&fit=crop&q=80",
+      "fromCity": "Delhi",
+      "fromCode": "DEL",
+      "fromAirport": "Indira Gandhi Intl (T3)",
+      "departureTime": "10:20",
+      "toCity": "Mumbai",
+      "toCode": "BOM",
+      "toAirport": "Chhatrapati Shivaji Intl (T2)",
+      "arrivalTime": "12:35",
+      "duration": "2h 15m",
+      "stops": "Non-stop",
+      "price": 6850,
+      "cabinClass": "Business",
+      "seatsLeft": 2,
+      "refundable": true,
+      "aircraft": "Boeing 787-9 Dreamliner"
+    },
+    {
+      "id": "fl-4",
+      "airline": "Akasa Air",
+      "airlineCode": "QP-1308",
+      "logo": "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=120&auto=format&fit=crop&q=80",
+      "fromCity": "Delhi",
+      "fromCode": "DEL",
+      "fromAirport": "Indira Gandhi Intl (T2)",
+      "departureTime": "14:30",
+      "toCity": "Mumbai",
+      "toCode": "BOM",
+      "toAirport": "Chhatrapati Shivaji Intl (T1)",
+      "arrivalTime": "16:50",
+      "duration": "2h 20m",
+      "stops": "Non-stop",
+      "price": 4320,
+      "cabinClass": "Economy",
+      "seatsLeft": 6,
+      "refundable": true,
+      "aircraft": "Boeing 737 MAX 8"
+    }
+  ],
+  "trains": [
+    {
+      "id": "tr-1",
+      "trainName": "Vande Bharat Express",
+      "trainNumber": "22436",
+      "departureStation": "New Delhi",
+      "departureCode": "NDLS",
+      "departureTime": "06:00",
+      "arrivalStation": "Kanpur Central",
+      "arrivalCode": "CNB",
+      "arrivalTime": "10:08",
+      "duration": "4h 08m",
+      "days": "All Days (except Mon)",
+      "classes": [
+        {
+          "type": "CC",
+          "name": "Chair Car",
+          "price": 1115,
+          "status": "AVAILABLE-48"
+        },
+        {
+          "type": "EC",
+          "name": "Exec Chair Car",
+          "price": 2130,
+          "status": "AVAILABLE-12"
+        }
+      ],
+      "rating": 4.8,
+      "speed": "Semi High-Speed (130 km/h)"
+    },
+    {
+      "id": "tr-2",
+      "trainName": "Kanpur Shatabdi Express",
+      "trainNumber": "12034",
+      "departureStation": "New Delhi",
+      "departureCode": "NDLS",
+      "departureTime": "15:50",
+      "arrivalStation": "Kanpur Central",
+      "arrivalCode": "CNB",
+      "arrivalTime": "20:50",
+      "duration": "5h 00m",
+      "days": "Daily",
+      "classes": [
+        {
+          "type": "CC",
+          "name": "Chair Car",
+          "price": 925,
+          "status": "AVAILABLE-82"
+        },
+        {
+          "type": "EC",
+          "name": "Exec Chair Car",
+          "price": 1810,
+          "status": "RAC-4"
+        }
+      ],
+      "rating": 4.6,
+      "speed": "Express"
+    },
+    {
+      "id": "tr-3",
+      "trainName": "Howrah Rajdhani Express",
+      "trainNumber": "12302",
+      "departureStation": "New Delhi",
+      "departureCode": "NDLS",
+      "departureTime": "16:50",
+      "arrivalStation": "Kanpur Central",
+      "arrivalCode": "CNB",
+      "arrivalTime": "21:32",
+      "duration": "4h 42m",
+      "days": "Daily",
+      "classes": [
+        {
+          "type": "3A",
+          "name": "3rd AC",
+          "price": 1485,
+          "status": "AVAILABLE-24"
+        },
+        {
+          "type": "2A",
+          "name": "2nd AC",
+          "price": 2120,
+          "status": "AVAILABLE-08"
+        },
+        {
+          "type": "1A",
+          "name": "1st AC",
+          "price": 3450,
+          "status": "AVAILABLE-03"
+        }
+      ],
+      "rating": 4.9,
+      "speed": "Superfast VIP"
+    },
+    {
+      "id": "tr-4",
+      "trainName": "Lucknow Tejas Express",
+      "trainNumber": "82502",
+      "departureStation": "New Delhi",
+      "departureCode": "NDLS",
+      "departureTime": "15:40",
+      "arrivalStation": "Kanpur Central",
+      "arrivalCode": "CNB",
+      "arrivalTime": "20:35",
+      "duration": "4h 55m",
+      "days": "Tue, Wed, Fri, Sat, Sun",
+      "classes": [
+        {
+          "type": "CC",
+          "name": "Chair Car",
+          "price": 1280,
+          "status": "AVAILABLE-35"
+        },
+        {
+          "type": "EC",
+          "name": "Exec Chair Car",
+          "price": 2360,
+          "status": "AVAILABLE-06"
+        }
+      ],
+      "rating": 4.7,
+      "speed": "Premium Private"
+    }
+  ],
+  "buses": [
+    {
+      "id": "bus-1",
+      "operator": "IntrCity SmartBus",
+      "busType": "Bharat Benz AC Sleeper (2+1)",
+      "from": "Delhi (Kashmere Gate)",
+      "to": "Kanpur (Fazalganj)",
+      "departureTime": "21:00",
+      "arrivalTime": "05:30",
+      "duration": "8h 30m",
+      "rating": 4.8,
+      "reviewsCount": 1420,
+      "price": 899,
+      "seatsAvailable": 14,
+      "amenities": [
+        "Live Tracking",
+        "WiFi",
+        "Charging Point",
+        "Blanket",
+        "Water Bottle"
+      ]
+    },
+    {
+      "id": "bus-2",
+      "operator": "Zingbus Electric Premium",
+      "busType": "Volvo 9600 Multi-Axle EV Sleeper",
+      "from": "Delhi (Akshardham)",
+      "to": "Kanpur (Rama Devi)",
+      "departureTime": "22:15",
+      "arrivalTime": "06:30",
+      "duration": "8h 15m",
+      "rating": 4.9,
+      "reviewsCount": 2310,
+      "price": 1149,
+      "seatsAvailable": 8,
+      "amenities": [
+        "Zero Emissions",
+        "Comfort Pods",
+        "Snack Box",
+        "Entertainment Screen"
+      ]
+    },
+    {
+      "id": "bus-3",
+      "operator": "NueGo Electric Green",
+      "busType": "Ultra Luxury Electric AC Seater",
+      "from": "Delhi (Sarai Kale Khan)",
+      "to": "Kanpur (Jhakarkatti)",
+      "departureTime": "20:30",
+      "arrivalTime": "05:00",
+      "duration": "8h 30m",
+      "rating": 4.7,
+      "reviewsCount": 980,
+      "price": 749,
+      "seatsAvailable": 19,
+      "amenities": [
+        "Air Purifier",
+        "CCTV Safe",
+        "Emergency Button",
+        "USB Ports"
+      ]
+    },
+    {
+      "id": "bus-4",
+      "operator": "Orange Travels Gold",
+      "busType": "Scania Multi-Axle AC Sleeper",
+      "from": "Delhi (ISBT Anand Vihar)",
+      "to": "Kanpur (Naubasta)",
+      "departureTime": "23:00",
+      "arrivalTime": "07:15",
+      "duration": "8h 15m",
+      "rating": 4.6,
+      "reviewsCount": 1840,
+      "price": 999,
+      "seatsAvailable": 11,
+      "amenities": [
+        "Reading Light",
+        "Pillow",
+        "GPS Tracking",
+        "Water Bottle"
+      ]
+    }
+  ],
+  "cabs": [
+    {
+      "id": "cab-1",
+      "category": "Prime Sedan",
+      "model": "Maruti Suzuki Dzire / Hyundai Aura",
+      "capacity": "4 Passengers • 2 Bags",
+      "fuel": "CNG / Petrol",
+      "ac": true,
+      "rating": 4.8,
+      "ratePerKm": "₹12/km",
+      "basePrice": 16800,
+      "estHours": "32 hrs drive (1,950 km)",
+      "features": [
+        "Top Rated Chauffeur",
+        "Complimentary Water",
+        "Toll included option"
+      ]
+    },
+    {
+      "id": "cab-2",
+      "category": "Prime SUV",
+      "model": "Toyota Innova Crysta",
+      "capacity": "6-7 Passengers • 4 Bags",
+      "fuel": "Diesel",
+      "ac": true,
+      "rating": 4.9,
+      "ratePerKm": "₹18/km",
+      "basePrice": 24500,
+      "estHours": "32 hrs drive (1,950 km)",
+      "features": [
+        "Captain Seats",
+        "Spacious Legroom",
+        "Experienced Highway Driver",
+        "Roof Carrier"
+      ]
+    },
+    {
+      "id": "cab-3",
+      "category": "Electric Prime",
+      "model": "Tata Nexon EV / BYD Atto 3",
+      "capacity": "4 Passengers • 2 Bags",
+      "fuel": "100% Electric",
+      "ac": true,
+      "rating": 4.9,
+      "ratePerKm": "₹14/km",
+      "basePrice": 19200,
+      "estHours": "Eco Fast-Charge Route",
+      "features": [
+        "Zero Emission Travel",
+        "Silent Cabin",
+        "Smart Climate Control"
+      ]
+    },
+    {
+      "id": "cab-4",
+      "category": "Luxury Chauffeur",
+      "model": "Mercedes-Benz E-Class / BMW 5 Series",
+      "capacity": "3 Passengers • 3 Bags",
+      "fuel": "Premium",
+      "ac": true,
+      "rating": 5,
+      "ratePerKm": "₹45/km",
+      "basePrice": 58000,
+      "estHours": "VIP Express Service",
+      "features": [
+        "Suited Chauffeur",
+        "Leather Reclining Seats",
+        "WiFi Hotspot",
+        "Sanitized VIP Kit"
+      ]
+    }
+  ],
+  "hotels": [
+    {
+      "id": "ht-goa-1",
+      "name": "W Goa Luxury Retreat",
+      "destination": "Goa",
+      "location": "Vagator Beach, North Goa",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1428,
+      "tag": "5-Star Beachfront Luxury",
+      "pricePerNight": 18500,
+      "originalPrice": 24000,
+      "amenities": [
+        "Rock Pool",
+        "Private Beach Access",
+        "WOOBAR Lounge",
+        "Spa & Wellness",
+        "Free High-Speed WiFi"
+      ]
+    },
+    {
+      "id": "ht-goa-2",
+      "name": "Taj Exotica Resort & Spa",
+      "destination": "Goa",
+      "location": "Benaulim, South Goa",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 2150,
+      "tag": "Mediterranean Luxury Haven",
+      "pricePerNight": 22000,
+      "originalPrice": 28500,
+      "amenities": [
+        "56-Acre Garden",
+        "Golf Course",
+        "Jiva Spa",
+        "Sea-facing Dining",
+        "Kids Club"
+      ]
+    },
+    {
+      "id": "ht-goa-3",
+      "name": "Alila Diwa Goa by Hyatt",
+      "destination": "Goa",
+      "location": "Majorda Beach, South Goa",
+      "image": "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 1680,
+      "tag": "Paddy Field Infinity Sanctuary",
+      "pricePerNight": 14500,
+      "originalPrice": 19000,
+      "amenities": [
+        "Infinity Paddy Pool",
+        "Spa Alila",
+        "Private Veranda",
+        "Free Shuttle to Beach"
+      ]
+    },
+    {
+      "id": "ht-goa-4",
+      "name": "The Leela Goa Beach Resort",
+      "destination": "Goa",
+      "location": "Mobor Beach, Cavelossim",
+      "image": "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2410,
+      "tag": "Riverside & Beachfront Grandeur",
+      "pricePerNight": 26000,
+      "originalPrice": 33000,
+      "amenities": [
+        "12-Hole Golf Course",
+        "Lagoon Waterways",
+        "Private Beach Club",
+        "The Club Butler Service"
+      ]
+    },
+    {
+      "id": "ht-goa-5",
+      "name": "Grand Hyatt Goa Waterfront",
+      "destination": "Goa",
+      "location": "Bambolim Bay, North Goa",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 1920,
+      "tag": "17th Century Indo-Portuguese Palace",
+      "pricePerNight": 16800,
+      "originalPrice": 21500,
+      "amenities": [
+        "Bambolim Waterfront",
+        "Shamana Spa",
+        "Indoor & Outdoor Pools",
+        "Casino Strike"
+      ]
+    },
+    {
+      "id": "ht-goa-6",
+      "name": "ITC Grand Goa Resort & Spa",
+      "destination": "Goa",
+      "location": "Arossim Beach, Cansaulim",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1750,
+      "tag": "Village-Style Coastal Paradise",
+      "pricePerNight": 19200,
+      "originalPrice": 25000,
+      "amenities": [
+        "Multi-Level Lagoon Pool",
+        "Kaya Kalp Ayurvedic Spa",
+        "Direct Beach Walkway",
+        "Royal Goan Feasts"
+      ]
+    },
+    {
+      "id": "ht-dubai-1",
+      "name": "Atlantis The Royal",
+      "destination": "Dubai",
+      "location": "Palm Jumeirah, Dubai",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 3840,
+      "tag": "Ultra-Luxury Landmark",
+      "pricePerNight": 64000,
+      "originalPrice": 78000,
+      "amenities": [
+        "Skyblaze Fire-Water Fountain",
+        "Cloud 22 Rooftop Pool",
+        "17 Celebrity Chef Restaurants",
+        "Aquaventure Waterpark"
+      ]
+    },
+    {
+      "id": "ht-dubai-2",
+      "name": "Burj Al Arab Jumeirah",
+      "destination": "Dubai",
+      "location": "Umm Suqeim, Dubai",
+      "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 4620,
+      "tag": "7-Star Global Icon",
+      "pricePerNight": 110000,
+      "originalPrice": 135000,
+      "amenities": [
+        "Helipad Transfers",
+        "24K Gold Spa",
+        "Rolls Royce Phantom Fleet",
+        "Private Luxury Cabana Terrace"
+      ]
+    },
+    {
+      "id": "ht-dubai-3",
+      "name": "Armani Hotel Dubai",
+      "destination": "Dubai",
+      "location": "Burj Khalifa, Downtown Dubai",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2210,
+      "tag": "Burj Khalifa Haute Couture",
+      "pricePerNight": 48000,
+      "originalPrice": 59000,
+      "amenities": [
+        "Inside Burj Khalifa",
+        "Armani/Spa Sanctuary",
+        "Dubai Fountain View Suites",
+        "Direct Dubai Mall VIP Entry"
+      ]
+    },
+    {
+      "id": "ht-dubai-4",
+      "name": "One&Only The Palm",
+      "destination": "Dubai",
+      "location": "West Crescent, Palm Jumeirah",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1540,
+      "tag": "Secluded Moorish Beach Manor",
+      "pricePerNight": 58000,
+      "originalPrice": 72000,
+      "amenities": [
+        "Guerlain Spa",
+        "Private Marina & Yacht Pier",
+        "101 Dining by Yannick Alléno",
+        "Chilled Beachside Cabanas"
+      ]
+    },
+    {
+      "id": "ht-dubai-5",
+      "name": "Jumeirah Al Naseem",
+      "destination": "Dubai",
+      "location": "Madinat Jumeirah, Dubai",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2890,
+      "tag": "Contemporary Beachfront Haven",
+      "pricePerNight": 42000,
+      "originalPrice": 52000,
+      "amenities": [
+        "Turtle Lagoon Sanctuary",
+        "Abra Boat Canal Tours",
+        "Summersalt Beach Club",
+        "Talise Spa"
+      ]
+    },
+    {
+      "id": "ht-dubai-6",
+      "name": "Bulgari Resort Dubai",
+      "destination": "Dubai",
+      "location": "Jumeira Bay Island, Dubai",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1120,
+      "tag": "Private Island Italian Jewel",
+      "pricePerNight": 75000,
+      "originalPrice": 92000,
+      "amenities": [
+        "Private Seahorse Island",
+        "50-Berth Yacht Club",
+        "Il Ristorante Niko Romito",
+        "Vitality Pool in Green Onyx"
+      ]
+    },
+    {
+      "id": "ht-sg-1",
+      "name": "Marina Bay Sands",
+      "destination": "Singapore",
+      "location": "10 Bayfront Avenue, Singapore",
+      "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 9450,
+      "tag": "Iconic Infinity Pool Landmark",
+      "pricePerNight": 48500,
+      "originalPrice": 56000,
+      "amenities": [
+        "57th Floor World-Famous Infinity Pool",
+        "Banyan Tree Spa",
+        "ArtScience Museum Privileges",
+        "SkyPark Observation Deck"
+      ]
+    },
+    {
+      "id": "ht-sg-2",
+      "name": "Raffles Hotel Singapore",
+      "destination": "Singapore",
+      "location": "1 Beach Road, Downtown Singapore",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 3200,
+      "tag": "Historic Colonial Legend Since 1887",
+      "pricePerNight": 54000,
+      "originalPrice": 65000,
+      "amenities": [
+        "Legendary Long Bar (Original Singapore Sling)",
+        "Raffles 24/7 Butler Service",
+        "Lush Tropical Courtyards",
+        "Raffles Spa"
+      ]
+    },
+    {
+      "id": "ht-sg-3",
+      "name": "Capella Singapore",
+      "destination": "Singapore",
+      "location": "1 The Knolls, Sentosa Island",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1840,
+      "tag": "Sentosa Tropical Heritage Sanctuary",
+      "pricePerNight": 46000,
+      "originalPrice": 55000,
+      "amenities": [
+        "3-Tiered Cascading Pools",
+        "Auriga Wellness Spa",
+        "Roaming Peacocks in Rainforest",
+        "Private Plunge Pool Manors"
+      ]
+    },
+    {
+      "id": "ht-sg-4",
+      "name": "The Fullerton Bay Hotel",
+      "destination": "Singapore",
+      "location": "80 Collyer Quay, Waterfront Singapore",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2650,
+      "tag": "Glamorous Marina Waterfront Manor",
+      "pricePerNight": 41000,
+      "originalPrice": 49000,
+      "amenities": [
+        "Lantern Rooftop Bar",
+        "Unobstructed Marina Bay Views",
+        "Floating Event Pods",
+        "Complimentary Vintage Town Car Tour"
+      ]
+    },
+    {
+      "id": "ht-sg-5",
+      "name": "The Ritz-Carlton, Millenia Singapore",
+      "destination": "Singapore",
+      "location": "7 Raffles Avenue, Marina Centre",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 3410,
+      "tag": "Museum-Quality Art & Panoramic Marina Views",
+      "pricePerNight": 38000,
+      "originalPrice": 46000,
+      "amenities": [
+        "Octagonal Bathroom Window Views",
+        "4,200-Piece Contemporary Art Collection",
+        "Colony Vintage Sunday Brunch",
+        "Ritz Spa"
+      ]
+    },
+    {
+      "id": "ht-sg-6",
+      "name": "Shangri-La Singapore",
+      "destination": "Singapore",
+      "location": "22 Orange Grove Road, Orchard",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 4120,
+      "tag": "15-Acre Botanical Garden Oasis",
+      "pricePerNight": 32000,
+      "originalPrice": 39000,
+      "amenities": [
+        "15-Acre Botanical Gardens with 133,000 Plants",
+        "The Orchid Conservatory",
+        "Valley Wing Champagne Lounge",
+        "Chi The Spa"
+      ]
+    },
+    {
+      "id": "ht-bkk-1",
+      "name": "The Siam Riverside Oasis",
+      "destination": "Bangkok",
+      "location": "Chao Phraya River, Bangkok",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1650,
+      "tag": "Art Deco Riverside Sanctuary",
+      "pricePerNight": 32000,
+      "originalPrice": 39000,
+      "amenities": [
+        "Private Wooden Boat Shuttle",
+        "Muay Thai Boxing Ring",
+        "Opium Spa",
+        "Infinity Riverside Pool"
+      ]
+    },
+    {
+      "id": "ht-bkk-2",
+      "name": "Mandarin Oriental Bangkok",
+      "destination": "Bangkok",
+      "location": "Charoenkrung Road, Bangkok",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 3890,
+      "tag": "Historic Oriental Grandeur (1876)",
+      "pricePerNight": 38000,
+      "originalPrice": 46000,
+      "amenities": [
+        "The Authors’ Lounge",
+        "Two Outdoor Pools",
+        "Ayurvedic Spa",
+        "Teakwood River Shuttles"
+      ]
+    },
+    {
+      "id": "ht-bkk-3",
+      "name": "Capella Bangkok Waterfront",
+      "destination": "Bangkok",
+      "location": "300/2 Charoenkrung Road, Bangkok",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1420,
+      "tag": "Riverfront Villas with Private Jacuzzi",
+      "pricePerNight": 45000,
+      "originalPrice": 54000,
+      "amenities": [
+        "Private River Terrace & Jacuzzi in Every Room",
+        "Côte by Michelin 3-Star Mauro Colagreco",
+        "Auriga Wellness",
+        "Capella Culturist"
+      ]
+    },
+    {
+      "id": "ht-bkk-4",
+      "name": "Four Seasons Hotel Bangkok at Chao Phraya",
+      "destination": "Bangkok",
+      "location": "Charoen Krung Waterfront, Bangkok",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2190,
+      "tag": "Cascading Cascades & Art Space",
+      "pricePerNight": 42000,
+      "originalPrice": 51000,
+      "amenities": [
+        "Cascading Waterfront Pools",
+        "BKK Social Club (World Top 50 Bar)",
+        "Dedicated Art Space",
+        "Urban Wellness Centre"
+      ]
+    },
+    {
+      "id": "ht-bkk-5",
+      "name": "The Peninsula Bangkok",
+      "destination": "Bangkok",
+      "location": "333 Charoennakorn Road, Klongsan",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 2980,
+      "tag": "Iconic Wave-Form Riverside Palace",
+      "pricePerNight": 28000,
+      "originalPrice": 34500,
+      "amenities": [
+        "Triple-Tiered 88m River Pool",
+        "Helipad with Rooftop Lounge",
+        "The Peninsula Spa",
+        "Private River Ferry Fleet"
+      ]
+    },
+    {
+      "id": "ht-bkk-6",
+      "name": "Waldorf Astoria Bangkok",
+      "destination": "Bangkok",
+      "location": "151 Ratchadamri Road, Pathum Wan",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 1870,
+      "tag": "André Fu Designed Sky Sanctuary",
+      "pricePerNight": 26000,
+      "originalPrice": 32000,
+      "amenities": [
+        "16th-Floor Infinity Sky Pool",
+        "Magnolia Ballroom",
+        "Champagne Bar on Level 57",
+        "Waldorf Astoria Spa"
+      ]
+    },
+    {
+      "id": "ht-paris-1",
+      "name": "Hôtel Plaza Athénée",
+      "destination": "Paris",
+      "location": "Avenue Montaigne, Paris",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2410,
+      "tag": "Haute Couture Eiffel Suite",
+      "pricePerNight": 82000,
+      "originalPrice": 98000,
+      "amenities": [
+        "Eiffel Tower Balcony View",
+        "Dior Spa Institute",
+        "Alain Ducasse Courtyard",
+        "Valet Limousine"
+      ]
+    },
+    {
+      "id": "ht-paris-2",
+      "name": "The Ritz Paris",
+      "destination": "Paris",
+      "location": "Place Vendôme, Paris",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 3100,
+      "tag": "Palatial Vendôme Splendor",
+      "pricePerNight": 95000,
+      "originalPrice": 115000,
+      "amenities": [
+        "Bar Hemingway",
+        "Chanel Spa",
+        "Private Historic Garden",
+        "Chopin Suite"
+      ]
+    },
+    {
+      "id": "ht-paris-3",
+      "name": "Four Seasons Hotel George V",
+      "destination": "Paris",
+      "location": "Champs-Élysées, Paris",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2890,
+      "tag": "Art Deco Luxury Landmark",
+      "pricePerNight": 88000,
+      "originalPrice": 105000,
+      "amenities": [
+        "3 Michelin-Starred Dining",
+        "Floral Courtyard",
+        "Marble Swimming Pool",
+        "Eiffel Suites"
+      ]
+    },
+    {
+      "id": "ht-paris-4",
+      "name": "Le Meurice Paris",
+      "destination": "Paris",
+      "location": "228 Rue de Rivoli, 1st Arrondissement",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2150,
+      "tag": "Dali-Inspired Palace Facing Tuileries",
+      "pricePerNight": 79000,
+      "originalPrice": 94000,
+      "amenities": [
+        "Tuileries Garden Facing",
+        "Valmont Spa",
+        "Restaurant le Meurice Alain Ducasse",
+        "Cedric Grolet Bakery"
+      ]
+    },
+    {
+      "id": "ht-paris-5",
+      "name": "Cheval Blanc Paris",
+      "destination": "Paris",
+      "location": "8 Quai du Louvre, Pont-Neuf",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1640,
+      "tag": "Seine-Front Art Deco Wonder by LVMH",
+      "pricePerNight": 92000,
+      "originalPrice": 110000,
+      "amenities": [
+        "Seine-Facing Curved Terraces",
+        "Dior Spa Cheval Blanc",
+        "Plénitude 3-Michelin Restaurant",
+        "Curated Art Collection"
+      ]
+    },
+    {
+      "id": "ht-paris-6",
+      "name": "Shangri-La Paris",
+      "destination": "Paris",
+      "location": "10 Avenue d’Iéna, Trocadéro",
+      "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2780,
+      "tag": "Prince Roland Bonaparte Former Residence",
+      "pricePerNight": 74000,
+      "originalPrice": 89000,
+      "amenities": [
+        "Closest Panoramic Eiffel Balconies",
+        "Shang Palace (1 Michelin Star)",
+        "CHI The Spa Pool",
+        "Botanical Garden Heritage"
+      ]
+    },
+    {
+      "id": "ht-lon-1",
+      "name": "The Savoy London",
+      "destination": "London",
+      "location": "Strand, Westminster, London",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 3950,
+      "tag": "Historic Thames-Front Grandeur (1889)",
+      "pricePerNight": 68000,
+      "originalPrice": 82000,
+      "amenities": [
+        "The American Bar (World Best)",
+        "River Thames Balcony Suites",
+        "Savoy Butler Service",
+        "Gordon Ramsay Savoy Grill"
+      ]
+    },
+    {
+      "id": "ht-lon-2",
+      "name": "The Ritz London",
+      "destination": "London",
+      "location": "150 Piccadilly, St James’s, London",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 3420,
+      "tag": "Edwardian Elegance in Mayfair",
+      "pricePerNight": 85000,
+      "originalPrice": 102000,
+      "amenities": [
+        "Traditional Afternoon Tea in The Palm Court",
+        "Michelin-Starred Ritz Restaurant",
+        "Green Park Views",
+        "Rolls Royce Chauffeur"
+      ]
+    },
+    {
+      "id": "ht-lon-3",
+      "name": "Claridge’s Mayfair",
+      "destination": "London",
+      "location": "Brook Street, Mayfair, London",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 2680,
+      "tag": "Art Deco Royal Enclave",
+      "pricePerNight": 89000,
+      "originalPrice": 108000,
+      "amenities": [
+        "The Foyer & Reading Room",
+        "Claridge’s Spa with Roman Pool",
+        "Art Deco Suites",
+        "L’Epicerie Kitchen Table"
+      ]
+    },
+    {
+      "id": "ht-lon-4",
+      "name": "Corinthia London",
+      "destination": "London",
+      "location": "Whitehall Place, Westminster, London",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2890,
+      "tag": "Modern Luxury Steps from Trafalgar Square",
+      "pricePerNight": 72000,
+      "originalPrice": 88000,
+      "amenities": [
+        "ESPA Life 4-Floor Flagship Spa",
+        "Kerridge’s Bar & Grill",
+        "The Northall",
+        "Rooftop Royal Penthouse"
+      ]
+    },
+    {
+      "id": "ht-lon-5",
+      "name": "The Langham London",
+      "destination": "London",
+      "location": "1C Portland Place, Regent Street",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3120,
+      "tag": "Europe’s First Grand Hotel (1865)",
+      "pricePerNight": 52000,
+      "originalPrice": 63000,
+      "amenities": [
+        "Artesian Bar",
+        "Chuan Body + Soul Spa in Former Bank Vault",
+        "Roux at The Landau",
+        "Regent Street Gateway"
+      ]
+    },
+    {
+      "id": "ht-lon-6",
+      "name": "Rosewood London",
+      "destination": "London",
+      "location": "252 High Holborn, London",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2240,
+      "tag": "Belle Époque Edwardian Courtyard Manor",
+      "pricePerNight": 58000,
+      "originalPrice": 71000,
+      "amenities": [
+        "Edwardian Carriageway Courtyard",
+        "Sense A Rosewood Spa",
+        "Holborn Dining Room Pie Room",
+        "Scarfes Bar Live Jazz"
+      ]
+    },
+    {
+      "id": "ht-tok-1",
+      "name": "Aman Tokyo",
+      "destination": "Tokyo",
+      "location": "The Otemachi Tower, Chiyoda, Tokyo",
+      "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1890,
+      "tag": "Serene Sanctuary High Above Tokyo",
+      "pricePerNight": 98000,
+      "originalPrice": 118000,
+      "amenities": [
+        "30-Meter Sky Pool with Mount Fuji Views",
+        "Aman Spa Japanese Onsen",
+        "Engawa Wood Architecture",
+        "Musashi by Aman Sushi"
+      ]
+    },
+    {
+      "id": "ht-tok-2",
+      "name": "Hoshinoya Tokyo",
+      "destination": "Tokyo",
+      "location": "Otemachi, Chiyoda, Tokyo",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1420,
+      "tag": "Towering Ryokan with Natural Hot Spring",
+      "pricePerNight": 78000,
+      "originalPrice": 94000,
+      "amenities": [
+        "Top-Floor Geothermal Onsen",
+        "Kimono Tea Ceremonies",
+        "Tatami Living Rooms (Ochanoma)",
+        "Nippon Cuisine Dining"
+      ]
+    },
+    {
+      "id": "ht-tok-3",
+      "name": "The Ritz-Carlton, Tokyo",
+      "destination": "Tokyo",
+      "location": "Tokyo Midtown, Roppongi, Minato",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2750,
+      "tag": "53rd Floor Panoramic Roppongi Heights",
+      "pricePerNight": 68000,
+      "originalPrice": 83000,
+      "amenities": [
+        "Unobstructed Tokyo Tower & Mount Fuji Views",
+        "Hinokizaka Japanese Dining",
+        "Ritz-Carlton Spa & Fitness",
+        "Midtown Direct Access"
+      ]
+    },
+    {
+      "id": "ht-tok-4",
+      "name": "Park Hyatt Tokyo",
+      "destination": "Tokyo",
+      "location": "3-7-1-2 Nishi-Shinjuku, Shinjuku",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3100,
+      "tag": "Lost in Translation Legendary Icon",
+      "pricePerNight": 59000,
+      "originalPrice": 72000,
+      "amenities": [
+        "New York Grill & Bar with Live Jazz",
+        "47th-Floor Glass Atrium Pool",
+        "Club on the Park Spa",
+        "Kenzo Tange Architecture"
+      ]
+    },
+    {
+      "id": "ht-tok-5",
+      "name": "Palace Hotel Tokyo",
+      "destination": "Tokyo",
+      "location": "1-1-1 Marunouchi, Chiyoda, Tokyo",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2480,
+      "tag": "Imperial Palace Moat & Gardens Panorama",
+      "pricePerNight": 64000,
+      "originalPrice": 77000,
+      "amenities": [
+        "Private Balconies Overlooking Imperial Gardens",
+        "Evian Spa Tokyo",
+        "Crown French Haute Cuisine",
+        "Marunouchi Art Gallery"
+      ]
+    },
+    {
+      "id": "ht-tok-6",
+      "name": "Four Seasons Hotel Tokyo at Otemachi",
+      "destination": "Tokyo",
+      "location": "1-2-1 Otemachi, Chiyoda, Tokyo",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1960,
+      "tag": "Chic 39th-Floor Sky Oasis",
+      "pricePerNight": 72000,
+      "originalPrice": 86000,
+      "amenities": [
+        "Mist Chairs in 20m Sky Pool",
+        "Est (1 Michelin Star French-Japanese)",
+        "Virtù Speakeasy Bar",
+        "Zen Water Features"
+      ]
+    },
+    {
+      "id": "ht-bali-1",
+      "name": "The St. Regis Bali Resort",
+      "destination": "Bali",
+      "location": "Kawasan Pariwisata Nusa Dua, Bali",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2450,
+      "tag": "Private Saltwater Lagoon Villa",
+      "pricePerNight": 36000,
+      "originalPrice": 44000,
+      "amenities": [
+        "24-Hour St. Regis Butler Service",
+        "3,668 sqm Saltwater Lagoon",
+        "Iridium Spa",
+        "Boneka World-Famous Breakfast"
+      ]
+    },
+    {
+      "id": "ht-bali-2",
+      "name": "Bulgari Resort Bali",
+      "destination": "Bali",
+      "location": "Jalan Goa Lempeh, Banjar Dinas Kangin, Uluwatu",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1720,
+      "tag": "Clifftop Oceanfront Italian Sanctuary",
+      "pricePerNight": 58000,
+      "originalPrice": 72000,
+      "amenities": [
+        "Private Incline Funicular to Beach",
+        "150m Oceanfront Cliff Pool",
+        "Il Ristorante Luca Fantin",
+        "Bulgari Spa"
+      ]
+    },
+    {
+      "id": "ht-bali-3",
+      "name": "Mandapa, a Ritz-Carlton Reserve",
+      "destination": "Bali",
+      "location": "Jalan Kedewatan, Banjar Kedewatan, Ubud",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1980,
+      "tag": "Sacred Ayung River Sanctuary in Ubud",
+      "pricePerNight": 65000,
+      "originalPrice": 79000,
+      "amenities": [
+        "Kubu Bamboo Cocoon Dining",
+        "Private Rice Paddy Terraces",
+        "Riverside Spa Cabanas",
+        "Dedicated Patih (Butler)"
+      ]
+    },
+    {
+      "id": "ht-bali-4",
+      "name": "Four Seasons Resort Bali at Sayan",
+      "destination": "Bali",
+      "location": "Sayan, Ubud, Gianyar, Bali",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2180,
+      "tag": "Rainforest Suspension Bridge & Lotus Pond",
+      "pricePerNight": 49000,
+      "originalPrice": 59000,
+      "amenities": [
+        "Dramatic Rooftop Lotus Pond Entry",
+        "Sacred River Spa",
+        "Two-Tiered Ayung River Pool",
+        "Traditional Balinese Healers"
+      ]
+    },
+    {
+      "id": "ht-bali-5",
+      "name": "AYANA Resort Bali",
+      "destination": "Bali",
+      "location": "Karang Mas Estate, Jimbaran, Bali",
+      "image": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 4890,
+      "tag": "World-Famous Rock Bar Sunset Clifftop",
+      "pricePerNight": 28000,
+      "originalPrice": 35000,
+      "amenities": [
+        "Iconic Rock Bar perched on Indian Ocean",
+        "14 Resort Swimming Pools",
+        "Aquatonic Seawater Therapy Pool",
+        "Kubu Private White Beach"
+      ]
+    },
+    {
+      "id": "ht-bali-6",
+      "name": "Viceroy Bali Luxury Villas",
+      "destination": "Bali",
+      "location": "Jln. Lanyahan, Br Nagi, Ubud, Bali",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1640,
+      "tag": "Valley of the Kings Private Pool Villas",
+      "pricePerNight": 42000,
+      "originalPrice": 51000,
+      "amenities": [
+        "Heated Infinity Pool overlooking Valley",
+        "Helipad with Airport Transfer",
+        "Cascades French Fine Dining",
+        "Lembah Luxury Spa"
+      ]
+    },
+    {
+      "id": "ht-mld-1",
+      "name": "Soneva Jani Overwater Sanctuary",
+      "destination": "Maldives",
+      "location": "Medhufaru Island, Noonu Atoll",
+      "image": "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1480,
+      "tag": "Retractable Roof & Water Slide Ocean Villa",
+      "pricePerNight": 125000,
+      "originalPrice": 150000,
+      "amenities": [
+        "Curved Water Slide into Turquoise Lagoon",
+        "Stargazing Master Bedroom with Retractable Roof",
+        "Overwater Cinema Paradiso",
+        "Private Lagoon Catamaran"
+      ]
+    },
+    {
+      "id": "ht-mld-2",
+      "name": "Cheval Blanc Randheli",
+      "destination": "Maldives",
+      "location": "Noonu Atoll, Republic of Maldives",
+      "image": "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1120,
+      "tag": "LVMH Maison of Haute Couture Luxury",
+      "pricePerNight": 145000,
+      "originalPrice": 175000,
+      "amenities": [
+        "Customized SeaPlane Transports",
+        "Cheval Blanc Guerlain Spa Island",
+        "Le 1947 Fine Dining",
+        "Dedicated Majordome (Butler)"
+      ]
+    },
+    {
+      "id": "ht-mld-3",
+      "name": "Waldorf Astoria Maldives Ithaafushi",
+      "destination": "Maldives",
+      "location": "Ithaafushi Island, South Malé Atoll",
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1950,
+      "tag": "11 Celebrated Restaurants & Private Reef",
+      "pricePerNight": 115000,
+      "originalPrice": 138000,
+      "amenities": [
+        "Terra Bamboo Pod Treehouse Dining",
+        "40-Minute Luxury Yacht from Airport",
+        "Overwater Ocean Villa with Daybed",
+        "Aqua Wellness Spa Pool"
+      ]
+    },
+    {
+      "id": "ht-mld-4",
+      "name": "The St. Regis Maldives Vommuli Resort",
+      "destination": "Maldives",
+      "location": "Vommuli Island, Dhaalu Atoll",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 1680,
+      "tag": "Architectural Masterpiece Lobster Spa",
+      "pricePerNight": 98000,
+      "originalPrice": 120000,
+      "amenities": [
+        "Iridium Spa shaped like a Lobster",
+        "The Whale Bar Sunset Overwater Lounge",
+        "John Jacob Astor Estate",
+        "Norma Private Yacht Charter"
+      ]
+    },
+    {
+      "id": "ht-mld-5",
+      "name": "Gili Lankanfushi Maldives",
+      "destination": "Maldives",
+      "location": "Lankanfushi Island, North Malé Atoll",
+      "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 1780,
+      "tag": "Barefoot Luxury Crusoe Overwater Residences",
+      "pricePerNight": 88000,
+      "originalPrice": 105000,
+      "amenities": [
+        "Mr./Ms. Friday Dedicated Host",
+        "Stand-Alone Crusoe Residences reached by Boat",
+        "Meera Spa over Sea",
+        "Underground Wine Cellar"
+      ]
+    },
+    {
+      "id": "ht-mld-6",
+      "name": "One&Only Reethi Rah",
+      "destination": "Maldives",
+      "location": "North Malé Atoll, Republic of Maldives",
+      "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 2150,
+      "tag": "12 Pristine Private White Sand Beaches",
+      "pricePerNight": 108000,
+      "originalPrice": 130000,
+      "amenities": [
+        "12 Private Pristine Beaches",
+        "Lap Pool extending 30m into Ocean",
+        "Club One Watersports Centre",
+        "ESPA Ocean Pavilions"
+      ]
+    }
+  ],
+  "experiences": [
+    {
+      "id": "act-sg-sightseeing-1",
+      "name": "Jewel Changi Airport: Canopy Park & Rain Vortex Experience",
+      "destination": "Singapore",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 14250,
+      "duration": "3 - 4 Hours",
+      "price": 1250,
+      "originalPrice": 1650,
+      "badge": "Bestseller",
+      "highlights": [
+        "HSBC Rain Vortex (World’s tallest indoor waterfall)",
+        "Canopy Bridge with glass flooring",
+        "Hedge Maze & Discovery Slides",
+        "Instant QR confirmation"
+      ]
+    },
+    {
+      "id": "act-sg-theme-parks-1",
+      "name": "Universal Studios Singapore VIP All-Access Express Pass",
+      "destination": "Singapore",
+      "category": "Theme Parks",
+      "image": "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 24300,
+      "duration": "Full Day",
+      "price": 6800,
+      "originalPrice": 8500,
+      "badge": "VIP Experience",
+      "highlights": [
+        "Battlestar Galactica dueling supersonic coasters",
+        "Transformers The Ride: 3D Ultimate Battle",
+        "Skip-the-line Universal Express access",
+        "Exclusive food & souvenir voucher"
+      ]
+    },
+    {
+      "id": "act-db-sightseeing-1",
+      "name": "Burj Khalifa: At The Top (Level 124, 125 & 148 SKY VIP)",
+      "destination": "Dubai",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&auto=format&fit=crop&q=80",
+      "rating": 5,
+      "reviewsCount": 32400,
+      "duration": "2 - 3 Hours",
+      "price": 7800,
+      "originalPrice": 9400,
+      "badge": "World Icon",
+      "highlights": [
+        "Fastest double-deck elevator in the world (10m/s)",
+        "Highest outdoor observation deck on earth (555m)",
+        "Complimentary Arabic sweets and luxury dates",
+        "360° Arabian Gulf panoramic view"
+      ]
+    },
+    {
+      "id": "act-db-adventure-1",
+      "name": "Premium Red Dunes Desert Safari, Quad Biking & BBQ Dinner",
+      "destination": "Dubai",
+      "category": "Adventure",
+      "image": "https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 29500,
+      "duration": "6 - 7 Hours",
+      "price": 3950,
+      "originalPrice": 5100,
+      "badge": "Epic Desert Safari",
+      "highlights": [
+        "4x4 Land Cruiser dune bashing in Lahbab Desert",
+        "30-minute self-drive Yamaha quad bike experience",
+        "Camel riding, sandboarding and Henna art",
+        "Live Belly Dance, Tanoura and Fire shows with 5-star BBQ"
+      ]
+    },
+    {
+      "id": "act-pr-sightseeing-1",
+      "name": "Eiffel Tower Summit Access & Seine River Sunset Cruise",
+      "destination": "Paris",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 21500,
+      "duration": "4 Hours",
+      "price": 5900,
+      "originalPrice": 7200,
+      "badge": "Romantic Icon",
+      "highlights": [
+        "Elevator pass directly to the Top Summit (276m)",
+        "Stunning vista of Notre Dame, Sacré-Cœur and Arc de Triomphe",
+        "1-hour illuminated cruise on the Seine",
+        "Glass of chilled French Champagne included"
+      ]
+    },
+    {
+      "id": "act-pr-cultural-tours-1",
+      "name": "Louvre Museum Masterpieces Priority Tour (Mona Lisa & Venus)",
+      "destination": "Paris",
+      "category": "Cultural Tours",
+      "image": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.9,
+      "reviewsCount": 28900,
+      "duration": "3 Hours",
+      "price": 6200,
+      "originalPrice": 7800,
+      "badge": "Art Masterpiece",
+      "highlights": [
+        "Express dedicated group entrance bypassing long lines",
+        "Front-row view of Mona Lisa, Winged Victory & Venus de Milo",
+        "Led by a licensed art historian guide",
+        "Whisper headsets ensuring pristine audio quality"
+      ]
+    },
+    {
+      "id": "act-bk-sightseeing-1",
+      "name": "Mahanakhon SkyWalk Glass Tray Observation Deck (314m)",
+      "destination": "Bangkok",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "2 - 3 Hours",
+      "price": 2100,
+      "originalPrice": 2700,
+      "badge": "Bestseller",
+      "highlights": [
+        "Highest 360-degree glass floor observation deck in Thailand",
+        "Interactive video-themed elevator reaching 74th floor in 50s",
+        "Rooftop cocktail voucher at 314 meters high",
+        "Instant digital mobile confirmation"
+      ]
+    },
+    {
+      "id": "act-bk-cultural-tours-1",
+      "name": "Chao Phraya Tourist Boat Hop-On Hop-Off Cruise & Night Market",
+      "destination": "Bangkok",
+      "category": "Cultural Tours",
+      "image": "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 950,
+      "originalPrice": 1300,
+      "badge": "Bestseller",
+      "highlights": [
+        "Unlimited boat rides between 11 major river piers",
+        "Stops at Wat Arun porcelain spires, Grand Palace & ICONSIAM",
+        "Open-air top deck breeze with English commentary",
+        "Direct access to Asiatique the Riverfront night market"
+      ]
+    },
+    {
+      "id": "act-ld-sightseeing-1",
+      "name": "The London Eye 360° Glass Capsule & Fast-Track Admission",
+      "destination": "London",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "2 - 3 Hours",
+      "price": 3800,
+      "originalPrice": 4600,
+      "badge": "Bestseller",
+      "highlights": [
+        "Fast-track VIP boarding avoiding standby lines",
+        "135-meter high views of Big Ben, Parliament and Buckingham",
+        "High-tech touchscreen interactive guide in capsule",
+        "Complimentary 4D cinema experience"
+      ]
+    },
+    {
+      "id": "act-ld-cultural-tours-1",
+      "name": "British Museum & Rosetta Stone Masterpieces Guided Tour",
+      "destination": "London",
+      "category": "Cultural Tours",
+      "image": "https://images.unsplash.com/photo-1529655683826-aba9b3e77383?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 3600,
+      "originalPrice": 4500,
+      "badge": "Bestseller",
+      "highlights": [
+        "Rosetta Stone and Parthenon Sculptures in British Museum",
+        "Egyptian mummies and Sutton Hoo Anglo-Saxon treasures",
+        "Great Court glass roof architectural masterpiece",
+        "Headsets included for clear commentary"
+      ]
+    },
+    {
+      "id": "act-tk-theme-parks-1",
+      "name": "Tokyo Disneyland 1-Day Passport Express Pass",
+      "destination": "Tokyo",
+      "category": "Theme Parks",
+      "image": "https://images.unsplash.com/photo-1513889961551-628c1e5e2ee9?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "Full Day",
+      "price": 7800,
+      "originalPrice": 9500,
+      "badge": "Bestseller",
+      "highlights": [
+        "Beauty and the Beast enchanted tale trackless dark ride",
+        "Space Mountain, Big Thunder Mountain & Splash Mountain",
+        "Tokyo Disneyland Electrical Parade Dreamlights",
+        "Direct mobile QR e-ticket"
+      ]
+    },
+    {
+      "id": "act-tk-adventure-1",
+      "name": "Street Go-Karting Through Akihabara & Shibuya Crossing",
+      "destination": "Tokyo",
+      "category": "Adventure",
+      "image": "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 5800,
+      "originalPrice": 7200,
+      "badge": "Bestseller",
+      "highlights": [
+        "Drive custom street-legal go-karts on real Tokyo streets",
+        "Cosplay costumes of superhero and anime characters",
+        "Cross the world-famous Shibuya Scramble behind guide kart",
+        "Action camera mount and photo stops included"
+      ]
+    },
+    {
+      "id": "act-pk-water-sports-1",
+      "name": "Phi Phi Islands & Maya Bay Luxury Speedboat Snorkeling Tour",
+      "destination": "Phuket",
+      "category": "Water Sports",
+      "image": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 4900,
+      "originalPrice": 6400,
+      "badge": "Bestseller",
+      "highlights": [
+        "Maya Bay crystal beach made famous by \"The Beach\"",
+        "Pileh Lagoon turquoise emerald swimming sanctuary",
+        "Snorkeling over colorful live coral reefs and sea turtles",
+        "Beachfront Thai buffet lunch on Phi Phi Don"
+      ]
+    },
+    {
+      "id": "act-pk-sightseeing-1",
+      "name": "Big Buddha & Wat Chalong Panoramic Island Highlights Tour",
+      "destination": "Phuket",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "2 - 3 Hours",
+      "price": 1800,
+      "originalPrice": 2400,
+      "badge": "Bestseller",
+      "highlights": [
+        "45-meter tall white marble Big Buddha on Nakkerd Hill",
+        "Wat Chalong: Phuket’s most revered Buddhist monastery",
+        "Karon Viewpoint sweeping vista over three golden bays",
+        "Cashew nut factory & honey farm tasting"
+      ]
+    },
+    {
+      "id": "act-kl-sightseeing-1",
+      "name": "Petronas Twin Towers Skybridge & Observation Deck Level 86",
+      "destination": "Kuala Lumpur",
+      "category": "Sightseeing",
+      "image": "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "2 - 3 Hours",
+      "price": 2200,
+      "originalPrice": 2800,
+      "badge": "Bestseller",
+      "highlights": [
+        "Two-story Skybridge connecting towers on 41st floor",
+        "Observation deck on 86th floor at 370m above ground",
+        "State-of-the-art interactive displays and telescopes",
+        "Skip-the-line QR confirmation"
+      ]
+    },
+    {
+      "id": "act-kl-adventure-1",
+      "name": "Skytrex Adventure: Extreme Rainforest Canopy High-Rope Obstacles",
+      "destination": "Kuala Lumpur",
+      "category": "Adventure",
+      "image": "https://images.unsplash.com/photo-1522878129833-838a904a0e9e?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 2400,
+      "originalPrice": 3100,
+      "badge": "Bestseller",
+      "highlights": [
+        "Navigate 35 tree-top rope bridges, swings and flying foxes",
+        "Climb up to 22 meters into Sungai Congkak tropical canopy",
+        "Extreme Challenge circuit with Tarzan jump",
+        "Safety harness and briefing by certified arborists"
+      ]
+    },
+    {
+      "id": "act-goa-water-sports-1",
+      "name": "Grand Island Scuba Diving & Dolphin Safari with GoPro 4K",
+      "destination": "Goa",
+      "category": "Water Sports",
+      "image": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 2800,
+      "originalPrice": 3500,
+      "badge": "Bestseller",
+      "highlights": [
+        "PADI certified dive master guidance for beginners",
+        "Underwater 4K GoPro video and photo package included",
+        "Sightseeing boat cruise with playful dolphin spotting",
+        "Buffet lunch and beach volleyball on Monkey Beach"
+      ]
+    },
+    {
+      "id": "act-goa-adventure-1",
+      "name": "Jumpin Heights Goa: 55-Meter Bungee Jump & Giant Swing",
+      "destination": "Goa",
+      "category": "Adventure",
+      "image": "https://images.unsplash.com/photo-1522878129833-838a904a0e9e?w=800&auto=format&fit=crop&q=80",
+      "rating": 4.8,
+      "reviewsCount": 3000,
+      "duration": "3 Hours",
+      "price": 4110,
+      "originalPrice": 5000,
+      "badge": "Bestseller",
+      "highlights": [
+        "55-meter permanent cantilever bungee bridge in Mayem Lake",
+        "Operated by ex-Army officers following Australian safety standards",
+        "Giant Swing swooping over serene lake water",
+        "Certificate of courage and 4K camera footage"
+      ]
+    }
+  ]
+}

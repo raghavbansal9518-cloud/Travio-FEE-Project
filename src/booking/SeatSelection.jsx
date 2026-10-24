@@ -1,14 +1,36 @@
 import React, { useState } from 'react';
 
 export default function SeatSelection({ item, onSelectionChange, selectedDetails }) {
-  // Flight Seats State
-  const [selectedSeat, setSelectedSeat] = useState(selectedDetails?.seat || '12A');
+  const travelersCount = item?.travelersCount || 1;
+
+  // Flight Seats State: support multi-seat selection when travelersCount > 1
+  const [selectedSeats, setSelectedSeats] = useState(() => {
+    if (selectedDetails?.seatsList && Array.isArray(selectedDetails.seatsList) && selectedDetails.seatsList.length > 0) {
+      return selectedDetails.seatsList;
+    }
+    if (selectedDetails?.seat && typeof selectedDetails.seat === 'string' && selectedDetails.seat.includes(',')) {
+      return selectedDetails.seat.split(',').map(s => s.trim());
+    }
+    const defaults = ['12A', '12B', '12C', '12D', '12E', '12F'];
+    return defaults.slice(0, Math.min(travelersCount, 6));
+  });
+
   // Train Berth State
-  const [selectedBerth, setSelectedBerth] = useState(selectedDetails?.berth || 'Lower Berth');
+  const [selectedBerth, setSelectedBerth] = useState(
+    selectedDetails?.berth || (travelersCount > 1 ? 'Lower & Middle Berths' : 'Lower Berth')
+  );
   const [selectedCoach, setSelectedCoach] = useState(selectedDetails?.coach || 'Coach B2 (3A)');
+
   // Bus Seat State
   const [busDeck, setBusDeck] = useState('lower');
-  const [selectedBusSeat, setSelectedBusSeat] = useState(selectedDetails?.busSeat || 'L4 (Window)');
+  const [selectedBusSeats, setSelectedBusSeats] = useState(() => {
+    if (selectedDetails?.busSeatsList && Array.isArray(selectedDetails.busSeatsList) && selectedDetails.busSeatsList.length > 0) {
+      return selectedDetails.busSeatsList;
+    }
+    const defaults = ['L4 (Window)', 'L5 (Single)', 'L6 (Single)', 'L3 (Aisle)'];
+    return defaults.slice(0, Math.min(travelersCount, 4));
+  });
+
   // Cab Addons State
   const [cabAddons, setCabAddons] = useState(selectedDetails?.cabAddons || ['AC Fast Cool', 'Luggage Carrier']);
   // Hotel Room State
@@ -32,31 +54,75 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
 
   const handleSeatClick = (seatCode, price) => {
     if (bookedSeats.includes(seatCode)) return;
-    setSelectedSeat(seatCode);
+
+    let updated;
+    if (selectedSeats.includes(seatCode)) {
+      if (selectedSeats.length > 1) {
+        updated = selectedSeats.filter((s) => s !== seatCode);
+      } else {
+        return;
+      }
+    } else {
+      if (selectedSeats.length < travelersCount) {
+        updated = [...selectedSeats, seatCode];
+      } else {
+        updated = [...selectedSeats.slice(1), seatCode];
+      }
+    }
+
+    setSelectedSeats(updated);
+    const summary = updated.length === 1
+      ? `Seat ${updated[0]}`
+      : `Seats ${updated.join(', ')} (${updated.length} of ${travelersCount} Travelers)`;
+
     onSelectionChange({
-      seat: seatCode,
-      seatPrice: price,
-      summary: `Seat ${seatCode} (${price > 0 ? `+₹${price}` : 'Free'})`
+      seat: updated.join(', '),
+      seatsList: updated,
+      seatPrice: 0,
+      summary
     });
   };
 
   const handleBerthSelect = (berth, coach) => {
     setSelectedBerth(berth);
     setSelectedCoach(coach);
+    const summary = travelersCount > 1
+      ? `${coach} • ${travelersCount} Berths (${berth})`
+      : `${coach} • ${berth}`;
     onSelectionChange({
       berth,
       coach,
       seatPrice: 0,
-      summary: `${coach} • ${berth}`
+      summary
     });
   };
 
   const handleBusSeatSelect = (seatName) => {
-    setSelectedBusSeat(seatName);
+    let updated;
+    if (selectedBusSeats.includes(seatName)) {
+      if (selectedBusSeats.length > 1) {
+        updated = selectedBusSeats.filter((s) => s !== seatName);
+      } else {
+        return;
+      }
+    } else {
+      if (selectedBusSeats.length < travelersCount) {
+        updated = [...selectedBusSeats, seatName];
+      } else {
+        updated = [...selectedBusSeats.slice(1), seatName];
+      }
+    }
+
+    setSelectedBusSeats(updated);
+    const summary = updated.length === 1
+      ? `Berth ${updated[0]}`
+      : `Berths ${updated.join(', ')} (${updated.length} of ${travelersCount} Travelers)`;
+
     onSelectionChange({
-      busSeat: seatName,
+      busSeat: updated.join(', '),
+      busSeatsList: updated,
       seatPrice: 0,
-      summary: `Berth ${seatName}`
+      summary
     });
   };
 
@@ -96,13 +162,19 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
       {item.type === 'FLIGHT' && (
         <div className="flight-seatmap-box">
           <div className="seatmap-header">
-            <h4><i className="fa-solid fa-plane"></i> Select Your Preferred Seat</h4>
-            <p>Choose window, aisle, or extra legroom seats in our modern Airbus cabin</p>
+            <h4><i className="fa-solid fa-plane"></i> Select {travelersCount > 1 ? `${travelersCount} Seats` : 'Your Preferred Seat'}</h4>
+            <p>
+              {travelersCount > 1
+                ? `Select ${travelersCount} seats for your ${travelersCount} travelers (${selectedSeats.length} of ${travelersCount} selected)`
+                : 'Choose window, aisle, or extra legroom seats in our modern Airbus cabin'}
+            </p>
           </div>
 
           <div className="seat-legend">
             <span className="legend-item"><span className="legend-box available" /> Available</span>
-            <span className="legend-item"><span className="legend-box selected" /> Selected ({selectedSeat})</span>
+            <span className="legend-item">
+              <span className="legend-box selected" /> Selected: {selectedSeats.join(', ')} ({selectedSeats.length}/{travelersCount})
+            </span>
             <span className="legend-item"><span className="legend-box booked" /> Booked</span>
             <span className="legend-item"><span className="legend-box extra-leg" /> Extra Legroom (+₹650)</span>
           </div>
@@ -121,7 +193,7 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
                     {['A', 'B', 'C'].map((col) => {
                       const code = `${r.row}${col}`;
                       const isBooked = bookedSeats.includes(code);
-                      const isSelected = selectedSeat === code;
+                      const isSelected = selectedSeats.includes(code);
                       return (
                         <button
                           key={code}
@@ -145,7 +217,7 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
                     {['D', 'E', 'F'].map((col) => {
                       const code = `${r.row}${col}`;
                       const isBooked = bookedSeats.includes(code);
-                      const isSelected = selectedSeat === code;
+                      const isSelected = selectedSeats.includes(code);
                       return (
                         <button
                           key={code}
@@ -172,48 +244,47 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
         <div className="train-berth-box">
           <div className="seatmap-header">
             <h4><i className="fa-solid fa-train"></i> Berth & Coach Preference</h4>
-            <p>Select your preferred berth type and AC compartment</p>
+            <p>
+              {travelersCount > 1 
+                ? `Preferences for ${travelersCount} Passengers in Coach ${selectedCoach}` 
+                : 'Select your preferred berth type and AC compartment'}
+            </p>
           </div>
 
           <div className="berth-selector-grid">
             <div className="berth-group">
               <label>Assigned Coach</label>
-              <div className="chip-options-row">
-                {['Coach B1 (3A)', 'Coach B2 (3A)', 'Coach A1 (2A)', 'Coach H1 (1A)'].map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    className={`choice-chip ${selectedCoach === c ? 'active' : ''}`}
-                    onClick={() => handleBerthSelect(selectedBerth, c)}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
+              <select
+                className="glass-select full-width"
+                value={selectedCoach}
+                onChange={(e) => handleBerthSelect(selectedBerth, e.target.value)}
+              >
+                <option value="Coach B2 (3A)">Coach B2 (AC 3 Tier)</option>
+                <option value="Coach A1 (2A)">Coach A1 (AC 2 Tier)</option>
+                <option value="Coach H1 (1A)">Coach H1 (First Class AC)</option>
+                <option value="Executive EC (CC)">Executive Chair Car (EC)</option>
+              </select>
             </div>
 
             <div className="berth-group">
-              <label>Berth Choice</label>
-              <div className="berth-cards-grid">
-                {[
-                  { name: 'Lower Berth', desc: 'Easy access, best for seniors', icon: 'fa-bed' },
-                  { name: 'Middle Berth', desc: 'Foldable quiet sleep space', icon: 'fa-bed' },
-                  { name: 'Upper Berth', desc: 'Private & undisturbed all day', icon: 'fa-bed' },
-                  { name: 'Side Lower', desc: 'Panoramic personal window', icon: 'fa-window-maximize' },
-                  { name: 'Side Upper', desc: 'Cozy single bunk space', icon: 'fa-bed' }
-                ].map((b) => (
-                  <div
-                    key={b.name}
-                    className={`berth-card ${selectedBerth === b.name ? 'active' : ''}`}
-                    onClick={() => handleBerthSelect(b.name, selectedCoach)}
-                  >
-                    <i className={`fa-solid ${b.icon}`}></i>
-                    <strong>{b.name}</strong>
-                    <span>{b.desc}</span>
-                  </div>
-                ))}
-              </div>
+              <label>Berth Preference</label>
+              <select
+                className="glass-select full-width"
+                value={selectedBerth}
+                onChange={(e) => handleBerthSelect(e.target.value, selectedCoach)}
+              >
+                <option value="Lower Berth">Lower Berth (Senior Friendly)</option>
+                <option value="Middle Berth">Middle Berth</option>
+                <option value="Upper Berth">Upper Berth</option>
+                <option value="Side Lower Berth">Side Lower (Window View)</option>
+                <option value="Side Upper Berth">Side Upper</option>
+              </select>
             </div>
+          </div>
+
+          <div className="berth-preview-pill">
+            <i className="fa-solid fa-circle-check"></i>
+            <span>Allocation: <strong>{selectedCoach} • {selectedBerth} {travelersCount > 1 ? `(${travelersCount} Berths)` : ''}</strong></span>
           </div>
         </div>
       )}
@@ -223,7 +294,11 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
         <div className="bus-sleeper-box">
           <div className="seatmap-header">
             <h4><i className="fa-solid fa-bus"></i> Multi-Axle Sleeper Layout</h4>
-            <p>Choose between Lower and Upper Deck single/double berths</p>
+            <p>
+              {travelersCount > 1 
+                ? `Select ${travelersCount} sleeper berths for ${travelersCount} travelers (${selectedBusSeats.length} of ${travelersCount} selected)`
+                : 'Choose between Lower and Upper Deck single/double berths'}
+            </p>
           </div>
 
           <div className="bus-deck-tabs">
@@ -252,17 +327,20 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
               {(busDeck === 'lower'
                 ? ['L1 (Single Window)', 'L2 (Single)', 'L3 (Double Aisle)', 'L4 (Double Window)', 'L5 (Single Window)', 'L6 (Single)']
                 : ['U1 (Single Window)', 'U2 (Single)', 'U3 (Double Aisle)', 'U4 (Double Window)', 'U5 (Single Window)', 'U6 (Single)']
-              ).map((seat) => (
-                <div
-                  key={seat}
-                  className={`sleeper-berth-card ${selectedBusSeat === seat ? 'selected' : ''}`}
-                  onClick={() => handleBusSeatSelect(seat)}
-                >
-                  <span className="berth-pillow" />
-                  <span className="berth-title">{seat}</span>
-                  <span className="berth-status">{selectedBusSeat === seat ? '✓ Selected' : 'Available'}</span>
-                </div>
-              ))}
+              ).map((seat) => {
+                const isSelected = selectedBusSeats.includes(seat);
+                return (
+                  <div
+                    key={seat}
+                    className={`sleeper-berth-card ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleBusSeatSelect(seat)}
+                  >
+                    <span className="berth-pillow" />
+                    <span className="berth-title">{seat}</span>
+                    <span className="berth-status">{isSelected ? '✓ Selected' : 'Available'}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -273,7 +351,7 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
         <div className="cab-preferences-box">
           <div className="seatmap-header">
             <h4><i className="fa-solid fa-car-side"></i> Ride Customization & Extras</h4>
-            <p>Personalize your chauffeur journey with certified amenities</p>
+            <p>Personalize your chauffeur journey with certified amenities ({travelersCount} Passenger{travelersCount > 1 ? 's' : ''})</p>
           </div>
 
           <div className="cab-addons-list">
@@ -298,8 +376,8 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
                   <div className="addon-price">
                     {addon.price > 0 ? `+₹${addon.price}` : 'Free'}
                   </div>
-                  <div className="addon-checkbox">
-                    {isChecked ? <i className="fa-solid fa-circle-check"></i> : <i className="fa-regular fa-circle"></i>}
+                  <div className="addon-check">
+                    <input type="checkbox" checked={isChecked} readOnly />
                   </div>
                 </div>
               );
@@ -308,66 +386,62 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
         </div>
       )}
 
-      {/* 5. HOTEL ROOM TIER */}
+      {/* 5. HOTEL ROOM PREFERENCES */}
       {item.type === 'HOTEL' && (
-        <div className="hotel-room-box">
+        <div className="hotel-room-pref-box">
           <div className="seatmap-header">
-            <h4><i className="fa-solid fa-hotel"></i> Room Type & Bedding</h4>
-            <p>Select your preferred room view and bedding arrangement</p>
+            <h4><i className="fa-solid fa-hotel"></i> Room Category & Bedding</h4>
+            <p>Choose your luxury suite setup ({travelersCount} Guest{travelersCount > 1 ? 's' : ''})</p>
           </div>
 
-          <div className="room-tiers-grid">
+          <div className="room-categories-grid">
             {[
-              { name: 'Deluxe Balcony Suite', desc: '450 sq ft • Private Garden View • Free Breakfast', add: 0 },
-              { name: 'Panoramic Ocean Suite', desc: '620 sq ft • 180° Sea Horizon • Jacuzzi Tub', add: 2500 },
-              { name: 'Royal Presidential Villa', desc: '1,100 sq ft • Private Plunge Pool • Butler Service', add: 6000 }
-            ].map((room) => (
+              { type: 'Deluxe Balcony Suite', desc: '45 sqm • Ocean/Garden View • Marble Bath', cost: 0 },
+              { type: 'Executive Club Room', desc: '55 sqm • High Floor • Free Evening Cocktails', cost: 3500 },
+              { type: 'Presidential Pool Villa', desc: '95 sqm • Private Plunge Pool • 24h Butler', cost: 9500 }
+            ].map((r) => (
               <div
-                key={room.name}
-                className={`room-tier-card ${roomType === room.name ? 'active' : ''}`}
-                onClick={() => handleRoomSelect(room.name, room.add)}
+                key={r.type}
+                className={`room-tier-card ${roomType === r.type ? 'active' : ''}`}
+                onClick={() => handleRoomSelect(r.type, r.cost)}
               >
-                <div className="room-head">
-                  <strong>{room.name}</strong>
-                  <span className="room-add-price">{room.add > 0 ? `+₹${room.add.toLocaleString()}` : 'Included'}</span>
+                <div className="tier-header">
+                  <strong>{r.type}</strong>
+                  <span className="tier-cost">{r.cost > 0 ? `+₹${r.cost.toLocaleString('en-IN')}` : 'Included'}</span>
                 </div>
-                <p>{room.desc}</p>
-                <div className="room-badge">
-                  {roomType === room.name ? '✓ Selected Room' : 'Select'}
-                </div>
+                <p className="tier-desc">{r.desc}</p>
+                <div className="tier-select-badge">{roomType === r.type ? '✓ Selected' : 'Choose Suite'}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* 6. EXPERIENCE TIME SLOTS */}
+      {/* 6. EXPERIENCE SLOT */}
       {item.type === 'EXPERIENCE' && (
-        <div className="exp-slot-box">
+        <div className="experience-slot-box">
           <div className="seatmap-header">
-            <h4><i className="fa-solid fa-clock"></i> Choose Your Experience Slot</h4>
-            <p>Pick a comfortable time batch for your certified guided tour</p>
+            <h4><i className="fa-solid fa-clock"></i> Timed Admission Slot</h4>
+            <p>Reserve instant entry window to skip general ticketing queues ({travelersCount} Pass{travelersCount > 1 ? 'es' : ''})</p>
           </div>
 
-          <div className="slots-grid">
+          <div className="time-slots-grid">
             {[
-              { slot: '06:30 AM (Sunrise Magic Batch)', spots: '3 spots left', icon: 'fa-sun' },
-              { slot: '09:00 AM (Morning Glow Batch)', spots: '8 spots left', icon: 'fa-cloud-sun' },
-              { slot: '02:30 PM (Afternoon Adventure)', spots: '5 spots left', icon: 'fa-compass' },
-              { slot: '05:00 PM (Golden Sunset Special)', spots: '2 spots left (Fast filling)', icon: 'fa-mountain-sun' }
-            ].map((s) => (
-              <div
-                key={s.slot}
-                className={`slot-card ${timeSlot === s.slot ? 'active' : ''}`}
-                onClick={() => handleSlotSelect(s.slot)}
+              '09:00 AM (Morning Glow Batch)',
+              '11:30 AM (Peak Daylight Batch)',
+              '02:30 PM (Afternoon Access Batch)',
+              '05:00 PM (Sunset Golden Hour Batch)',
+              '07:30 PM (Night Illumination Batch)'
+            ].map((slot) => (
+              <button
+                key={slot}
+                type="button"
+                className={`time-slot-pill ${timeSlot === slot ? 'active' : ''}`}
+                onClick={() => handleSlotSelect(slot)}
               >
-                <i className={`fa-solid ${s.icon}`}></i>
-                <div className="slot-details">
-                  <strong>{s.slot}</strong>
-                  <span className="spots-tag">{s.spots}</span>
-                </div>
-                <span className="slot-check">{timeSlot === s.slot ? '✓' : ''}</span>
-              </div>
+                <i className="fa-regular fa-clock"></i>
+                <span>{slot}</span>
+              </button>
             ))}
           </div>
         </div>

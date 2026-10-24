@@ -53,19 +53,28 @@ export default function TrainBooking({ onSelectBookingItem }) {
     }, 200);
   };
 
+  const isSameStation = fromStation.code === toStation.code;
+
   const handleSearchTrains = async (e) => {
     e?.preventDefault();
+    if (fromStation.code === toStation.code) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
     setIsSearching(true);
     try {
       const liveData = await searchLiveTrains({
-        fromStation: fromStation.name,
-        toStation: toStation.name,
+        fromStation,
+        toStation,
         travelDate,
         trainClass
       });
       if (liveData && liveData.length > 0) {
         setSearchResults(liveData);
         setIsLiveInventory(liveData.some(t => t.isLive));
+      } else {
+        setSearchResults([]);
       }
     } catch (err) {
       console.warn('Train search error:', err);
@@ -76,6 +85,10 @@ export default function TrainBooking({ onSelectBookingItem }) {
 
   // Reactive train search when route or class changes
   useEffect(() => {
+    if (fromStation.code === toStation.code) {
+      setSearchResults([]);
+      return;
+    }
     handleSearchTrains();
   }, [fromStation.code, toStation.code, travelDate, trainClass]);
 
@@ -239,6 +252,17 @@ export default function TrainBooking({ onSelectBookingItem }) {
               </div>
             </div>
 
+            {/* Same Station Warning Banner */}
+            {isSameStation && (
+              <div className="train-same-station-banner">
+                <span className="material-symbols-rounded">error_outline</span>
+                <span>
+                  Departure and Arrival stations are both set to <strong>{fromStation.city} ({fromStation.code})</strong>. 
+                  Please select a different destination station to view trains.
+                </span>
+              </div>
+            )}
+
             {/* Dedicated Next-Line Action Row */}
             <div className="booking-action-next-row">
               <div className="form-perks-info">
@@ -249,13 +273,13 @@ export default function TrainBooking({ onSelectBookingItem }) {
               <div className="flight-submit-container">
                 <button
                   type="submit"
-                  className="btn-glowing-cyan search-main-action-btn"
-                  disabled={isSearching}
+                  className={`btn-glowing-cyan search-main-action-btn ${isSameStation ? 'disabled' : ''}`}
+                  disabled={isSearching || isSameStation}
                 >
                   <span className="material-symbols-rounded">
-                    {isSearching ? 'sync' : 'search'}
+                    {isSameStation ? 'warning' : isSearching ? 'sync' : 'search'}
                   </span>
-                  <span>{isSearching ? 'Checking Trains...' : 'SEARCH TRAINS'}</span>
+                  <span>{isSameStation ? 'Select Different Station' : isSearching ? 'Checking Trains...' : 'SEARCH TRAINS'}</span>
                 </button>
               </div>
             </div>
@@ -263,6 +287,39 @@ export default function TrainBooking({ onSelectBookingItem }) {
 
           {/* TRAIN SEARCH RESULTS */}
           <div className="flight-results-container">
+            {isSameStation ? (
+              <div className="same-station-alert-card">
+                <div className="same-station-icon-glow">
+                  <span className="material-symbols-rounded">wrong_location</span>
+                </div>
+                <div className="same-station-text">
+                  <span className="same-station-pill">INVALID ROUTE DETECTED</span>
+                  <h3 className="same-station-heading">Departure & Destination Cannot Be The Same</h3>
+                  <p className="same-station-desc">
+                    You have selected <strong>{fromStation.city} ({fromStation.code})</strong> for both departure and arrival.
+                    IRCTC Indian Railways train tickets cannot be booked for identical boarding and deboarding stations. 
+                    Please choose a different arrival station below to explore live train schedules, berth classes, and fares.
+                  </p>
+                  <div className="same-station-actions">
+                    <span className="suggested-lbl">Popular Destinations from {fromStation.city}:</span>
+                    <div className="suggested-pills-row">
+                      {TRAIN_STATIONS.filter(s => s.code !== fromStation.code).slice(0, 5).map(s => (
+                        <button
+                          key={`quick-dest-${s.code}`}
+                          type="button"
+                          className="btn-suggested-dest"
+                          onClick={() => setToStation(s)}
+                        >
+                          <span className="material-symbols-rounded">near_me</span>
+                          <span>{s.city} ({s.code})</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
             {/* Live Current Time Departure Banner */}
             {isToday(travelDate) && (
               <div className="live-current-time-banner">
@@ -393,6 +450,8 @@ export default function TrainBooking({ onSelectBookingItem }) {
               );
             })}
             </div>
+              </>
+            )}
           </div>
         </>
       )}

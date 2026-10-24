@@ -54,6 +54,33 @@ export default function ExperienceSection({ onSelectBookingItem }) {
     }
   };
 
+  // Reactive dynamic fetch on destination, category, or date change (Syllabus: useEffect & async state)
+  useEffect(() => {
+    const dest = selectedDestinationFilter || searchDestination.trim();
+    if (!dest) {
+      setAllActivities(ACTIVITIES_DATA);
+      return;
+    }
+    const fetchLive = async () => {
+      setIsSearching(true);
+      try {
+        const liveData = await searchLiveExperiences({
+          destination: dest,
+          category: selectedCategory
+        });
+        if (liveData && liveData.length > 0) {
+          setAllActivities(liveData);
+          setIsLiveInventory(liveData.some(a => a.isLive));
+        }
+      } catch (err) {
+        console.warn('Experience reactive fetch error:', err);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+    fetchLive();
+  }, [selectedDestinationFilter, selectedCategory, activityDate]);
+
   // Filter activities dynamically
   const filteredActivities = useMemo(() => {
     return allActivities.filter((act) => {
@@ -260,7 +287,15 @@ export default function ExperienceSection({ onSelectBookingItem }) {
           </div>
         </div>
 
-        {filteredActivities.length === 0 ? (
+        {isSearching ? (
+          <div className="no-activities-found-box" style={{ padding: '60px 20px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+            <div className="empty-state-icon-wrap" style={{ animation: 'spin 1.5s linear infinite' }}>
+              <span className="material-symbols-rounded" style={{ color: '#38bdf8' }}>sync</span>
+            </div>
+            <h4 className="empty-state-title" style={{ marginTop: '16px' }}>Fetching Real-Time Dynamic Experiences...</h4>
+            <p className="empty-state-desc">Connecting to verified tour providers and QR ticket inventory</p>
+          </div>
+        ) : filteredActivities.length === 0 ? (
           <div className="no-activities-found-box">
             <div className="empty-state-icon-wrap">
               <span className="material-symbols-rounded">travel_explore</span>
