@@ -893,6 +893,7 @@ function MobileFormPage({ view, onBack, onSwitch, onGoHome }) {
 
 // ===== MOBILE LANDING =====
 function MobileLanding({ onGoHome }) {
+  const { t } = useLanguage();
   const { current, manualGo } = useCarousel(SLIDES.length, CAROUSEL_INTERVAL);
   const [sheet, setSheet] = useState(null);
   const [formPage, setFormPage] = useState(null);

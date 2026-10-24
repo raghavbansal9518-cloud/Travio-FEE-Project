@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -9,6 +9,7 @@ const Sidebar = ({ isHome }) => {
   const [isMobileExpanded, setIsMobileExpanded] = useState(false);
   const { wishlistCount, bookingsCount, unlockedBadgesCount, journalCount } = useTravel();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -17,6 +18,18 @@ const Sidebar = ({ isHome }) => {
   // Toggle the sidebar when clicked on mobile
   const toggleMobileSidebar = () => {
     setIsMobileExpanded(!isMobileExpanded);
+  };
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    try {
+      localStorage.removeItem('auth_email');
+      localStorage.removeItem('auth_role');
+      localStorage.removeItem('auth_password');
+    } catch (err) {
+      // ignore
+    }
+    navigate('/auth');
   };
 
   return (
@@ -99,6 +112,19 @@ const Sidebar = ({ isHome }) => {
           </li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">{t('nav.settings', 'Settings')}</span></NavLink></li>
           <li><NavLink to="/admin"><span className="material-symbols-rounded">admin_panel_settings</span><span className="nav-text">{t('nav.admin', 'Admin')}</span></NavLink></li>
+
+          {/* Direct Logout / Auth Navigation */}
+          <li>
+            <a 
+              href="/auth" 
+              onClick={handleLogout} 
+              style={{ color: '#f43f5e' }}
+              title="Logout to Login Screen"
+            >
+              <span className="material-symbols-rounded" style={{ color: '#f43f5e' }}>logout</span>
+              <span className="nav-text">{t('header.logout', 'Logout')}</span>
+            </a>
+          </li>
         </ul>
 
         {/* --- Bottom Actions --- */}
