@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function DestinationCard({ destination, isGem = false, aiTag = null }) {
   const navigate = useNavigate();
   const { isWishlisted, toggleWishlist } = useTravel();
+  const { t } = useLanguage();
 
   const isBookmarked = isWishlisted(destination.id);
 
@@ -62,7 +64,7 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
 
         {isGem && (
           <div className="gem-tag-pill">
-            <i className="fa-solid fa-gem"></i> Hidden Gem
+            <i className="fa-solid fa-gem"></i> {t('explore.hiddenGems', 'Hidden Gem')}
           </div>
         )}
 
@@ -95,12 +97,12 @@ export default function DestinationCard({ destination, isGem = false, aiTag = nu
 
         <div className="card-footer-row">
           <div className="budget-group">
-            <span className="budget-lbl">Starting From</span>
+            <span className="budget-lbl">{t('details.startingFrom', 'Starting From')}</span>
             <span className="budget-val">{destination.budgetStarting}</span>
           </div>
 
           <span className="card-explore-link">
-            Explore <i className="fa-solid fa-arrow-right"></i>
+            {t('nav.explore', 'Explore')} <i className="fa-solid fa-arrow-right"></i>
           </span>
         </div>
       </div>

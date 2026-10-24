@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import BadgeArtwork from '../components/BadgeArtwork';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import { DESTINATIONS } from '../data/destinationsData';
 import {
   BADGE_DEFINITIONS,
@@ -79,6 +80,7 @@ function BadgeProgressBar({ badge }) {
 }
 
 function BadgeCard({ badge, unlocked, onSelect }) {
+  const { t } = useLanguage();
   return (
     <Link
       to={`/badges/${badge.id}`}
@@ -95,29 +97,30 @@ function BadgeCard({ badge, unlocked, onSelect }) {
       <BadgeProgressBar badge={badge} />
       <span className={`badge-card__status${unlocked ? ' is-earned' : ''}`}>
         <span className="material-symbols-rounded" aria-hidden="true">{unlocked ? 'verified' : 'lock'}</span>
-        {unlocked ? 'Unlocked' : 'Locked'}
+        {unlocked ? t('badges.unlocked', 'Unlocked') : t('badges.locked', 'Locked')}
       </span>
     </Link>
   );
 }
 
 function BadgeDetail({ badge, achievements, onBack }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
   const recommendations = useMemo(() => getRelatedDestinations(badge), [badge]);
   const achievedAt = achievements[badge.id]?.unlockedAt;
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: 'info' },
-    { id: 'progress', label: 'My Progress', icon: 'monitoring' },
-    { id: 'destinations', label: 'Related Destinations', icon: 'location_on' },
-    { id: 'tips', label: 'Tips', icon: 'lightbulb' },
-    { id: 'gallery', label: 'Gallery', icon: 'photo_library' }
+    { id: 'overview', label: t('phrases.Overview', 'Overview'), icon: 'info' },
+    { id: 'progress', label: t('badges.progress', 'My Progress'), icon: 'monitoring' },
+    { id: 'destinations', label: t('phrases.Related Destinations', 'Related Destinations'), icon: 'location_on' },
+    { id: 'tips', label: t('phrases.Tips', 'Tips'), icon: 'lightbulb' },
+    { id: 'gallery', label: t('phrases.Gallery', 'Gallery'), icon: 'photo_library' }
   ];
 
   return (
     <main className="badge-detail">
       <button className="badge-back-button" type="button" onClick={onBack}>
         <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
-        Back to Badges
+        {t('phrases.Back to Badges', 'Back to Badges')}
       </button>
 
       <section className="badge-detail__hero" style={{ '--badge-accent': badge.accent, '--badge-image': `url("${badge.image}")` }}>
@@ -272,6 +275,7 @@ function UnlockCelebration({ badge, onView, onKeep, onClose }) {
 }
 
 export default function BadgesPage() {
+  const { t } = useLanguage();
   const { badgeId } = useParams();
   const navigate = useNavigate();
   const { wishlist, bookings, showToast } = useTravel();
@@ -364,8 +368,8 @@ export default function BadgesPage() {
                 <span className="material-symbols-rounded badges-hero__trophy" aria-hidden="true">emoji_events</span>
                 <div>
                   <span className="badges-eyebrow">YOUR JOURNEY, CELEBRATED</span>
-                  <h1>Travel <span>Badges</span></h1>
-                  <p>Explore the world, complete journeys and collect badges to showcase your travel achievements.</p>
+                  <h1>{t('badges.title')}</h1>
+                  <p>{t('badges.subtitle')}</p>
                 </div>
               </div>
               <p className="badges-hero__script">Collect Memories<br />Earn Badges<br />Explore More <span aria-hidden="true">♥</span></p>
@@ -376,14 +380,14 @@ export default function BadgesPage() {
                 <div className="badges-filters" role="group" aria-label="Filter badges by category">
                   {FILTERS.map((filter) => (
                     <button key={filter.id} type="button" className={activeFilter === filter.id ? 'is-active' : ''} onClick={() => setActiveFilter(filter.id)}>
-                      {filter.label}
+                      {filter.id === 'all' ? t('badges.allBadges', 'All Badges') : filter.id === 'destinations' ? t('nav.destinations', 'Destinations') : filter.id === 'activities' ? t('nav.activities', 'Activities') : t(`phrases.${filter.label}`, filter.label)}
                     </button>
                   ))}
                 </div>
                 <label className="badges-search">
                   <span className="material-symbols-rounded" aria-hidden="true">search</span>
                   <span className="badges-sr-only">Search badges</span>
-                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search badges…" />
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('phrases.Search badges...', 'Search badges…')} />
                   {query && <button type="button" aria-label="Clear badge search" onClick={() => setQuery('')}><span className="material-symbols-rounded" aria-hidden="true">close</span></button>}
                 </label>
               </div>
@@ -393,7 +397,7 @@ export default function BadgesPage() {
               <div className="badges-layout">
                 <section className="badges-collection" aria-labelledby="badges-collection-title">
                   <div className="badges-section-heading">
-                    <div><span className="badges-eyebrow">KEEP EXPLORING</span><h2 id="badges-collection-title">All Badges</h2></div>
+                    <div><span className="badges-eyebrow">KEEP EXPLORING</span><h2 id="badges-collection-title">{t('badges.allBadges')}</h2></div>
                     <span>{filteredBadges.length} of {BADGE_DEFINITIONS.length} badges</span>
                   </div>
                   {filteredBadges.length ? (
@@ -414,7 +418,7 @@ export default function BadgesPage() {
 
                 <aside className="badges-sidebar" aria-label="Badge progress and recent achievements">
                   <section className="badge-side-panel">
-                    <div className="badge-side-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">insights</span><h2>Your Badge Progress</h2></div>
+                    <div className="badge-side-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">insights</span><h2>{t('badges.progress', 'Your Badge Progress')}</h2></div>
                     <div className="badge-total-progress">
                       <div className="badge-total-progress__ring" style={{ '--badge-progress': `${Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%` }}>
                         <strong>{unlockedCount}</strong><span>/ {BADGE_DEFINITIONS.length}</span>
@@ -428,7 +432,7 @@ export default function BadgesPage() {
                   </section>
 
                   <section className="badge-side-panel">
-                    <div className="badge-side-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">workspace_premium</span><h2>Recent Badges</h2><button type="button" aria-label="View all badges" onClick={() => { setActiveFilter('all'); setQuery(''); document.getElementById('badges-collection-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>View All <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button></div>
+                    <div className="badge-side-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">workspace_premium</span><h2>{t('phrases.Recent Badges', 'Recent Badges')}</h2><button type="button" aria-label="View all badges" onClick={() => { setActiveFilter('all'); setQuery(''); document.getElementById('badges-collection-title')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{t('phrases.View All', 'View All')} <span className="material-symbols-rounded" aria-hidden="true">arrow_forward</span></button></div>
                     {earnedBadges.length ? (
                       <ul className="badge-recent-list">
                         {earnedBadges.slice(0, 4).map((badge) => (
@@ -436,7 +440,7 @@ export default function BadgesPage() {
                             <Link to={`/badges/${badge.id}`}>
                               <BadgeArtwork badgeId={badge.id} />
                               <span><strong>{badge.name}</strong><small>{formatUnlockDate(achievements[badge.id]?.unlockedAt)}</small></span>
-                              <span className="badge-recent-status">Unlocked</span>
+                              <span className="badge-recent-status">{t('badges.unlocked', 'Unlocked')}</span>
                             </Link>
                           </li>
                         ))}

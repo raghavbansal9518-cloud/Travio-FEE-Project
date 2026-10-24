@@ -6,8 +6,9 @@ import TravelCalendar from '../components/TravelCalendar';
 import WeatherCard from '../components/WeatherCard';
 import PackingAssistant from '../components/PackingAssistant';
 import DestinationsCarousel from '../components/DestinationsCarousel';
+import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
-
+import { useLanguage } from '../context/LanguageContext';
 
 // Array of images for the hero slider
 const heroImages = [
@@ -26,39 +27,17 @@ const heroImages = [
 const Dashboard = () => {
   const navigate = useNavigate();
   const { wishlistCount } = useTravel();
+  const { t } = useLanguage();
+
   const handleBrandClick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // --- State Variables ---
-  // Controls which background image is currently showing
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
-  
-  // Toggle for expanding the featured image
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
-  // Profile dropdown state
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const profileRef = useRef(null);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const notificationsRef = useRef(null);
-
-  // Close profile dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setIsProfileOpen(false);
-      }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
-        setIsNotificationsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // --- Refs ---
-  // Reference to the hero section for the parallax effecte mouse position
+  // Reference to the hero section for the parallax effect
   const heroRef = useRef(null);
 
   // --- Handlers ---
@@ -76,98 +55,15 @@ const Dashboard = () => {
   // Rotating background images using useEffect
   useEffect(() => {
     const interval = setInterval(() => {
-      // Loop back to 0 when we reach the end of the array
       setCurrentBgIndex((prev) => (prev + 1) % heroImages.length);
-    }, 6000); // changes every 6 seconds
-    
-    // Cleanup the interval when the component unmounts
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <>
-      {/* --- TOP HEADER --- */}
-      <header className="top-header">
-        <div className="logo-placeholder" style={{ flex: 1 }}></div>
-
-        <div className="header-actions">
-          <div className={`notification-container ${isNotificationsOpen ? 'open' : ''}`} ref={notificationsRef}>
-            <button
-              type="button"
-              className="notification-button"
-              aria-label="Notifications"
-              aria-expanded={isNotificationsOpen}
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            >
-              <span className="material-symbols-rounded">notifications</span>
-              <span className="notification-dot" aria-hidden="true"></span>
-            </button>
-
-            <div className="notification-menu" role="status" aria-live="polite">
-              <div className="notification-menu-header">
-                <strong>Notifications</strong>
-                <span>3 new</span>
-              </div>
-              <div className="notification-item">
-                <span className="material-symbols-rounded">luggage</span>
-                <div>
-                  <strong>Your Bali trip is ready</strong>
-                  <p>Review your itinerary and packing list.</p>
-                </div>
-              </div>
-              <div className="notification-item">
-                <span className="material-symbols-rounded">sunny</span>
-                <div>
-                  <strong>Weather update</strong>
-                  <p>Expect clear skies in your saved destinations.</p>
-                </div>
-              </div>
-              <div className="notification-item">
-                <span className="material-symbols-rounded">favorite</span>
-                <div>
-                  <strong>Wishlist inspiration</strong>
-                  <p>New travel ideas are waiting to be explored.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <Link 
-            to="/wishlist" 
-            className="notification-button" 
-            aria-label="Wishlist"
-            title="Wishlist"
-            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <span className="material-symbols-rounded">favorite</span>
-          </Link>
-
-          <div 
-            className={`profile-dropdown-container ${isProfileOpen ? 'open' : ''}`} 
-            style={{ position: 'relative' }}
-            ref={profileRef}
-          >
-            {/* We change this to a button or div so it toggles instead of navigating */}
-            <div 
-              className="profile-link" 
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <img 
-                src="https://ui-avatars.com/api/?name=Traveler&background=6A4CFF&color=fff" 
-                alt="Profile" 
-                style={{ width: '36px', height: '36px', borderRadius: '50%' }} 
-              />
-              <span>Profile</span>
-            </div>
-            
-            <div className="profile-dropdown-menu">
-              <Link to="/profile">My Profile</Link>
-              <Link to="/auth" style={{ color: '#F43F5E' }}>Logout</Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Top Header with Universal Language Selector */}
+      <Header variant="dashboard" />
 
       {/* --- HERO SECTION --- */}
       <section 
@@ -175,13 +71,11 @@ const Dashboard = () => {
         ref={heroRef}
       >
         <div className="hero-backgrounds">
-          {/* Map over our images array to render all backgrounds */}
           {heroImages.map((img, idx) => (
             <img 
               key={idx}
               src={img} 
               alt="Hero Background" 
-              // Only apply 'active' class to the current index
               className={`hero-bg-image ${idx === currentBgIndex ? 'active' : ''}`}
             />
           ))}
@@ -203,26 +97,34 @@ const Dashboard = () => {
           >
             <label htmlFor="main-search" className="visually-hidden">Search destinations</label>
             <span className="material-symbols-rounded search-icon" style={{ color: 'var(--text-muted)', paddingLeft: '0.5rem' }}>search</span>
-            <input type="search" id="main-search" name="search" placeholder="Search destinations, hotels, activities..." autoComplete="off" />
+            <input 
+              type="search" 
+              id="main-search" 
+              name="search" 
+              placeholder={t('header.searchPlaceholder', 'Search destinations, hotels, activities...')} 
+              autoComplete="off" 
+            />
           </form>
 
-          <p className="hero-small-text">Discover your next adventure</p>
-          <h2>Explore <span style={{ color: 'white' }}>the</span> World</h2>
-          <p style={{ marginBottom: '0.5rem' }}>Discover amazing places, plan unforgettable trips and create memories that last forever.</p>
+          <p className="hero-small-text">{t('dashboard.heroSmall', 'Discover your next adventure')}</p>
+          <h2>{t('dashboard.heroTitle', 'Explore the World')}</h2>
+          <p style={{ marginBottom: '0.5rem' }}>
+            {t('dashboard.heroSubtitle', 'Discover amazing places, plan unforgettable trips and create memories that last forever.')}
+          </p>
           
           <div className="hero-buttons">
             <button onClick={() => navigate('/explore')} className="btn primary-btn">
-              Explore Destinations
+              {t('dashboard.exploreDestinations', 'Explore Destinations')}
             </button>
             <button onClick={handlePlanTrip} className="btn secondary-btn">
-              Plan My Trip
+              {t('dashboard.planMyTrip', 'Plan My Trip')}
             </button>
           </div>
         </div>
 
         {/* --- Popular Searches Aside --- */}
         <aside className="popular-searches">
-          <h3>Popular Searches</h3>
+          <h3>{t('dashboard.popularSearches', 'Popular Searches')}</h3>
           <div className="search-tags">
             <Link to="/explore?search=Bali"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>beach_access</span> Bali</Link>
             <Link to="/explore?search=Japan"><span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: 'middle', marginRight: '4px' }}>festival</span> Japan</Link>
@@ -237,12 +139,12 @@ const Dashboard = () => {
       {/* --- QUICK TRIP PLANNER --- */}
       <section className="quick-trip-planner" id="quick-trip-planner">
         <header className="section-header" style={{ marginBottom: '0.5rem' }}>
-          <h2>Quick Trip Planner</h2>
+          <h2>{t('dashboard.quickTripPlanner', 'Quick Trip Planner')}</h2>
         </header>
 
         <form className="trip-form" onSubmit={(e) => e.preventDefault()}>
           <div className="form-group">
-            <label htmlFor="from-location">From</label>
+            <label htmlFor="from-location">{t('common.from', 'From')}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>location_on</span>
               <input type="text" id="from-location" name="from" placeholder="New Delhi" />
@@ -250,15 +152,15 @@ const Dashboard = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="to-location">To</label>
+            <label htmlFor="to-location">{t('common.to', 'To')}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>pin_drop</span>
-              <input type="text" id="to-location" name="to" placeholder="Where do you want to go?" />
+              <input type="text" id="to-location" name="to" placeholder={t('dashboard.whereToGo', 'Where do you want to go?')} />
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="travel-date">Date</label>
+            <label htmlFor="travel-date">{t('common.date', 'Date')}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>calendar_month</span>
               <input type="date" id="travel-date" name="date" />
@@ -266,34 +168,34 @@ const Dashboard = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="travel-mode">Travel Mode</label>
+            <label htmlFor="travel-mode">{t('dashboard.travelMode', 'Travel Mode')}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>commute</span>
               <select id="travel-mode" name="travelMode" defaultValue="flight">
-                <option value="flight">Flight</option>
-                <option value="train">Train</option>
-                <option value="bus">Bus</option>
-                <option value="car">Car</option>
+                <option value="flight">{t('dashboard.flight', 'Flight')}</option>
+                <option value="train">{t('dashboard.train', 'Train')}</option>
+                <option value="bus">{t('dashboard.bus', 'Bus')}</option>
+                <option value="car">{t('dashboard.car', 'Car')}</option>
               </select>
             </div>
           </div>
 
           <div className="form-group">
-            <label htmlFor="travelers">Travelers</label>
+            <label htmlFor="travelers">{t('common.travelers', 'Travelers')}</label>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span className="material-symbols-rounded" style={{ color: 'var(--text-muted)', fontSize: '18px', marginRight: '4px' }}>group</span>
               <select id="travelers" name="travelers">
-                <option value="1">1 Traveler</option>
-                <option value="2">2 Travelers</option>
-                <option value="3">3 Travelers</option>
-                <option value="4">4 Travelers</option>
-                <option value="5">5+ Travelers</option>
+                <option value="1">{t('dashboard.oneTraveler', '1 Traveler')}</option>
+                <option value="2">{t('dashboard.twoTravelers', '2 Travelers')}</option>
+                <option value="3">{t('dashboard.threeTravelers', '3 Travelers')}</option>
+                <option value="4">{t('dashboard.fourTravelers', '4 Travelers')}</option>
+                <option value="5">{t('dashboard.fivePlusTravelers', '5+ Travelers')}</option>
               </select>
             </div>
           </div>
 
           <button type="submit" className="plan-trip-btn" onClick={handlePlanTrip}>
-            Search
+            {t('common.search', 'Search')}
           </button>
         </form>
       </section>
@@ -309,7 +211,7 @@ const Dashboard = () => {
           <article className="featured-destination">
             <header className="section-header" style={{ marginBottom: 0 }}>
               <div>
-                <h2 style={{ fontSize: '1.25rem' }}>Travel Highlight</h2>
+                <h2 style={{ fontSize: '1.25rem' }}>{t('dashboard.travelHighlight', 'Travel Highlight')}</h2>
               </div>
             </header>
             <div className="featured-content" style={{ marginTop: '1rem' }}>
@@ -326,16 +228,18 @@ const Dashboard = () => {
                 )}
               </div>
               <div className="featured-text">
-                <h3>Discover Your Next Adventure</h3>
-                <p>Explore beautiful destinations, discover local culture and plan experiences for your next journey.</p>
-                <h4 style={{ marginTop: '1.5rem' }}>Travel Tips</h4>
+                <h3>{t('dashboard.discoverNextAdventure', 'Discover Your Next Adventure')}</h3>
+                <p>{t('dashboard.highlightDesc', 'Explore beautiful destinations, discover local culture and plan experiences for your next journey.')}</p>
+                <h4 style={{ marginTop: '1.5rem' }}>{t('dashboard.travelTips', 'Travel Tips')}</h4>
                 <ul>
-                  <li>Research your destination before traveling.</li>
-                  <li>Keep important documents safely packed.</li>
-                  <li>Check weather conditions before departure.</li>
-                  <li>Plan transportation in advance.</li>
+                  <li>{t('dashboard.tip1', 'Research your destination before traveling.')}</li>
+                  <li>{t('dashboard.tip2', 'Keep important documents safely packed.')}</li>
+                  <li>{t('dashboard.tip3', 'Check weather conditions before departure.')}</li>
+                  <li>{t('dashboard.tip4', 'Plan transportation in advance.')}</li>
                 </ul>
-                <button onClick={() => navigate('/explore')} className="btn primary-btn" style={{ marginTop: '1rem' }}>Explore Destination</button>
+                <button onClick={() => navigate('/explore')} className="btn primary-btn" style={{ marginTop: '1rem' }}>
+                  {t('dashboard.exploreDestination', 'Explore Destination')}
+                </button>
               </div>
             </div>
           </article>
@@ -352,22 +256,22 @@ const Dashboard = () => {
       {/* --- ACTIVITIES & EXPLORE --- */}
       <section className="activities-section">
         <header className="section-header">
-          <h2>Activities & Experiences</h2>
-          <Link to="/activities">View All</Link>
+          <h2>{t('activities.title', 'Activities & Experiences')}</h2>
+          <Link to="/activities">{t('common.viewAll', 'View All')}</Link>
         </header>
         <div className="activity-grid">
-          <article className="activity-card">
+          <article className="activity-card" onClick={() => navigate('/activities')} style={{ cursor: 'pointer' }}>
             <img src="/images/adventure.jpg" alt="Adventure" />
             <div className="activity-info" style={{ textAlign: 'center' }}>
-              <h3>Adventure</h3>
-              <p>20+ experiences</p>
+              <h3>{t('activities.adventure', 'Adventure')}</h3>
+              <p>20+ {t('nav.activities', 'experiences')}</p>
             </div>
           </article>
-          <article className="activity-card">
+          <article className="activity-card" onClick={() => navigate('/activities')} style={{ cursor: 'pointer' }}>
             <img src="/images/culture.jpg" alt="Culture" />
             <div className="activity-info" style={{ textAlign: 'center' }}>
-              <h3>Culture</h3>
-              <p>15+ experiences</p>
+              <h3>{t('activities.heritage', 'Culture')}</h3>
+              <p>15+ {t('nav.activities', 'experiences')}</p>
             </div>
           </article>
           <article 
@@ -386,15 +290,15 @@ const Dashboard = () => {
           >
             <img src="/images/food.jpg" alt="Food & Drink" />
             <div className="activity-info" style={{ textAlign: 'center' }}>
-              <h3>Food & Drink</h3>
-              <p>30+ experiences</p>
+              <h3>{t('nav.foodGuide', 'Food & Drink')}</h3>
+              <p>30+ {t('nav.activities', 'experiences')}</p>
             </div>
           </article>
-          <article className="activity-card">
+          <article className="activity-card" onClick={() => navigate('/activities')} style={{ cursor: 'pointer' }}>
             <img src="/images/beach.jpg" alt="Beaches" />
             <div className="activity-info" style={{ textAlign: 'center' }}>
-              <h3>Beaches</h3>
-              <p>25+ experiences</p>
+              <h3>{t('explore.beaches', 'Beaches')}</h3>
+              <p>25+ {t('nav.activities', 'experiences')}</p>
             </div>
           </article>
         </div>
@@ -404,8 +308,8 @@ const Dashboard = () => {
       <section className="bottom-content">
         <section className="top-hotels">
           <header className="section-header">
-            <h2>Top Rated Hotels</h2>
-            <Link to="/hotels">View All</Link>
+            <h2>{t('booking.stays', 'Top Rated Hotels')}</h2>
+            <Link to="/booking">{t('common.viewAll', 'View All')}</Link>
           </header>
           <div className="hotel-list">
             <article className="hotel-item">
@@ -416,7 +320,7 @@ const Dashboard = () => {
                   <span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: '-2px' }}>star</span> 4.8 
                   <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}> (1.2K)</span>
                 </p>
-                <p style={{ fontSize: '0.85rem' }}>From $150 / night</p>
+                <p style={{ fontSize: '0.85rem' }}>{t('details.from', 'From')} $150 / {t('common.night', 'night')}</p>
               </div>
             </article>
             <article className="hotel-item">
@@ -427,7 +331,7 @@ const Dashboard = () => {
                   <span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: '-2px' }}>star</span> 4.9 
                   <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}> (980)</span>
                 </p>
-                <p style={{ fontSize: '0.85rem' }}>From $200 / night</p>
+                <p style={{ fontSize: '0.85rem' }}>{t('details.from', 'From')} $200 / {t('common.night', 'night')}</p>
               </div>
             </article>
             <article className="hotel-item">
@@ -438,7 +342,7 @@ const Dashboard = () => {
                   <span className="material-symbols-rounded" style={{ fontSize: '14px', verticalAlign: '-2px' }}>star</span> 4.7 
                   <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}> (870)</span>
                 </p>
-                <p style={{ fontSize: '0.85rem' }}>From $300 / night</p>
+                <p style={{ fontSize: '0.85rem' }}>{t('details.from', 'From')} $300 / {t('common.night', 'night')}</p>
               </div>
             </article>
           </div>
@@ -446,8 +350,8 @@ const Dashboard = () => {
 
         <section className="reviews-section">
           <header className="section-header">
-            <h2>Recent Reviews</h2>
-            <Link to="/reviews">View All</Link>
+            <h2>{t('reviews.title', 'Recent Reviews')}</h2>
+            <Link to="/reviews">{t('common.viewAll', 'View All')}</Link>
           </header>
           <div className="review-list">
             <article className="review-card">
@@ -525,12 +429,12 @@ const Dashboard = () => {
             </ul>
           </div>
           <div className="footer-column">
-            <h3>Explore</h3>
+            <h3>{t('nav.explore', 'Explore')}</h3>
             <ul>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Destinations</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Hotels</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Activities</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Travel Guide</a></li>
+              <li><Link to="/explore" style={{ textDecoration: 'none', color: 'inherit' }}>{t('explore.destinationsMatching', 'Destinations')}</Link></li>
+              <li><Link to="/booking" style={{ textDecoration: 'none', color: 'inherit' }}>{t('booking.stays', 'Hotels')}</Link></li>
+              <li><Link to="/activities" style={{ textDecoration: 'none', color: 'inherit' }}>{t('nav.activities', 'Activities')}</Link></li>
+              <li><Link to="/food-guide" style={{ textDecoration: 'none', color: 'inherit' }}>{t('nav.foodGuide', 'Food Guide')}</Link></li>
             </ul>
           </div>
           <div className="footer-column">
@@ -551,5 +455,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-

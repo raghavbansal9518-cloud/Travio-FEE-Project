@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import { 
   getCurrentTime12, 
   getCurrentTime24, 
@@ -113,6 +114,7 @@ const TRANSPORT_ROUTES = [
 
 export default function TransportPage() {
   const { addBooking, showToast } = useTravel();
+  const { t } = useLanguage();
   const [activeMode, setActiveMode] = useState('all');
   const [fromCity, setFromCity] = useState('New Delhi');
   const [toCity, setToCity] = useState('');
@@ -226,7 +228,7 @@ export default function TransportPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <h1 style={{ fontSize: '2.4rem', fontWeight: '800', margin: 0, color: 'var(--text-dark)', letterSpacing: '-0.02em' }}>
-                  Smart Transport Hub
+                  {t('transport.title', 'Smart Transport Hub')}
                 </h1>
                 <span style={{ 
                   background: 'rgba(6, 182, 212, 0.15)', 
@@ -237,7 +239,7 @@ export default function TransportPage() {
                   fontSize: '13px', 
                   fontWeight: 700 
                 }}>
-                  Live Route Schedules
+                  {t('transport.liveStatus', 'Live Route Schedules')}
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
@@ -249,7 +251,7 @@ export default function TransportPage() {
           <div style={{ position: 'relative' }}>
             <input
               type="text"
-              placeholder="Search destination or train/flight..."
+              placeholder={t('header.searchPlaceholder', 'Search destination or train/flight...')}
               value={toCity}
               onChange={(e) => setToCity(e.target.value)}
               style={{
@@ -274,10 +276,10 @@ export default function TransportPage() {
           {/* Mode Selector Tabs */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '2rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
             {[
-              { id: 'all', label: 'All Modes', icon: 'fa-globe' },
-              { id: 'flight', label: 'Domestic & Intl Flights', icon: 'fa-plane' },
-              { id: 'train', label: 'Express & Toy Trains', icon: 'fa-train' },
-              { id: 'bus', label: 'Luxury Volvo & Panoramic', icon: 'fa-bus' }
+              { id: 'all', label: t('common.all', 'All Modes'), icon: 'fa-globe' },
+              { id: 'flight', label: t('booking.flights', 'Domestic & Intl Flights'), icon: 'fa-plane' },
+              { id: 'train', label: t('booking.trains', 'Express & Toy Trains'), icon: 'fa-train' },
+              { id: 'bus', label: t('booking.buses', 'Luxury Volvo & Panoramic'), icon: 'fa-bus' }
             ].map((mode) => (
               <button
                 key={mode.id}

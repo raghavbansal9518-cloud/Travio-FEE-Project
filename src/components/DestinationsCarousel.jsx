@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 // --- Static Data ---
 // Array of popular destinations to display in the carousel
@@ -57,6 +58,7 @@ const DestinationsCarousel = () => {
   
   // Global Wishlist from TravelContext
   const { isWishlisted, toggleWishlist } = useTravel();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -107,8 +109,8 @@ const DestinationsCarousel = () => {
     <section className="popular-destinations">
       {/* Section Header */}
       <header className="section-header">
-        <h2>Popular Destinations</h2>
-        <Link to="/explore">View All</Link>
+        <h2>{t('dashboard.featuredDestinations', 'Popular Destinations')}</h2>
+        <Link to="/explore">{t('common.viewAll', 'View All')}</Link>
       </header>
 
       {/* Carousel Track Container */}
@@ -179,8 +181,8 @@ const DestinationsCarousel = () => {
                     <span className="material-symbols-rounded" style={{ fontSize: '16px', verticalAlign: '-3px' }}>star</span> 
                     {dest.rating} <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: '0.8rem' }}>({dest.reviews})</span>
                   </p>
-                  <p>Best time: {dest.bestTime}</p>
-                  <Link to="/explore">Explore</Link>
+                  <p>{t('details.bestSeason', 'Best time')}: {dest.bestTime}</p>
+                  <Link to="/explore">{t('nav.explore', 'Explore')}</Link>
                 </div>
               </article>
             );

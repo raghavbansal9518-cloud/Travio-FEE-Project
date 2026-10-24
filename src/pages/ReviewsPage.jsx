@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const DEFAULT_REVIEWS = [
   {
@@ -43,6 +44,7 @@ const DEFAULT_REVIEWS = [
 
 export default function ReviewsPage() {
   const { showToast } = useTravel();
+  const { t } = useLanguage();
   const [reviews, setReviews] = useState(() => {
     try {
       const saved = localStorage.getItem('travio_user_reviews');
@@ -148,7 +150,7 @@ export default function ReviewsPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <h1 style={{ fontSize: '2.4rem', fontWeight: '800', margin: 0, color: 'var(--text-dark)', letterSpacing: '-0.02em' }}>
-                  Verified Traveler Reviews
+                  {t('reviews.title')}
                 </h1>
                 <span style={{
                   background: 'rgba(245, 158, 11, 0.15)',
@@ -163,7 +165,7 @@ export default function ReviewsPage() {
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
-                Authentic insights from travelers who booked stays, flights, express trains, and local tours through Travio.
+                {t('reviews.subtitle')}
               </p>
             </div>
           </div>
@@ -187,7 +189,7 @@ export default function ReviewsPage() {
             }}
           >
             <span className="material-symbols-rounded" style={{ fontSize: '20px' }}>rate_review</span>
-            Write a Review
+            {t('reviews.writeReview')}
           </button>
         </div>
 

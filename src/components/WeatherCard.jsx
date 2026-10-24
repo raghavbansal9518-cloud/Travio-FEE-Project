@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 // List of popular travel destinations for auto-rotation
 const CITIES = [
@@ -91,6 +92,7 @@ const WeatherCard = () => {
     return { icon: 'wb_cloudy', color: '#9CA3AF', desc: 'Cloudy' };
   };
 
+  const { t } = useLanguage();
   const currentCity = CITIES[cityIndex] || CITIES[0];
   const weather = weatherCache[cityIndex] || DEFAULT_WEATHER[cityIndex] || DEFAULT_WEATHER[0];
   const weatherInfo = getWeatherIcon(weather.code, weather.isDay);
@@ -130,12 +132,12 @@ const WeatherCard = () => {
         <div className="weather-details" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <p><strong>H:</strong> {weather.maxTemp}°C</p>
           <p><strong>L:</strong> {weather.minTemp}°C</p>
-          <p><strong>Humidity:</strong> {weather.humidity}%</p>
+          <p><strong>{t('weather.humidity', 'Humidity')}:</strong> {weather.humidity}%</p>
         </div>
         
         {/* --- Travel Recommendation --- */}
         <p style={{ fontSize: '0.85rem', color: 'var(--accent-green)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <span className="material-symbols-rounded" style={{ fontSize: '16px' }}>check_circle</span> Best time to visit: {currentCity.bestTime}
+          <span className="material-symbols-rounded" style={{ fontSize: '16px' }}>check_circle</span> {t('details.bestSeason', 'Best time to visit')}: {currentCity.bestTime}
         </p>
       </div>
 

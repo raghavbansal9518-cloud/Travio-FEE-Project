@@ -1,30 +1,33 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function CategoryNav({ activeCategory, onSelectCategory }) {
+  const { t } = useLanguage();
+
   const categories = [
     {
       id: 'MOVE',
       title: 'MOVE',
-      subtitle: 'Transport',
-      subtext: 'Flights • Trains • Buses • Cabs',
+      subtitle: t('nav.transport', 'Transport'),
+      subtext: `${t('booking.flights', 'Flights')} • ${t('booking.trains', 'Trains')} • ${t('booking.buses', 'Buses')} • ${t('booking.cabs', 'Cabs')}`,
       icon: 'flight_takeoff',
-      badge: 'Speed & Transit',
+      badge: t('nav.transport', 'Transit'),
     },
     {
       id: 'STAY',
       title: 'STAY',
-      subtitle: 'Accommodation',
-      subtext: 'Hotels • Resorts • Villas',
+      subtitle: t('booking.stays', 'Luxury Stays'),
+      subtext: t('booking.stays', 'Hotels • Resorts • Villas'),
       icon: 'apartment',
-      badge: 'Luxury Living',
+      badge: t('explore.luxury', 'Luxury'),
     },
     {
       id: 'EXPERIENCE',
       title: 'EXPERIENCE',
-      subtitle: 'Activities',
-      subtext: 'Tours • Attractions • Activities',
+      subtitle: t('nav.activities', 'Activities'),
+      subtext: t('activities.title', 'Tours • Attractions • Adventures'),
       icon: 'local_activity',
-      badge: 'Adventures',
+      badge: t('explore.adventure', 'Adventures'),
     },
   ];
 

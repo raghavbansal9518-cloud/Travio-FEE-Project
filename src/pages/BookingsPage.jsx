@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Header from '../components/Header';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import './BookingsPage.css';
 
 // Transport Category Metadata Helper
@@ -85,6 +86,7 @@ const getCategoryMeta = (rawType = '') => {
 export default function BookingsPage() {
   const navigate = useNavigate();
   const { bookings, cancelBooking, deleteBooking, showToast } = useTravel();
+  const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'confirmed' | 'cancelled'
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'FLIGHT' | 'TRAIN' | 'HOTEL' | 'BUS' | 'CAB' | 'EXPERIENCE'
@@ -159,7 +161,7 @@ export default function BookingsPage() {
           </div>
           <div>
             <div className="bookings-title-row">
-              <h1 className="bookings-main-title">My Booked Journeys</h1>
+              <h1 className="bookings-main-title">{t('booking.myBookings', 'My Booked Journeys')}</h1>
               <span className="bookings-active-counter">
                 {confirmedCount} Confirmed {confirmedCount === 1 ? 'Trip' : 'Trips'}
               </span>
@@ -175,7 +177,7 @@ export default function BookingsPage() {
             <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
               airplane_ticket
             </span>
-            <span>Book New Trip</span>
+            <span>{t('phrases.Book New Trip', 'Book New Trip')}</span>
           </Link>
         </div>
       </div>
@@ -242,21 +244,21 @@ export default function BookingsPage() {
                 className={`status-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveTab('all')}
               >
-                All Trips ({bookings.length})
+                {t('phrases.All Trips', 'All Trips')} ({bookings.length})
               </button>
               <button
                 type="button"
                 className={`status-tab-btn ${activeTab === 'confirmed' ? 'confirmed-active' : ''}`}
                 onClick={() => setActiveTab('confirmed')}
               >
-                Confirmed ({confirmedCount})
+                {t('phrases.Confirmed', 'Confirmed')} ({confirmedCount})
               </button>
               <button
                 type="button"
                 className={`status-tab-btn ${activeTab === 'cancelled' ? 'cancelled-active' : ''}`}
                 onClick={() => setActiveTab('cancelled')}
               >
-                Cancelled ({bookings.length - confirmedCount})
+                {t('phrases.Cancelled', 'Cancelled')} ({bookings.length - confirmedCount})
               </button>
             </div>
 
@@ -265,7 +267,7 @@ export default function BookingsPage() {
               <span className="material-symbols-rounded">search</span>
               <input
                 type="text"
-                placeholder="Search by city, airline, PNR..."
+                placeholder={t('phrases.Search by city, airline, PNR...', 'Search by city, airline, PNR...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -290,49 +292,49 @@ export default function BookingsPage() {
               className={`category-filter-chip ${selectedCategory === 'all' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('all')}
             >
-              <span>🌐 All Modes</span>
+              <span>🌐 {t('phrases.All Modes', 'All Modes')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'FLIGHT' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('FLIGHT')}
             >
-              <span>✈️ Flights</span>
+              <span>✈️ {t('transport.flights', 'Flights')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'TRAIN' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('TRAIN')}
             >
-              <span>🚆 Trains</span>
+              <span>🚆 {t('transport.trains', 'Trains')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'HOTEL' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('HOTEL')}
             >
-              <span>🏨 Stays & Villas</span>
+              <span>🏨 {t('booking.stays', 'Stays & Villas')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'BUS' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('BUS')}
             >
-              <span>🚌 Intercity Buses</span>
+              <span>🚌 {t('transport.buses', 'Intercity Buses')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'CAB' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('CAB')}
             >
-              <span>🚕 Cabs & Taxis</span>
+              <span>🚕 {t('phrases.Cabs', 'Cabs & Taxis')}</span>
             </button>
             <button
               type="button"
               className={`category-filter-chip ${selectedCategory === 'EXPERIENCE' ? 'active' : ''}`}
               onClick={() => setSelectedCategory('EXPERIENCE')}
             >
-              <span>🎟️ Experiences</span>
+              <span>🎟️ {t('booking.activities', 'Experiences')}</span>
             </button>
           </div>
         </div>
@@ -344,7 +346,7 @@ export default function BookingsPage() {
               <span className="material-symbols-rounded">travel_explore</span>
             </div>
             <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-dark, #fff)', fontSize: '1.6rem', fontWeight: 800 }}>
-              No Trips Booked Yet
+              {t('phrases.No Trips Booked Yet', 'No Trips Booked Yet')}
             </h3>
             <p style={{ color: 'var(--text-muted, #94a3b8)', marginBottom: '2rem', fontSize: '1rem', lineHeight: '1.6' }}>
               You haven't locked any itineraries yet. Compare live flights, high-speed rail, or boutique villas across India & the globe!

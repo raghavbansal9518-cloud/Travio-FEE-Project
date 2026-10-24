@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from '../components/Header';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const ACTIVITIES_DATA = [
   {
@@ -137,17 +138,18 @@ const ACTIVITIES_DATA = [
 export default function Activities() {
   const navigate = useNavigate();
   const { addBooking, showToast } = useTravel();
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [bookedActivities, setBookedActivities] = useState(new Set());
 
   const categories = [
-    { id: 'all', label: 'All Activities', icon: 'fa-earth-asia' },
-    { id: 'adventure', label: 'Adventure Sports', icon: 'fa-person-snowboarding' },
-    { id: 'water', label: 'Water & Marine', icon: 'fa-water' },
-    { id: 'heritage', label: 'Heritage & Walks', icon: 'fa-landmark-dome' },
-    { id: 'nature', label: 'Nature & Trekking', icon: 'fa-mountain-sun' },
-    { id: 'culinary', label: 'Culinary & Nightlife', icon: 'fa-utensils' }
+    { id: 'all', label: t('common.all', 'All Activities'), icon: 'fa-earth-asia' },
+    { id: 'adventure', label: t('activities.adventure', 'Adventure Sports'), icon: 'fa-person-snowboarding' },
+    { id: 'water', label: t('activities.water', 'Water & Marine'), icon: 'fa-water' },
+    { id: 'heritage', label: t('activities.heritage', 'Heritage & Walks'), icon: 'fa-landmark-dome' },
+    { id: 'nature', label: t('activities.nature', 'Nature & Trekking'), icon: 'fa-mountain-sun' },
+    { id: 'culinary', label: t('nav.foodGuide', 'Culinary & Nightlife'), icon: 'fa-utensils' }
   ];
 
   const filteredActivities = ACTIVITIES_DATA.filter((act) => {
@@ -223,7 +225,7 @@ export default function Activities() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <h1 style={{ fontSize: '2.4rem', fontWeight: '800', margin: 0, color: 'var(--text-dark)', letterSpacing: '-0.02em' }}>
-                  Activities & Experiences
+                  {t('activities.title', 'Activities & Experiences')}
                 </h1>
                 <span style={{ 
                   background: 'rgba(16, 185, 129, 0.15)', 
@@ -247,7 +249,7 @@ export default function Activities() {
           <div style={{ position: 'relative' }}>
             <input
               type="text"
-              placeholder="Search adventures or destinations..."
+              placeholder={t('header.searchPlaceholder', 'Search adventures or destinations...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -406,7 +408,7 @@ export default function Activities() {
                       {/* Pricing & Booking Footer */}
                       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Price per person</span>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t('common.perPerson', 'Price per person')}</span>
                           <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#10b981' }}>
                             ₹{act.price.toLocaleString('en-IN')}
                           </div>

@@ -3,35 +3,37 @@ import FlightBooking from './FlightBooking';
 import TrainBooking from './TrainBooking';
 import BusBooking from './BusBooking';
 import CabBooking from './CabBooking';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function MoveSection({ onSelectBookingItem }) {
+  const { t } = useLanguage();
   const [activeTransport, setActiveTransport] = useState('flights'); // 'flights', 'trains', 'buses', 'cabs'
 
   const transportOptions = [
     {
       id: 'flights',
-      title: 'FLIGHTS',
+      title: t('booking.flights', 'FLIGHTS'),
       sub: 'Domestic & International',
       icon: 'flight',
       animClass: 'anim-airplane-fly',
     },
     {
       id: 'trains',
-      title: 'TRAINS',
-      sub: 'Vande Bharat & Express',
+      title: t('booking.trains', 'TRAINS'),
+      sub: 'High Speed & Express',
       icon: 'train',
       animClass: 'anim-train-track',
     },
     {
       id: 'buses',
-      title: 'BUSES',
+      title: t('booking.buses', 'BUSES'),
       sub: 'AC Sleeper & Electric',
       icon: 'directions_bus',
       animClass: 'anim-bus-road',
     },
     {
       id: 'cabs',
-      title: 'CABS',
+      title: t('booking.cabs', 'CABS'),
       sub: 'Outstation & Airport',
       icon: 'local_taxi',
       animClass: 'anim-cab-drive',
@@ -58,8 +60,11 @@ export default function MoveSection({ onSelectBookingItem }) {
               <div className="transport-animation-stage">
                 {opt.id === 'flights' && (
                   <div className="airplane-scene">
-                    <div className="contrail-stream" />
-                    <div className="plane-icon-vehicle">
+                    <div className="airplane-clouds-layer">
+                      <span className="cloud-particle cp-1" />
+                      <span className="cloud-particle cp-2" />
+                    </div>
+                    <div className="airplane-icon-vehicle">
                       <span className="material-symbols-rounded">flight</span>
                     </div>
                   </div>
@@ -67,9 +72,10 @@ export default function MoveSection({ onSelectBookingItem }) {
 
                 {opt.id === 'trains' && (
                   <div className="train-scene">
-                    <div className="railway-rails-track">
-                      <span className="rail-line" />
-                      <span className="rail-sleepers" />
+                    <div className="rail-tracks">
+                      <span className="rail-tie" />
+                      <span className="rail-tie" />
+                      <span className="rail-tie" />
                     </div>
                     <div className="train-icon-vehicle">
                       <span className="material-symbols-rounded">train</span>

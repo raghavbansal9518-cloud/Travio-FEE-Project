@@ -17,8 +17,11 @@ export default function Header({ variant = '' }) {
 
   return (
     <header className={`top-header${variant ? ` top-header--${variant}` : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 28px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', background: 'rgba(11, 15, 25, 0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-      {/* Search Input Bar (Matching Screenshot) */}
-      <div style={{ flex: '1', maxWidth: '440px', position: 'relative' }}>
+      {/* Search Input Bar (Omitted on Dashboard to avoid duplicate search) */}
+      {variant === 'dashboard' ? (
+        <div style={{ flex: 1 }} />
+      ) : (
+        <div style={{ flex: '1', maxWidth: '440px', position: 'relative' }}>
         <span 
           className="material-symbols-rounded" 
           style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '19px', color: '#8E93A1', pointerEvents: 'none' }}
@@ -52,6 +55,8 @@ export default function Header({ variant = '' }) {
           }}
         />
       </div>
+
+      )}
 
       {/* Right Header Actions */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>

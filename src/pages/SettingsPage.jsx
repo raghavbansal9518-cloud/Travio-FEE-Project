@@ -522,7 +522,7 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
 
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                    Interface Language (i18n Context)
+                    {t('settings.interfaceLanguage', 'Interface Language (i18n Context)')}
                   </label>
                   <select
                     value={currentLanguage}
@@ -570,7 +570,7 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
                 }}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>save</span>
-                Save Preferences
+                {t('settings.saveChanges', 'Save Preferences')}
               </button>
             </div>
           )}

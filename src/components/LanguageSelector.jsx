@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LanguageSelector({ variant = 'header' }) {
-  const { currentLanguage, currentLangObj, changeLanguage, languages } = useLanguage();
+  const { currentLanguage, currentLangObj, changeLanguage, languages, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -107,7 +107,7 @@ export default function LanguageSelector({ variant = 'header' }) {
               marginBottom: '6px'
             }}
           >
-            Select Language
+            {t('header.selectLanguage', 'Select Language')}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>

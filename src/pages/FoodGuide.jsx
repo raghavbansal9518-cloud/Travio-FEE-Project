@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   FOOD_DESTINATIONS,
   FOOD_DISHES,
@@ -22,6 +23,7 @@ export default function FoodGuide() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useTravel();
+  const { t } = useLanguage();
 
   // Active View Tab: 'dishes' | 'trails'
   const [activeView, setActiveView] = useState(() => {
@@ -304,7 +306,7 @@ export default function FoodGuide() {
               }}
             >
               <i className="fa-solid fa-utensils"></i>
-              <span>Iconic Dishes</span>
+              <span>{t('food.dishes', 'Iconic Dishes')}</span>
               <span className="fg-tab-count-badge">{totalDestinationDishes}</span>
             </button>
 
@@ -323,7 +325,7 @@ export default function FoodGuide() {
               }}
             >
               <i className="fa-solid fa-route"></i>
-              <span>Curated Food Trails</span>
+              <span>{t('food.trails', 'Curated Food Trails')}</span>
               <span className="fg-tab-sparkle-pill">✦ Explore</span>
             </button>
           </div>

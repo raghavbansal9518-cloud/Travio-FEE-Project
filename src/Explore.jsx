@@ -11,10 +11,12 @@ import FilterModal from './components/FilterModal';
 import DestinationCard from './components/DestinationCard';
 import { DESTINATIONS } from './data/destinationsData';
 import { searchDestination, KNOWN_GLOBAL_CITY_ALIASES } from './services/destinationService';
+import { useLanguage } from './context/LanguageContext';
 import './Explore.css';
 
 export default function Explore() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const searchInputRef = useRef(null);
 
@@ -225,7 +227,7 @@ export default function Explore() {
           <section className="search-results-section" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="filter-active-summary-bar">
               <div>
-                <span>Found <strong>{filteredDestinations.length || (dynamicDestination ? 1 : 0)}</strong> destination{(filteredDestinations.length === 1 || (!filteredDestinations.length && dynamicDestination)) ? '' : 's'} matching your criteria</span>
+                <span>{t('explore.found', 'Found')} <strong>{filteredDestinations.length || (dynamicDestination ? 1 : 0)}</strong> {t('explore.destinationsMatching', 'destinations matching your criteria')}</span>
                 {searchQuery && <span style={{ opacity: 0.8 }}> for "{searchQuery}"</span>}
                 {selectedCategory && <span style={{ opacity: 0.8 }}> in {selectedCategory.toUpperCase()}</span>}
                 {selectedCountry && <span style={{ opacity: 0.8 }}> in {selectedCountry}</span>}
@@ -237,7 +239,7 @@ export default function Explore() {
                 style={{ padding: '6px 14px', fontSize: '12px' }}
                 onClick={handleResetAllFilters}
               >
-                <i className="fa-solid fa-rotate-left"></i> Reset All Filters
+                <i className="fa-solid fa-rotate-left"></i> {t('explore.resetAllFilters', 'Reset All Filters')}
               </button>
             </div>
 
@@ -269,13 +271,13 @@ export default function Explore() {
               <div style={{ background: 'rgba(18, 26, 45, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '48px 24px', textAlign: 'center', backdropFilter: 'blur(16px)' }}>
                 <i className="fa-solid fa-compass" style={{ fontSize: '42px', color: '#a855f7', marginBottom: '16px' }}></i>
                 <h3 style={{ fontFamily: 'var(--font-heading, inherit)', fontSize: '22px', color: '#ffffff', marginBottom: '8px' }}>
-                  No Destinations Found
+                  {t('explore.noDestinationsFound', 'No Destinations Found')}
                 </h3>
                 <p style={{ color: '#8E93A1', fontSize: '14px', maxWidth: '440px', margin: '0 auto 20px' }}>
-                  We couldn't find any destinations matching all selected filters. Try broadening your budget, weather or category preferences.
+                  {t('explore.noDestinationsDesc', 'We couldn\'t find any destinations matching all selected filters. Try broadening your budget, weather or category preferences.')}
                 </p>
                 <button type="button" className="btn-primary" onClick={handleResetAllFilters}>
-                  <span>Clear All Filters</span>
+                  <span>{t('explore.clearAllFilters', 'Clear All Filters')}</span>
                 </button>
               </div>
             )}
@@ -303,7 +305,7 @@ export default function Explore() {
                     style={{ padding: '6px 14px', fontSize: '12px' }}
                     onClick={() => setSelectedCategory(null)}
                   >
-                    <i className="fa-solid fa-xmark"></i> Close Category
+                    <i className="fa-solid fa-xmark"></i> {t('common.close', 'Close')} {t('explore.allCategories', 'Category')}
                   </button>
                 </div>
 

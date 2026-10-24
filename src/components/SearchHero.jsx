@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const HERO_SLIDES = [
   {
@@ -49,6 +50,7 @@ export default function SearchHero({
   onChipClick, 
   searchInputRef 
 }) {
+  const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sloganIndex, setSloganIndex] = useState(0);
   const quickChips = ['Ladakh', 'Goa', 'Paris', 'Kashmir', 'Bali', 'Switzerland', 'Tokyo', 'Dubai'];
@@ -85,7 +87,7 @@ export default function SearchHero({
           <i className="fa-solid fa-compass"></i> DISCOVER DESTINATIONS
         </div>
 
-        <h1 className="hero-main-title">EXPLORE THE WORLD</h1>
+        <h1 className="hero-main-title">{t('explore.heroTitle', 'EXPLORE THE WORLD')}</h1>
 
         {/* Dynamic Sliding Slogan */}
         <p className="hero-main-subtitle hero-sliding-slogan" key={sloganIndex}>
@@ -109,7 +111,7 @@ export default function SearchHero({
             ref={searchInputRef}
             type="text"
             className="search-text-input"
-            placeholder="Search destinations, India hotspots, countries, vibes..."
+            placeholder={t('explore.searchPlaceholder', 'Search destinations, countries, attractions...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Search destinations"
@@ -135,7 +137,7 @@ export default function SearchHero({
           title="Open Filter Modal"
         >
           <i className="fa-solid fa-sliders"></i>
-          <span>Filters</span>
+          <span>{t('explore.filters', 'Filters')}</span>
           {activeFilterCount > 0 && (
             <span className="active-filter-badge">{activeFilterCount}</span>
           )}
@@ -148,13 +150,13 @@ export default function SearchHero({
           onClick={onSurpriseMe}
           title="Pick a random dream destination"
         >
-          <span>✨ Surprise Me</span>
+          <span>{t('explore.surpriseMe', '✨ Surprise Me')}</span>
         </button>
       </div>
 
       {/* Quick Search Chips */}
       <div className="quick-chips-container">
-        <span className="chips-label">Popular Searches:</span>
+        <span className="chips-label">{t('dashboard.popularSearches', 'Popular Searches')}:</span>
         {quickChips.map((chip) => {
           const isActive = searchQuery.toLowerCase() === chip.toLowerCase();
           return (

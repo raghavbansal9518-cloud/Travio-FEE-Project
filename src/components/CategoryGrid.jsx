@@ -1,7 +1,10 @@
 import React from 'react';
 import { CATEGORIES, DESTINATIONS } from '../data/destinationsData';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function CategoryGrid({ selectedCategory, onSelectCategory }) {
+  const { t } = useLanguage();
+
   return (
     <section className="category-section">
       <div className="category-header-bar">
@@ -9,7 +12,7 @@ export default function CategoryGrid({ selectedCategory, onSelectCategory }) {
           <div className="section-tag">
             <i className="fa-solid fa-layer-group"></i> THEMES & VIBES
           </div>
-          <h2 className="section-title">EXPLORE BY CATEGORY</h2>
+          <h2 className="section-title">{t('explore.allCategories', 'EXPLORE BY CATEGORY')}</h2>
         </div>
 
         {selectedCategory && (
@@ -18,7 +21,7 @@ export default function CategoryGrid({ selectedCategory, onSelectCategory }) {
             className="category-reset-btn"
             onClick={() => onSelectCategory(null)}
           >
-            <i className="fa-solid fa-rotate-left"></i> Show All Categories
+            <i className="fa-solid fa-rotate-left"></i> {t('explore.allCategories', 'Show All Categories')}
           </button>
         )}
       </div>
@@ -26,7 +29,6 @@ export default function CategoryGrid({ selectedCategory, onSelectCategory }) {
       <div className="category-grid">
         {CATEGORIES.map((cat) => {
           const isActive = selectedCategory === cat.id;
-          // Calculate exact number of destinations present in this category
           const categoryCount = DESTINATIONS.filter((d) => d.category === cat.id).length;
 
           return (
@@ -43,8 +45,8 @@ export default function CategoryGrid({ selectedCategory, onSelectCategory }) {
                 <div className="category-icon-bubble">
                   <i className={`fa-solid ${cat.icon}`}></i>
                 </div>
-                <h3 className="category-title">{cat.name}</h3>
-                <span className="category-count">{categoryCount} Destinations</span>
+                <h3 className="category-title">{t(cat.name, cat.name)}</h3>
+                <span className="category-count">{categoryCount} {t('explore.destinationsMatching', 'Destinations')}</span>
               </div>
             </div>
           );

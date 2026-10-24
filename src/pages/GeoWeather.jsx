@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-lea
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import './GeoWeather.css';
+import LanguageSelector from '../components/LanguageSelector';
+import { useLanguage } from '../context/LanguageContext';
 
 // Fix for default Leaflet marker icon in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -72,6 +74,7 @@ function MapModalController({ center, zoom, onLocationSelect }) {
 }
 
 const GeoWeather = () => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState({ name: 'Brooklyn, New York, USA', lat: 40.6501, lon: -73.9495 });
   const [weatherData, setWeatherData] = useState(null);
@@ -335,7 +338,7 @@ const GeoWeather = () => {
           <div className="map-modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header-tip">
               <span className="material-symbols-rounded" style={{ fontSize: '1rem', color: '#60a5fa' }}>touch_app</span>
-              <span>Click anywhere on the map to inspect weather</span>
+              <span>{t('weather.clickMapTip', 'Click anywhere on the map to inspect weather')}</span>
             </div>
             <button className="close-modal-btn" onClick={() => setIsMapExpanded(false)}>
               <span className="material-symbols-rounded">close</span>
@@ -369,28 +372,28 @@ const GeoWeather = () => {
 
           <div className="gw-card status-card">
             <div className="status-header">
-              <span className="status-title">Status</span>
+              <span className="status-title">{t('weather.status', 'Status')}</span>
             </div>
             
             {showDetails ? (
               <div className="status-details">
                 <div className="detail-item">
-                  <span>Humidity:</span>
+                  <span>{t('weather.humidity', 'Humidity')}:</span>
                   <span>{weatherData?.current?.relative_humidity_2m}%</span>
                 </div>
                 <div className="detail-item">
-                  <span>Wind:</span>
+                  <span>{t('weather.wind', 'Wind')}:</span>
                   <span>{weatherData?.current?.wind_speed_10m} km/h</span>
                 </div>
                 <div className="detail-item">
-                  <span>Pressure:</span>
+                  <span>{t('weather.pressure', 'Pressure')}:</span>
                   <span>{weatherData?.current?.surface_pressure} hPa</span>
                 </div>
               </div>
             ) : (
               <div className="status-graph">
                 <div className="status-curve-container">
-                  <div className="status-pill">{currentTemp > 30 ? 'Hot' : currentTemp < 5 ? 'Cold' : 'Normal'}</div>
+                  <div className="status-pill">{currentTemp > 30 ? t('weather.hot', 'Hot') : currentTemp < 5 ? t('weather.cold', 'Cold') : t('weather.normal', 'Normal')}</div>
                   <svg viewBox="0 0 100 40" className="status-svg">
                     <path d="M 0,35 Q 50,35 100,5" fill="none" stroke="url(#gradient)" strokeWidth="3" />
                     <defs>
@@ -406,7 +409,7 @@ const GeoWeather = () => {
             )}
             
             <div className="status-footer" onClick={() => setShowDetails(!showDetails)}>
-              {showDetails ? 'Hide details <' : 'See More details >'}
+              {showDetails ? `${t('weather.hideDetails', 'Hide details')} <` : `${t('weather.seeMore', 'See More details')} >`}
             </div>
           </div>
 
@@ -473,6 +476,7 @@ const GeoWeather = () => {
                 <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>refresh</span>
                 <span>GeoWeather</span>
               </button>
+              <LanguageSelector />
             </div>
           </div>
 

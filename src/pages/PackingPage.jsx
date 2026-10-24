@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const PRESET_LISTS = {
   beach: [
@@ -33,6 +34,7 @@ const PRESET_LISTS = {
 
 export default function PackingPage() {
   const { showToast } = useTravel();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState('beach');
   const [items, setItems] = useState(() => {
     try {
@@ -122,7 +124,7 @@ export default function PackingPage() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <h1 style={{ fontSize: '2.4rem', fontWeight: '800', margin: 0, color: 'var(--text-dark)', letterSpacing: '-0.02em' }}>
-                  Smart Packing Assistant
+                  {t('packing.title', 'Smart Packing Assistant')}
                 </h1>
                 <span style={{ 
                   background: 'rgba(16, 185, 129, 0.15)', 
@@ -133,7 +135,7 @@ export default function PackingPage() {
                   fontSize: '13px', 
                   fontWeight: 700 
                 }}>
-                  {progressPercent}% Packed
+                  {progressPercent}% {t('packing.packed', 'Packed')}
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
@@ -157,7 +159,7 @@ export default function PackingPage() {
                 cursor: 'pointer'
               }}
             >
-              🏖️ Tropical & Beach
+              🏖️ {t('packing.beach', 'Tropical & Beach')}
             </button>
             <button
               onClick={() => handleProfileSwitch('mountain')}
@@ -172,7 +174,7 @@ export default function PackingPage() {
                 cursor: 'pointer'
               }}
             >
-              ❄️ Mountains & Snow
+              ❄️ {t('packing.mountain', 'Mountains & Snow')}
             </button>
             <button
               onClick={() => handleProfileSwitch('city')}
@@ -187,7 +189,7 @@ export default function PackingPage() {
                 cursor: 'pointer'
               }}
             >
-              🏙️ City & Culture
+              🏙️ {t('packing.city', 'City & Culture')}
             </button>
           </div>
         </div>

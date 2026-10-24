@@ -16,6 +16,7 @@ import {
   toggleJournalCommentLike
 } from '../services/journalService';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import './JournalStoryPage.css';
 
 const FALLBACK_IMAGE = '/images/hero-bg.jpg';
@@ -199,6 +200,7 @@ function CommentBranch({ comment, replies, owner, onLike, onReply }) {
 }
 
 export default function JournalStoryPage() {
+  const { t } = useLanguage();
   const { entryId } = useParams();
   const navigate = useNavigate();
   const { toggleWishlist, isWishlisted, showToast } = useTravel();
@@ -416,7 +418,7 @@ export default function JournalStoryPage() {
       <Header />
       <main className="journal-story-page">
         <div className="story-topbar">
-          <Link className="story-back-link" to="/journal"><span className="material-symbols-rounded">arrow_back</span>Back to Journal</Link>
+          <Link className="story-back-link" to="/journal"><span className="material-symbols-rounded">arrow_back</span>{t('phrases.Back to Journal', 'Back to Journal')}</Link>
           <span className="story-reading-type">{entry.status === 'draft' ? 'Private draft' : entry.isDemo ? 'Sample story' : 'Travel story'}</span>
         </div>
 

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function WishlistPage() {
   const navigate = useNavigate();
   const { wishlist, updateWishlistStatus, removeFromWishlist, showToast } = useTravel();
+  const { t } = useLanguage();
   const [activeFilter, setActiveFilter] = useState('all');
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
@@ -61,10 +63,10 @@ export default function WishlistPage() {
               </div>
               <div>
                 <h1 style={{ fontSize: '2.2rem', fontWeight: '800', margin: '0 0 4px 0', letterSpacing: '-0.02em', color: '#ffffff' }}>
-                  My Wishlist
+                  {t('wishlist.title')}
                 </h1>
                 <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.95rem' }}>
-                  Your dream destinations, all in one place. Explore, plan and make it happen!
+                  {t('wishlist.subtitle')}
                 </p>
               </div>
             </div>
@@ -102,7 +104,7 @@ export default function WishlistPage() {
               }}
             >
               <span className="material-symbols-rounded" style={{ fontSize: '18px', color: '#818cf8' }}>travel_explore</span>
-              <span>Explore Destinations</span>
+              <span>{t('dashboard.exploreDestinations', 'Explore Destinations')}</span>
             </button>
           </div>
 
@@ -124,7 +126,7 @@ export default function WishlistPage() {
                 boxShadow: activeFilter === 'all' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none'
               }}
             >
-              All ({wishlist.length})
+              {t('common.all', 'All')} ({wishlist.length})
             </button>
 
             <button
@@ -143,7 +145,7 @@ export default function WishlistPage() {
                 boxShadow: activeFilter === 'planned' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none'
               }}
             >
-              Planned ({plannedCount})
+              {t('wishlist.planned', 'Planned')} ({plannedCount})
             </button>
 
             <button
@@ -162,7 +164,7 @@ export default function WishlistPage() {
                 boxShadow: activeFilter === 'saved' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none'
               }}
             >
-              Saved ({savedCount})
+              {t('phrases.Saved', 'Saved')} ({savedCount})
             </button>
 
             <button
@@ -181,7 +183,7 @@ export default function WishlistPage() {
                 boxShadow: activeFilter === 'visited' ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none'
               }}
             >
-              Visited ({visitedCount})
+              {t('wishlist.visited', 'Visited')} ({visitedCount})
             </button>
           </div>
         </div>
@@ -195,17 +197,17 @@ export default function WishlistPage() {
               </span>
               <h3 style={{ color: '#ffffff', marginTop: '1rem', fontSize: '1.4rem' }}>
                 {activeFilter === 'visited'
-                  ? 'No Visited Places Yet'
+                  ? t('wishlist.noVisited', 'No Visited Places Yet')
                   : activeFilter === 'planned'
-                  ? 'No Planned Trips Yet'
-                  : 'No destinations in this category'}
+                  ? t('wishlist.noPlanned', 'No Planned Trips Yet')
+                  : t('wishlist.noDestinations', 'No destinations in this category')}
               </h3>
               <p style={{ fontSize: '0.95rem', maxWidth: '520px', margin: '8px auto 0 auto', lineHeight: '1.6' }}>
                 {activeFilter === 'visited'
-                  ? 'Completed a journey? Click the (•••) menu on any destination and choose "Mark as Visited" to log your travel milestones here!'
+                  ? t('wishlist.visitedPrompt', 'Completed a journey? Click the (•••) menu on any destination and choose "Mark as Visited" to log your travel milestones here!')
                   : activeFilter === 'planned'
-                  ? 'Have a future trip in mind? Mark destinations as "Planned" from their (•••) menu to build your bucket list.'
-                  : 'Switch filter tabs or discover exciting new destinations from Explore.'}
+                  ? t('wishlist.plannedPrompt', 'Have a future trip in mind? Mark destinations as "Planned" from their (•••) menu to build your bucket list.')
+                  : t('wishlist.emptyDesc')}
               </p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '1.5rem', flexWrap: 'wrap' }}>
                 {activeFilter !== 'all' && (
@@ -224,7 +226,7 @@ export default function WishlistPage() {
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    View All Places ({wishlist.length})
+                    {t('common.all', 'All')} ({wishlist.length})
                   </button>
                 )}
                 <button
@@ -241,7 +243,7 @@ export default function WishlistPage() {
                     cursor: 'pointer'
                   }}
                 >
-                  Explore Destinations
+                  {t('dashboard.exploreDestinations', 'Explore Destinations')}
                 </button>
               </div>
             </div>
@@ -443,7 +445,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#818cf8' }}>event_upcoming</span>
-                            <span>Mark as Planned</span>
+                            <span>{t('wishlist.markPlanned', 'Mark as Planned')}</span>
                           </button>
 
                           <button
@@ -457,7 +459,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#10b981' }}>done_all</span>
-                            <span>Mark as Visited</span>
+                            <span>{t('wishlist.markVisited', 'Mark as Visited')}</span>
                           </button>
 
                           <button
@@ -471,7 +473,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#f59e0b' }}>bookmark</span>
-                            <span>Mark as Saved</span>
+                            <span>{t('wishlist.markSaved', 'Mark as Saved')}</span>
                           </button>
 
                           <button
@@ -485,7 +487,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#38bdf8' }}>flight_takeoff</span>
-                            <span>Book This Trip</span>
+                            <span>{t('booking.bookTrip', 'Book This Trip')}</span>
                           </button>
 
                           <button
@@ -499,7 +501,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#c084fc' }}>menu_book</span>
-                            <span>Write in Journal</span>
+                            <span>{t('journal.newEntry', 'Write in Journal')}</span>
                           </button>
 
                           <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '2px 0' }} />
@@ -515,7 +517,7 @@ export default function WishlistPage() {
                             onMouseOut={(e) => e.currentTarget.style.background = 'none'}
                           >
                             <span className="material-symbols-rounded" style={{ fontSize: '15px', color: '#f43f5e' }}>delete</span>
-                            <span>Remove</span>
+                            <span>{t('common.remove', 'Remove')}</span>
                           </button>
                         </div>
                       )}
@@ -583,12 +585,12 @@ export default function WishlistPage() {
                         {dest.status === 'visited' ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#10b981', fontWeight: 600 }}>
                             <span className="material-symbols-rounded" style={{ fontSize: '16px', color: '#10b981' }}>check_circle</span>
-                            <span>Visited • Completed Trip</span>
+                            <span>{t('wishlist.visited', 'Visited')} • {t('common.completed', 'Completed Trip')}</span>
                           </div>
                         ) : (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#94a3b8' }}>
                             <i className="fa-regular fa-calendar" style={{ fontSize: '12px', color: '#818cf8' }}></i>
-                            <span>Added on {dest.addedDate || '15 Oct 2026'}</span>
+                            <span>{t('common.addedOn', 'Added on')} {dest.addedDate || '15 Oct 2026'}</span>
                           </div>
                         )}
 
@@ -620,7 +622,7 @@ export default function WishlistPage() {
                             e.currentTarget.style.transform = 'translateX(0)';
                           }}
                         >
-                          <span>View Details</span>
+                          <span>{t('details.viewDetails', 'View Details')}</span>
                           <i className="fa-solid fa-arrow-right" style={{ fontSize: '10px' }}></i>
                         </button>
                       </div>

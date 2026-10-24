@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import { DEFAULT_DEMO_FAVORITES, DEMO_JOURNAL_ENTRIES } from '../data/journalEntries';
 import { getJournalOwner, loadJournalData, saveDemoState, saveUserEntries } from '../services/journalService';
 import './JournalPage.css';
@@ -505,6 +506,7 @@ function JournalCard({ entry, isDemo, favorite, bookmarked, menuOpen, readOnly, 
 }
 
 export default function JournalPage() {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { bookings, wishlist, showToast, refreshBadges } = useTravel();
@@ -739,8 +741,8 @@ export default function JournalPage() {
             <span className="material-symbols-rounded journal-hero__book" aria-hidden="true">menu_book</span>
             <div>
               <span className="journal-eyebrow">YOUR ADVENTURES, BEAUTIFULLY REMEMBERED</span>
-              <h1 id="journal-title">My <span>Travel Journal</span></h1>
-              <p>Capture memories, relive moments and tell your travel stories.</p>
+              <h1 id="journal-title">{t('journal.title')}</h1>
+              <p>{t('journal.subtitle')}</p>
             </div>
           </div>
           <p className="journal-hero__script">Collect Moments<br />Not Things <span aria-hidden="true">♥</span></p>
@@ -752,19 +754,19 @@ export default function JournalPage() {
               {FILTERS.map((filter) => (
                 <button key={filter.id} type="button" aria-pressed={activeFilter === filter.id} className={`journal-tab${activeFilter === filter.id ? ' is-active' : ''}`} onClick={() => setActiveFilter(filter.id)}>
                   <span className="material-symbols-rounded" aria-hidden="true">{filter.icon}</span>
-                  {filter.label}
+                  {filter.id === 'all' ? t('phrases.All Entries', 'All Entries') : filter.id === 'trip' ? t('phrases.Trips', 'Trips') : filter.id === 'photo' ? t('phrases.Photos', 'Photos') : filter.id === 'note' ? t('phrases.Notes', 'Notes') : t('phrases.Favorites', 'Favorites')}
                 </button>
               ))}
             </div>
             <button className="journal-button journal-button--primary journal-new-entry" type="button" onClick={() => setIsCreating(true)} disabled={!!initialData.error}>
               <span className="material-symbols-rounded" aria-hidden="true">add</span>
-              New Journal Entry
+              {t('journal.newEntry', 'New Journal Entry')}
             </button>
           </div>
 
           <div className="journal-search">
             <span className="material-symbols-rounded" aria-hidden="true">search</span>
-            <input type="search" aria-label="Search journal entries" placeholder="Search titles, destinations, stories or tags…" value={search} onChange={(event) => setSearch(event.target.value)} />
+            <input type="search" aria-label="Search journal entries" placeholder={t('phrases.Search journal entries...', 'Search titles, destinations, stories or tags…')} value={search} onChange={(event) => setSearch(event.target.value)} />
             {search && <button type="button" aria-label="Clear journal search" onClick={() => setSearch('')}><span className="material-symbols-rounded">close</span></button>}
           </div>
 

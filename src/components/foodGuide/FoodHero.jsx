@@ -1,5 +1,6 @@
 import React from 'react';
 import { FOOD_DESTINATIONS, FEATURED_DESTINATION_IDS } from '../../data/foodGuideData';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function FoodHero({
   currentDestination,
@@ -8,6 +9,7 @@ export default function FoodHero({
   onSwitchToTrailsView,
   dishCount = 0
 }) {
+  const { t } = useLanguage();
   const activeDest = FOOD_DESTINATIONS.find(
     (d) => d.id === currentDestination.id
   ) || FOOD_DESTINATIONS[0];
@@ -35,7 +37,7 @@ export default function FoodHero({
         </div>
 
         <h1>
-          Taste the <span className="highlight">World</span>, One Place at a Time.
+          {t('food.title', 'Taste the World, One Place at a Time.')}
         </h1>
 
         <p className="fg-hero-tagline">

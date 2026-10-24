@@ -10,6 +10,7 @@ import MyBookingsModal from './booking/MyBookingsModal';
 import ToastNotification from './booking/ToastNotification';
 import { getTodayDate, getFutureDate, formatDisplayDate } from './utils/dateUtils';
 import { useTravel } from './context/TravelContext';
+import { useLanguage } from './context/LanguageContext';
 import { fetchBookingInventory } from './services/bookingService';
 import './Booking.css';
 
@@ -63,6 +64,7 @@ const getInitialSampleBookings = () => [
 
 export default function Booking() {
   const travelContext = useTravel ? useTravel() : null;
+  const { t } = useLanguage();
 
   // Main Category state: 'MOVE' | 'STAY' | 'EXPERIENCE'
   const [activeCategory, setActiveCategory] = useState('MOVE');
@@ -252,7 +254,7 @@ export default function Booking() {
               title="Open My Bookings Management Dashboard"
             >
               <i className="fa-solid fa-suitcase-rolling"></i>
-              <span>My Bookings</span>
+              <span>{t('nav.myBookings', 'My Bookings')}</span>
               {activeConfirmedCount > 0 && (
                 <span className="bookings-live-badge">{activeConfirmedCount}</span>
               )}
@@ -260,10 +262,10 @@ export default function Booking() {
           </div>
 
           <h1 className="booking-hero-title">
-            Your Next Journey, <span className="title-accent">Seamlessly Booked</span>
+            {t('booking.title', 'Book Your Journey')}
           </h1>
           <p className="booking-hero-subtitle">
-            Compare live flights, high-speed rail, premium coaches, chauffeur cabs, luxury villas, and exclusive attraction passes in real-time.
+            {t('booking.subtitle', 'Instant reservations for flights, luxury stays, scenic trains, intercity coaches, and chauffeur cabs.')}
           </p>
         </div>
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function FoodFilters({
   searchQuery,
@@ -19,6 +20,7 @@ export default function FoodFilters({
   onSwitchToTrailsView,
   savedTrailsCount = 0
 }) {
+  const { t } = useLanguage();
   const isAnyFilterActive =
     Boolean(searchQuery.trim()) ||
     dietFilter !== 'all' ||
@@ -35,7 +37,7 @@ export default function FoodFilters({
           <i className="fa-solid fa-magnifying-glass fg-search-icon"></i>
           <input
             type="text"
-            placeholder="Search dishes, restaurants, spices or cuisines..."
+            placeholder={t('header.searchPlaceholder', 'Search dishes, restaurants, spices or cuisines...')}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -98,7 +100,7 @@ export default function FoodFilters({
           onClick={() => onMustTryChange(!mustTryOnly)}
         >
           <i className="fa-solid fa-fire" style={{ color: '#F59E0B' }}></i>
-          <span>Must Try Iconic</span>
+          <span>{t('food.mustTry', 'Must Try Iconic')}</span>
         </button>
 
         {/* Veg Only */}
@@ -108,7 +110,7 @@ export default function FoodFilters({
           onClick={() => onDietChange(dietFilter === 'Veg' ? 'all' : 'Veg')}
         >
           <span style={{ color: '#10B981', fontSize: '10px' }}>●</span>
-          <span>Veg Only</span>
+          <span>{t('food.vegetarian', 'Veg Only')}</span>
         </button>
 
         {/* Non-Veg Only */}
@@ -118,7 +120,7 @@ export default function FoodFilters({
           onClick={() => onDietChange(dietFilter === 'Non-Veg' ? 'all' : 'Non-Veg')}
         >
           <span style={{ color: '#EF4444', fontSize: '10px' }}>●</span>
-          <span>Non-Veg Only</span>
+          <span>{t('food.nonVeg', 'Non-Veg Only')}</span>
         </button>
 
         {/* Budget: Under 150 */}

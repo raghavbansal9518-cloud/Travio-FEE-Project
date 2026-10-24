@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import { SLIDES, CAROUSEL_INTERVAL } from '../data/slides';
 
 // ===== ICONS =====
@@ -159,6 +160,7 @@ function InputField({ label, type = 'text', placeholder, value, onChange, error,
 
 // ===== SIGNUP FORM =====
 function SignUpForm({ onSwitch, onSuccess }) {
+  const { t } = useLanguage();
   const [fields, setFields] = useState({ firstName: '', lastName: '', email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [shake, setShake] = useState(false);
@@ -197,7 +199,7 @@ function SignUpForm({ onSwitch, onSuccess }) {
   return (
     <div className="form-view entering">
       <div className="form-header form-field">
-        <h1 className="form-header__title">Create an Account</h1>
+        <h1 className="form-header__title">{t('auth.signUp')}</h1>
         <div className="form-header__switch">
           Already have an account?{' '}
           <button type="button" className="form-header__switch-link" onClick={onSwitch}>Log in</button>
@@ -254,7 +256,7 @@ function SignUpForm({ onSwitch, onSuccess }) {
 
           <div className="form-field" style={{ marginTop: '8px' }}>
             <button type="submit" className="btn-primary">
-              Create Account
+              {t('auth.signUp')}
             </button>
           </div>
         </div>
@@ -409,6 +411,7 @@ function ForgotPasswordForm({ onBack, onSuccess }) {
 
 // ===== LOGIN FORM =====
 function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
+  const { t } = useLanguage();
   const [fields, setFields] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [shake, setShake] = useState(false);
@@ -471,7 +474,7 @@ function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
     <div className="form-view entering">
       <div className="form-header form-field">
         <p className="form-header__label">Log in to Travio</p>
-        <h1 className="form-header__title">Welcome Back!</h1>
+        <h1 className="form-header__title">{t('auth.welcome')}</h1>
         <p className="form-header__subtitle">Enter your details to plan your next travel experience.</p>
       </div>
 
@@ -521,7 +524,7 @@ function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
           </div>
 
           <div className="form-field">
-            <button type="submit" className="btn-primary">Sign In</button>
+            <button type="submit" className="btn-primary">{t('auth.signIn')}</button>
           </div>
 
           {/* Quick Demo Credentials for Evaluation */}
@@ -977,7 +980,7 @@ function MobileLanding({ onGoHome }) {
                   Log In
                 </button>
                 <button className="btn-outline" onClick={() => openSheet('signup')}>
-                  Create Account
+                  {t('auth.signUp')}
                 </button>
               </div>
             </div>

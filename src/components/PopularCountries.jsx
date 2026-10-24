@@ -1,14 +1,17 @@
 import React from 'react';
 import { POPULAR_COUNTRIES } from '../data/destinationsData';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function PopularCountries({ selectedCountry, onSelectCountry }) {
+  const { t } = useLanguage();
+
   return (
     <section className="countries-section">
       <div className="section-header">
         <div className="section-tag">
           <i className="fa-solid fa-globe"></i> TOP NATIONS
         </div>
-        <h2 className="section-title">POPULAR COUNTRIES</h2>
+        <h2 className="section-title">{t('explore.popularCountries', 'POPULAR COUNTRIES')}</h2>
         <p className="section-subtitle">
           Explore iconic cultures, landscapes, and experiences by country.
         </p>
