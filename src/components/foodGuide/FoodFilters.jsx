@@ -16,6 +16,7 @@ export default function FoodFilters({
   onResetFilters,
   onOpenTrailWizard,
   onOpenSavedTrails,
+  onSwitchToTrailsView,
   savedTrailsCount = 0
 }) {
   const isAnyFilterActive =
@@ -53,11 +54,26 @@ export default function FoodFilters({
         <button
           type="button"
           className="btn-launch-trail"
+          onClick={onSwitchToTrailsView || onOpenTrailWizard}
+          title="Switch to Curated Food Trails"
+        >
+          <i className="fa-solid fa-route"></i>
+          <span>Curated Food Trails</span>
+        </button>
+
+        <button
+          type="button"
+          className="btn-launch-trail"
+          style={{
+            background: 'rgba(168, 85, 247, 0.15)',
+            border: '1px solid rgba(168, 85, 247, 0.4)',
+            color: '#E9D5FF'
+          }}
           onClick={onOpenTrailWizard}
           title="Open interactive 3-step Food Trail planner"
         >
-          <i className="fa-solid fa-map-location-dot"></i>
-          <span>Food Trail Planner</span>
+          <i className="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Trail Planner</span>
         </button>
 
         {savedTrailsCount > 0 && (

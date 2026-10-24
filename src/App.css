@@ -399,6 +399,8 @@ a:hover {
     padding: 0.75rem 1.5rem;
     width: 450px;
     box-shadow: var(--shadow-sm);
+    height: 70px;
+    width: 600px;
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .home-theme .search-bar {
@@ -1118,6 +1120,22 @@ a:hover {
 .activity-card:hover {
     box-shadow: var(--shadow-hover);
     transform: translateY(-3px);
+}
+.activity-card.food-card-clickable {
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.activity-card.food-card-clickable:hover,
+.activity-card.food-card-clickable:focus-visible {
+    transform: translateY(-6px);
+    border-color: rgba(168, 85, 247, 0.65) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.35) !important;
+    outline: none;
+}
+.activity-card.food-card-clickable:focus-visible {
+    outline: 2px solid #C084FC;
+    outline-offset: 2px;
 }
 .activity-card img {
     width: 100%;

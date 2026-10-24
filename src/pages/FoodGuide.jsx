@@ -1,422 +1,599 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
-import { useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
+import {
+  FOOD_DESTINATIONS,
+  FOOD_DISHES,
+  filterFoodDishes
+} from '../data/foodGuideData';
 
-const FOOD_ITEMS = [
-  {
-    id: 'food-jaipur-dal-baati',
-    name: 'Dal Baati Churma & Gatte ki Sabzi',
-    destinationId: 'jaipur',
-    destinationName: 'Jaipur, Rajasthan',
-    flag: '🇮🇳',
-    category: 'royal',
-    type: 'Vegetarian',
-    rating: 4.9,
-    mustTryAt: 'LMB (Laxmi Mishtan Bhandar), Johari Bazaar',
-    price: '₹450 for Thali',
-    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&auto=format&fit=crop&q=80',
-    description: 'Crispy baked whole-wheat dumplings drenched in pure desi ghee, served with panchmel dal and sweet crushed churma.'
-  },
-  {
-    id: 'food-goa-fish-curry',
-    name: 'Authentic Goan Prawn & Fish Curry',
-    destinationId: 'goa',
-    destinationName: 'Goa',
-    flag: '🇮🇳',
-    category: 'coastal',
-    type: 'Non-Vegetarian',
-    rating: 4.9,
-    mustTryAt: "Fisherman's Wharf & Martin's Corner, Betalbatim",
-    price: '₹380',
-    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop&q=80',
-    description: 'Tangy and spicy coconut milk gravy spiced with Kashmiri chilies, fresh kokum, and freshly caught Arabian Sea kingfish.'
-  },
-  {
-    id: 'food-shimla-siddu',
-    name: 'Himachali Siddu with Ghee & Dal',
-    destinationId: 'shimla',
-    destinationName: 'Shimla, Himachal Pradesh',
-    flag: '🇮🇳',
-    category: 'traditional',
-    type: 'Vegetarian',
-    rating: 4.8,
-    mustTryAt: 'Cafe Simla Times & Himachali Rasoi, Mall Road',
-    price: '₹180',
-    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=800&auto=format&fit=crop&q=80',
-    description: 'Traditional steamed fermented wheat flour bun stuffed with roasted walnuts, poppy seeds, and pahadi spices served hot with molten ghee.'
-  },
-  {
-    id: 'food-manali-trout',
-    name: 'Tirthan Wood-Fired Himalayan Trout',
-    destinationId: 'manali',
-    destinationName: 'Manali, Himachal Pradesh',
-    flag: '🇮🇳',
-    category: 'traditional',
-    type: 'Non-Vegetarian',
-    rating: 4.9,
-    mustTryAt: 'Johnson’s Cafe & Bar, Circuit House Road',
-    price: '₹550',
-    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&auto=format&fit=crop&q=80',
-    description: 'Fresh glacial river trout pan-seared with almonds, garlic lemon butter, and organic mountain herbs.'
-  },
-  {
-    id: 'food-tokyo-ramen',
-    name: 'Hakata Tonkotsu Chashu Ramen',
-    destinationId: 'tokyo',
-    destinationName: 'Tokyo',
-    flag: '🇯🇵',
-    category: 'street',
-    type: 'Non-Vegetarian',
-    rating: 5.0,
-    mustTryAt: 'Ichiran Shibuya & Afuri Harajuku',
-    price: '¥1,100 (~₹620)',
-    image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&auto=format&fit=crop&q=80',
-    description: 'Rich, 18-hour slow simmered silky broth with handmade thin noodles, tender braised pork belly, and molten ajitsuke tamago egg.'
-  },
-  {
-    id: 'food-swiss-fondue',
-    name: 'Alpine Gruyère & Emmental Cheese Fondue',
-    destinationId: 'switzerland',
-    destinationName: 'Swiss Alps',
-    flag: '🇨🇭',
-    category: 'royal',
-    type: 'Vegetarian',
-    rating: 4.9,
-    mustTryAt: 'Le Dézaley, Zurich & Whymper-Stube, Zermatt',
-    price: 'CHF 32 (~₹2,900)',
-    image: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=800&auto=format&fit=crop&q=80',
-    description: 'Bubbling pot of aged Alpine cheeses infused with white wine and kirsch, dipped with rustic sourdough bread and baby potatoes.'
-  },
-  {
-    id: 'food-bali-nasi-campur',
-    name: 'Balinese Nasi Campur & Sate Lilit',
-    destinationId: 'bali',
-    destinationName: 'Bali',
-    flag: '🇮🇩',
-    category: 'street',
-    type: 'Non-Vegetarian',
-    rating: 4.8,
-    mustTryAt: 'Warung Babi Guling Ibu Oka, Ubud',
-    price: 'IDR 55,000 (~₹300)',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=800&auto=format&fit=crop&q=80',
-    description: 'Fragrant steamed rice surrounded by spiced minced seafood satay on lemongrass skewers, urap vegetables, and fiery sambal matah.'
-  },
-  {
-    id: 'food-jaipur-ghevar',
-    name: 'Saffron Malai Ghevar',
-    destinationId: 'jaipur',
-    destinationName: 'Jaipur, Rajasthan',
-    flag: '🇮🇳',
-    category: 'dessert',
-    type: 'Vegetarian (Sweet)',
-    rating: 4.9,
-    mustTryAt: 'Rawat Mishtan Bhandar & LMB, Station Road',
-    price: '₹280 / piece',
-    image: 'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&auto=format&fit=crop&q=80',
-    description: 'Honeycomb-textured disc made of clarified ghee, soaked in saffron cardamom sugar syrup and crowned with thick reduced rabri and pistachios.'
-  }
-];
+import FoodHero from '../components/foodGuide/FoodHero';
+import FoodFilters from '../components/foodGuide/FoodFilters';
+import FoodCard from '../components/foodGuide/FoodCard';
+import DishDetailsModal from '../components/foodGuide/DishDetailsModal';
+import FoodTrailWizard from '../components/foodGuide/FoodTrailWizard';
+import SavedTrailsModal from '../components/foodGuide/SavedTrailsModal';
+import FoodTrailView from '../components/foodGuide/FoodTrailView';
+
+import './FoodGuide.css';
 
 export default function FoodGuide() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useTravel();
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [triedDishes, setTriedDishes] = useState(new Set());
 
-  const categories = [
-    { id: 'all', label: 'All Dishes', icon: 'fa-utensils' },
-    { id: 'royal', label: 'Royal & Feasts', icon: 'fa-crown' },
-    { id: 'traditional', label: 'Mountain & Heritage', icon: 'fa-mountain' },
-    { id: 'coastal', label: 'Coastal & Seafood', icon: 'fa-water' },
-    { id: 'street', label: 'Street Food & Noodles', icon: 'fa-bowl-food' },
-    { id: 'dessert', label: 'Artisanal Sweets', icon: 'fa-cake-candles' }
-  ];
-
-  const filteredFood = FOOD_ITEMS.filter((item) => {
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesSearch = !searchQuery.trim() ||
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.destinationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.mustTryAt.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  // Active View Tab: 'dishes' | 'trails'
+  const [activeView, setActiveView] = useState(() => {
+    return searchParams.get('tab') === 'trails' ? 'trails' : 'dishes';
   });
 
-  const toggleTried = (id, name) => {
-    setTriedDishes((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        showToast(`Unmarked "${name}" from food bucket list`, 'info');
-      } else {
-        next.add(id);
-        showToast(`Marked "${name}" as Tried! 😋`, 'success');
+  // Active Selected Destination (Default: Goa)
+  const [currentDestination, setCurrentDestination] = useState(() => {
+    const destParam = searchParams.get('destination');
+    if (destParam) {
+      const target = destParam.toLowerCase();
+      const matched = FOOD_DESTINATIONS.find(
+        (d) =>
+          d.id.toLowerCase() === target ||
+          d.id.toLowerCase().startsWith(target) ||
+          target.startsWith(d.id.toLowerCase()) ||
+          d.name.toLowerCase().includes(target)
+      );
+      if (matched) return matched;
+    }
+    return FOOD_DESTINATIONS[0];
+  });
+
+  // Search & Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dietFilter, setDietFilter] = useState('all');
+  const [budgetFilter, setBudgetFilter] = useState('all');
+  const [establishmentFilter, setEstablishmentFilter] = useState('all');
+  const [minRating, setMinRating] = useState(0);
+  const [mustTryOnly, setMustTryOnly] = useState(false);
+
+  // Modals & Panels
+  const [selectedDishForModal, setSelectedDishForModal] = useState(null);
+  const [isTrailWizardOpen, setIsTrailWizardOpen] = useState(false);
+  const [trailWizardMode, setTrailWizardMode] = useState('templates'); // 'templates' | 'custom'
+  const [isSavedTrailsOpen, setIsSavedTrailsOpen] = useState(false);
+
+  // Distinct Handlers for Trail Planner vs Custom Trail Planner
+  const handleOpenCustomTrailPlanner = () => {
+    setTrailWizardMode('custom');
+    setIsTrailWizardOpen(true);
+  };
+
+  const handleOpenTrailPlanner = () => {
+    setTrailWizardMode('templates');
+    setIsTrailWizardOpen(true);
+  };
+
+  // Custom User Trail Dishes
+  const [trailDishes, setTrailDishes] = useState([]);
+
+  // Favourites Persistent State
+  const [favouriteDishIds, setFavouriteDishIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('travio_food_favourites');
+      return saved ? JSON.parse(saved) : ['goa-fish-curry', 'jaipur-dal-baati'];
+    } catch {
+      return ['goa-fish-curry'];
+    }
+  });
+
+  // Saved Trails Persistent State
+  const [savedTrails, setSavedTrails] = useState(() => {
+    try {
+      const saved = localStorage.getItem('travio_saved_food_trails');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Persist favourites
+  useEffect(() => {
+    try {
+      localStorage.setItem('travio_food_favourites', JSON.stringify(favouriteDishIds));
+    } catch (e) {
+      console.warn('Could not save food favourites', e);
+    }
+  }, [favouriteDishIds]);
+
+  // Persist saved trails
+  useEffect(() => {
+    try {
+      localStorage.setItem('travio_saved_food_trails', JSON.stringify(savedTrails));
+    } catch (e) {
+      console.warn('Could not save food trails', e);
+    }
+  }, [savedTrails]);
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Sync destination if search param changes
+  useEffect(() => {
+    const destParam = searchParams.get('destination');
+    if (destParam) {
+      const target = destParam.toLowerCase();
+      const matched = FOOD_DESTINATIONS.find(
+        (d) =>
+          d.id.toLowerCase() === target ||
+          d.id.toLowerCase().startsWith(target) ||
+          target.startsWith(d.id.toLowerCase()) ||
+          d.name.toLowerCase().includes(target)
+      );
+      if (matched && matched.id !== currentDestination.id) {
+        setCurrentDestination(matched);
       }
-      return next;
+    }
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'trails' || tabParam === 'trail') {
+      setActiveView('trails');
+    } else if (tabParam === 'dishes') {
+      setActiveView('dishes');
+    }
+  }, [searchParams, currentDestination.id]);
+
+  // Filtered dishes for current destination
+  const filteredDishes = useMemo(() => {
+    return filterFoodDishes({
+      destinationId: currentDestination.id,
+      query: searchQuery,
+      diet: dietFilter,
+      budget: budgetFilter,
+      minRating,
+      establishment: establishmentFilter,
+      mustTryOnly
+    });
+  }, [currentDestination, searchQuery, dietFilter, budgetFilter, minRating, establishmentFilter, mustTryOnly]);
+
+  // Total count for current destination
+  const totalDestinationDishes = useMemo(() => {
+    return FOOD_DISHES.filter((d) => d.destinationId === currentDestination.id).length;
+  }, [currentDestination]);
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setDietFilter('all');
+    setBudgetFilter('all');
+    setEstablishmentFilter('all');
+    setMinRating(0);
+    setMustTryOnly(false);
+  };
+
+  // Toggle favourite
+  const handleToggleFavourite = (dish) => {
+    setFavouriteDishIds((prev) => {
+      const exists = prev.includes(dish.id);
+      if (exists) {
+        showToast(`Removed "${dish.name}" from favourites`, 'info');
+        return prev.filter((id) => id !== dish.id);
+      } else {
+        showToast(`Saved "${dish.name}" to your favourites! ❤️`, 'success');
+        return [...prev, dish.id];
+      }
+    });
+  };
+
+  // Add / remove dish from active food trail
+  const handleToggleDishInTrail = (dish) => {
+    setTrailDishes((prev) => {
+      const exists = prev.some((d) => d.id === dish.id);
+      if (exists) {
+        showToast(`Removed "${dish.name}" from food trail`, 'info');
+        return prev.filter((d) => d.id !== dish.id);
+      } else {
+        showToast(`Added "${dish.name}" to Food Trail! 🗺️`, 'success');
+        return [...prev, dish];
+      }
+    });
+  };
+
+  // Save trail
+  const handleSaveTrail = (newTrail) => {
+    setSavedTrails((prev) => [newTrail, ...prev]);
+    showToast(`Saved "${newTrail.name}" to your Food Journeys! ✨`, 'success');
+    setIsTrailWizardOpen(false);
+  };
+
+  // Delete saved trail
+  const handleDeleteSavedTrail = (trailId) => {
+    setSavedTrails((prev) => prev.filter((t) => t.id !== trailId));
+    showToast('Food trail removed', 'info');
+  };
+
+  // Navigate to existing map page with Trail Stops
+  const handleOpenInMap = (stops, destination) => {
+    if (!stops || stops.length === 0) {
+      showToast('Please add at least one stop to view on map', 'warning');
+      return;
+    }
+
+    const firstStop = stops[0];
+    const mapLocation = {
+      name: `${destination?.name || 'Destination'} Food Trail`,
+      lat: firstStop.lat || destination?.coordinates?.lat || 15.2993,
+      lon: firstStop.lng || destination?.coordinates?.lng || 74.1240
+    };
+
+    navigate('/geoweather', {
+      state: {
+        from: 'food-guide',
+        trailName: `${destination?.name || 'Destination'} Food Trail`,
+        trailStops: stops,
+        location: mapLocation
+      }
+    });
+  };
+
+  // Navigate to map for a single restaurant
+  const handleSeeOnMapSingle = (place, dish) => {
+    navigate('/geoweather', {
+      state: {
+        from: 'food-guide',
+        trailName: `${dish.name} @ ${place.name}`,
+        trailStops: [
+          {
+            stopNumber: 1,
+            dishName: dish.name,
+            restaurantName: place.name,
+            dishImage: dish.image,
+            address: place.address || place.neighborhood,
+            priceEstimate: `₹${dish.minPrice}`,
+            lat: place.lat,
+            lng: place.lng
+          }
+        ],
+        location: {
+          name: `${place.name}, ${dish.destinationName}`,
+          lat: place.lat,
+          lon: place.lng
+        }
+      }
     });
   };
 
   return (
-    <>
+    <div className="food-guide-page">
+      {/* Top Header */}
       <Header />
-      <div style={{ padding: '0 0 5rem 0', minHeight: '100vh', background: 'var(--bg-color)', color: 'var(--text-dark)' }}>
-        
-        {/* Cinematic Header Section */}
-        <div style={{ 
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(244, 63, 94, 0.1) 50%, rgba(124, 58, 237, 0.08) 100%)', 
-          padding: '3.5rem 5%', 
-          marginBottom: '2.5rem',
-          borderBottom: '1px solid var(--border-color)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '2rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.8rem' }}>
-            <div style={{
-              width: '76px',
-              height: '76px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(245, 158, 11, 0.35)',
-              flexShrink: 0
-            }}>
-              <span className="material-symbols-rounded" style={{ fontSize: '2.5rem', color: '#fff' }}>
-                restaurant
-              </span>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <h1 style={{ fontSize: '2.4rem', fontWeight: '800', margin: 0, color: 'var(--text-dark)', letterSpacing: '-0.02em' }}>
-                  World Food & Culinary Guide
-                </h1>
-                <span style={{ 
-                  background: 'rgba(245, 158, 11, 0.15)', 
-                  color: '#fbbf24', 
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  padding: '4px 12px', 
-                  borderRadius: '999px', 
-                  fontSize: '13px', 
-                  fontWeight: 700 
-                }}>
-                  {triedDishes.size} Tried
-                </span>
-              </div>
-              <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
-                Taste the world's finest culinary treasures. Handpicked signature dishes and legendary restaurants.
-              </p>
-            </div>
-          </div>
 
-          {/* Quick Search */}
-          <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              placeholder="Search dishes or cities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-dark)',
-                padding: '11px 18px 11px 42px',
-                borderRadius: '24px',
-                fontSize: '13px',
-                outline: 'none',
-                minWidth: '260px'
+      <div className="fg-container">
+        {/* 1. HERO BANNER WITH DESTINATION SWITCHER */}
+        <FoodHero
+          currentDestination={currentDestination}
+          onSelectDestination={(dest) => {
+            setCurrentDestination(dest);
+            handleResetFilters();
+          }}
+          onOpenTrailWizard={handleOpenTrailPlanner}
+          onOpenCustomPlanner={handleOpenCustomTrailPlanner}
+          onSwitchToTrailsView={() => {
+            setActiveView('trails');
+            setSearchParams((prev) => {
+              const next = new URLSearchParams(prev);
+              next.set('tab', 'trails');
+              return next;
+            }, { replace: true });
+          }}
+          dishCount={totalDestinationDishes}
+        />
+
+        {/* VIEW NAVIGATION TABS: DISHES vs FOOD TRAILS */}
+        <div className="fg-view-toggle-strip" role="tablist" aria-label="Food Guide Views">
+          <div className="fg-view-tabs">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeView === 'dishes'}
+              className={`fg-view-tab-btn ${activeView === 'dishes' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveView('dishes');
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set('tab', 'dishes');
+                  return next;
+                }, { replace: true });
               }}
-            />
-            <span className="material-symbols-rounded" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '20px', color: 'var(--text-muted)' }}>
-              search
-            </span>
+            >
+              <i className="fa-solid fa-utensils"></i>
+              <span>Iconic Dishes</span>
+              <span className="fg-tab-count-badge">{totalDestinationDishes}</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeView === 'trails'}
+              className={`fg-view-tab-btn ${activeView === 'trails' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveView('trails');
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set('tab', 'trails');
+                  return next;
+                }, { replace: true });
+              }}
+            >
+              <i className="fa-solid fa-route"></i>
+              <span>Curated Food Trails</span>
+              <span className="fg-tab-sparkle-pill">✦ Explore</span>
+            </button>
           </div>
         </div>
 
-        <div style={{ padding: '0 5%' }}>
-          
-          {/* Category Pills */}
-          <div style={{ 
-            display: 'flex', 
-            gap: '10px', 
-            overflowX: 'auto', 
-            paddingBottom: '1rem', 
-            marginBottom: '2rem',
-            borderBottom: '1px solid var(--border-color)'
-          }}>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                style={{
-                  background: selectedCategory === cat.id ? 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)' : 'rgba(255, 255, 255, 0.04)',
-                  color: selectedCategory === cat.id ? '#ffffff' : 'var(--text-muted)',
-                  border: selectedCategory === cat.id ? 'none' : '1px solid var(--border-color)',
-                  padding: '10px 18px',
-                  borderRadius: '24px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: selectedCategory === cat.id ? '0 4px 14px rgba(245, 158, 11, 0.3)' : 'none'
-                }}
-              >
-                <i className={`fa-solid ${cat.icon}`}></i>
-                <span>{cat.label}</span>
-              </button>
-            ))}
+        {/* CONDITIONAL VIEW RENDER */}
+        {activeView === 'trails' ? (
+          <FoodTrailView
+            currentDestination={currentDestination}
+            onOpenTrailWizard={handleOpenTrailPlanner}
+            onOpenCustomPlanner={handleOpenCustomTrailPlanner}
+            onOpenInMap={handleOpenInMap}
+            onSaveTrail={handleSaveTrail}
+            savedTrails={savedTrails}
+            onOpenSavedTrails={() => setIsSavedTrailsOpen(true)}
+          />
+        ) : (
+          <>
+            {/* 2. SEARCH & FILTER CONTROLS */}
+            <FoodFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              dietFilter={dietFilter}
+              onDietChange={setDietFilter}
+              budgetFilter={budgetFilter}
+              onBudgetChange={setBudgetFilter}
+              establishmentFilter={establishmentFilter}
+              onEstablishmentChange={setEstablishmentFilter}
+              minRating={minRating}
+              onMinRatingChange={setMinRating}
+              mustTryOnly={mustTryOnly}
+              onMustTryChange={setMustTryOnly}
+              onResetFilters={handleResetFilters}
+              onOpenTrailWizard={handleOpenTrailPlanner}
+              onOpenCustomPlanner={handleOpenCustomTrailPlanner}
+              onOpenSavedTrails={() => setIsSavedTrailsOpen(true)}
+              onSwitchToTrailsView={() => {
+                setActiveView('trails');
+                setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.set('tab', 'trails');
+                  return next;
+                }, { replace: true });
+              }}
+              savedTrailsCount={savedTrails.length}
+            />
+
+            {/* 3. MUST TRY DISHES SECTION */}
+            <section aria-label={`Must Try Dishes in ${currentDestination.name}`}>
+              <div className="fg-section-header">
+                <div className="fg-section-title-wrap">
+                  <p className="eyebrow">CURATED GASTRONOMY</p>
+                  <h2>Must Try in {currentDestination.name} {currentDestination.flag}</h2>
+                  <p className="subtitle">
+                    Iconic dishes and legendary local spots you simply cannot miss!
+                  </p>
+                </div>
+                <div className="fg-results-count">
+                  Showing <strong>{filteredDishes.length}</strong> {filteredDishes.length === 1 ? 'dish' : 'dishes'}
+                </div>
+              </div>
+
+              {filteredDishes.length > 0 ? (
+                <div className="fg-dish-grid">
+                  {filteredDishes.map((dish) => {
+                    const isFav = favouriteDishIds.includes(dish.id);
+                    const isInTrail = trailDishes.some((d) => d.id === dish.id);
+                    return (
+                      <FoodCard
+                        key={dish.id}
+                        dish={dish}
+                        isFavourited={isFav}
+                        onToggleFavourite={handleToggleFavourite}
+                        onViewDetails={(d) => setSelectedDishForModal(d)}
+                        onAddToTrail={handleToggleDishInTrail}
+                        isInTrail={isInTrail}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="fg-empty-state">
+                  <i className="fa-solid fa-utensils fg-empty-icon"></i>
+                  <h3>No dishes match your selected filters</h3>
+                  <p>
+                    Try adjusting your budget, spice, or dietary preferences to explore more local culinary treats in {currentDestination.name}.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn-launch-trail"
+                    onClick={handleResetFilters}
+                  >
+                    Reset All Filters
+                  </button>
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {/* 4. SIGNATURE FEATURE FOOTER STRIP */}
+        <div className="fg-feature-strip">
+          <div className="fg-feature-item">
+            <div className="fg-feature-icon">
+              <i className="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div className="fg-feature-text">
+              <strong>Personalised Food Trail</strong>
+              <p>Custom multi-stop itineraries mapped in the optimal order.</p>
+            </div>
           </div>
 
-          {/* Food Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
-            {filteredFood.map((dish) => {
-              const hasTried = triedDishes.has(dish.id);
-              return (
-                <div
-                  key={dish.id}
-                  className="destination-card"
-                  style={{
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    background: 'var(--card-bg)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'transform 0.3s ease, box-shadow 0.3s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 16px 32px rgba(0, 0, 0, 0.3)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
-                    <img
-                      src={dish.image}
-                      alt={dish.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.currentTarget.src = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=800&auto=format&fit=crop&q=80';
-                      }}
-                    />
+          <div className="fg-feature-item">
+            <div className="fg-feature-icon">
+              <i className="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div className="fg-feature-text">
+              <strong>Interactive Map Integration</strong>
+              <p>Plot restaurants directly on Travio's live geographic map.</p>
+            </div>
+          </div>
 
-                    <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '8px' }}>
-                      <span style={{
-                        background: 'rgba(8, 12, 22, 0.8)',
-                        backdropFilter: 'blur(8px)',
-                        padding: '4px 10px',
-                        borderRadius: '16px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#fbbf24',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                      }}>
-                        <i className="fa-solid fa-star"></i>
-                        <span>{dish.rating}</span>
-                      </span>
+          <div className="fg-feature-item">
+            <div className="fg-feature-icon">
+              <i className="fa-solid fa-certificate"></i>
+            </div>
+            <div className="fg-feature-text">
+              <strong>Authentic Local Recipes</strong>
+              <p>Centuries of regional heritage verified with exact coordinates.</p>
+            </div>
+          </div>
 
-                      <span style={{
-                        background: dish.type.includes('Vegetarian') ? 'rgba(16, 185, 129, 0.85)' : 'rgba(239, 68, 68, 0.85)',
-                        padding: '4px 10px',
-                        borderRadius: '16px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#ffffff'
-                      }}>
-                        {dish.type}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleTried(dish.id, dish.name)}
-                      style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        background: hasTried ? '#10b981' : 'rgba(8, 12, 22, 0.7)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        borderRadius: '50%',
-                        width: '38px',
-                        height: '38px',
-                        color: '#ffffff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                      }}
-                      title={hasTried ? 'Marked as Tried!' : 'Mark as Tried'}
-                    >
-                      <i className={`fa-solid ${hasTried ? 'fa-check' : 'fa-bookmark'}`}></i>
-                    </button>
-
-                    <div style={{ position: 'absolute', bottom: '10px', left: '12px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', padding: '3px 10px', borderRadius: '8px', fontSize: '11px', color: '#fff', fontWeight: 600 }}>
-                      {dish.flag} {dish.destinationName}
-                    </div>
-                  </div>
-
-                  <div style={{ padding: '1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-dark)', lineHeight: '1.3' }}>
-                        {dish.name}
-                      </h3>
-                      <p style={{ margin: '0 0 10px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-                        {dish.description}
-                      </p>
-                      
-                      <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '10px', padding: '8px 12px', fontSize: '12px' }}>
-                        <span style={{ color: '#f59e0b', fontWeight: 700, marginRight: '4px' }}>📍 Must Try At:</span>
-                        <span style={{ color: 'var(--text-dark)' }}>{dish.mustTryAt}</span>
-                      </div>
-                    </div>
-
-                    <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '13px', color: '#10b981', fontWeight: 700 }}>
-                        {dish.price}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/destination/${dish.destinationId}`)}
-                        style={{
-                          background: 'linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '8px 16px',
-                          borderRadius: '10px',
-                          fontSize: '12px',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
-                      >
-                        <span>Explore City</span>
-                        <i className="fa-solid fa-arrow-right"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="fg-feature-item">
+            <div className="fg-feature-icon">
+              <i className="fa-solid fa-bookmark"></i>
+            </div>
+            <div className="fg-feature-text">
+              <strong>Saved Food Journeys</strong>
+              <p>Save and revisit customized culinary trails across visits.</p>
+            </div>
           </div>
         </div>
       </div>
-    </>
+
+      {/* FLOATING ACTIVE FOOD TRAIL BAR */}
+      {trailDishes.length > 0 && (
+        <aside className="fg-floating-trail-bar" role="region" aria-label="Active Food Trail">
+          <div className="fg-trail-bar-left">
+            <div className="fg-trail-indicator">
+              <span className="trail-pulse-dot"></span>
+              <span className="material-symbols-rounded" style={{ color: '#E9D5FF' }}>restaurant</span>
+            </div>
+            <div className="fg-trail-bar-info">
+              <div className="fg-trail-bar-title">
+                <strong>{currentDestination.name} Food Trail</strong>
+                <span className="fg-trail-count-badge">
+                  {trailDishes.length} {trailDishes.length === 1 ? 'Dish' : 'Dishes'} Selected
+                </span>
+                <span className="fg-trail-budget-pill">
+                  Est. ₹{trailDishes.reduce((acc, d) => acc + (d.minPrice || 250), 0)}
+                </span>
+              </div>
+              <div className="fg-trail-chips-preview">
+                {trailDishes.map((dish, i) => (
+                  <span key={dish.id} className="fg-trail-dish-chip">
+                    <span className="chip-num">{i + 1}</span>
+                    <span className="chip-name">{dish.name}</span>
+                    <button
+                      type="button"
+                      className="chip-remove"
+                      onClick={() => handleToggleDishInTrail(dish)}
+                      title={`Remove ${dish.name} from trail`}
+                    >✕</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="fg-trail-bar-actions">
+            <button
+              type="button"
+              className="btn-trail-plan-action"
+              onClick={() => setIsTrailWizardOpen(true)}
+            >
+              <i className="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Plan &amp; Reorder Trail</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-trail-direct-map"
+              onClick={() => {
+                const stops = trailDishes.map((d, i) => {
+                  const p = d.recommendedPlaces?.[0] || {
+                    name: `${d.destinationName} Heritage Spot`,
+                    address: d.destinationName,
+                    lat: currentDestination.coordinates?.lat || 20.5937,
+                    lng: currentDestination.coordinates?.lng || 78.9629
+                  };
+                  return {
+                    stopNumber: i + 1,
+                    dishName: d.name,
+                    restaurantName: p.name,
+                    dishImage: d.image,
+                    address: p.address,
+                    priceEstimate: `₹${d.minPrice}`,
+                    lat: p.lat,
+                    lng: p.lng
+                  };
+                });
+                handleOpenInMap(stops, currentDestination);
+              }}
+            >
+              <i className="fa-solid fa-map-location-dot"></i>
+              <span>Launch in Map</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-trail-clear-action"
+              onClick={() => {
+                setTrailDishes([]);
+                showToast('Cleared active food trail', 'info');
+              }}
+              title="Clear current trail selection"
+            >
+              Clear
+            </button>
+          </div>
+        </aside>
+      )}
+
+      {/* 5. DISH DETAILS MODAL */}
+      {selectedDishForModal && (
+        <DishDetailsModal
+          dish={selectedDishForModal}
+          onClose={() => setSelectedDishForModal(null)}
+          isFavourited={favouriteDishIds.includes(selectedDishForModal.id)}
+          onToggleFavourite={handleToggleFavourite}
+          onAddToTrail={handleToggleDishInTrail}
+          isInTrail={trailDishes.some((d) => d.id === selectedDishForModal.id)}
+          onSeeOnMap={handleSeeOnMapSingle}
+        />
+      )}
+
+      {/* 6. THREE-STEP FOOD TRAIL WIZARD */}
+      <FoodTrailWizard
+        isOpen={isTrailWizardOpen}
+        onClose={() => setIsTrailWizardOpen(false)}
+        currentDestination={currentDestination}
+        trailDishes={trailDishes}
+        onRemoveFromTrail={handleToggleDishInTrail}
+        onOpenInMap={handleOpenInMap}
+        onSaveTrail={handleSaveTrail}
+        initialMode={trailWizardMode}
+      />
+
+      {/* 7. SAVED TRAILS MODAL */}
+      <SavedTrailsModal
+        isOpen={isSavedTrailsOpen}
+        onClose={() => setIsSavedTrailsOpen(false)}
+        savedTrails={savedTrails}
+        onOpenTrail={(trail) => {
+          setIsSavedTrailsOpen(false);
+          setIsTrailWizardOpen(true);
+        }}
+        onDeleteTrail={handleDeleteSavedTrail}
+        onOpenInMap={handleOpenInMap}
+      />
+    </div>
   );
 }

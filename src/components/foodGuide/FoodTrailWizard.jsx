@@ -8,34 +8,20 @@ export default function FoodTrailWizard({
   trailDishes = [],
   onRemoveFromTrail,
   onOpenInMap,
-  onSaveTrail
+  onSaveTrail,
+  initialMode = 'templates'
 }) {
   const [step, setStep] = useState(1);
+  const [activeTab, setActiveTab] = useState(initialMode === 'custom' ? 'custom' : 'templates');
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const [validationError, setValidationError] = useState('');
+  const [isSavedSuccess, setIsSavedSuccess] = useState(false);
+  const [customSearchQuery, setCustomSearchQuery] = useState('');
+  const [customDietFilter, setCustomDietFilter] = useState('all'); // 'all', 'Veg', 'Non-Veg'
+
   const [customSelectedDishIds, setCustomSelectedDishIds] = useState(() =>
     trailDishes.map((d) => d.id)
   );
-
-  // Sync dishes whenever modal opens or trailDishes changes
-  useEffect(() => {
-    if (isOpen) {
-      if (trailDishes && trailDishes.length > 0) {
-        setCustomSelectedDishIds(trailDishes.map((d) => d.id));
-      }
-    }
-  }, [isOpen, trailDishes]);
-
-  // Step 2 Preferences
-  const [preferences, setPreferences] = useState({
-    diet: 'all', // 'all', 'Veg', 'Non-Veg'
-    maxBudget: 2000,
-    stopCount: 4,
-    mealPeriod: 'Lunch & Dinner', // 'Morning', 'Lunch', 'Lunch & Dinner', 'Late Night'
-    transport: 'driving' // 'walking', 'driving'
-  });
-
-  // Step 3 Itinerary Stops state
-  const [stops, setStops] = useState([]);
 
   // Curated templates for destination
   const availableTemplates = useMemo(() => {
@@ -56,11 +42,50 @@ export default function FoodTrailWizard({
     });
   }, [currentDestination]);
 
+  // Sync dishes and modes whenever modal opens or initialMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+      setValidationError('');
+      setIsSavedSuccess(false);
+
+      if (trailDishes && trailDishes.length > 0) {
+        setCustomSelectedDishIds(trailDishes.map((d) => d.id));
+        setActiveTab('custom');
+      } else if (initialMode === 'custom') {
+        setActiveTab('custom');
+        // Pre-select 3 iconic dishes as starter recommendation if none picked
+        if (destinationDishes.length > 0) {
+          setCustomSelectedDishIds(destinationDishes.slice(0, 3).map((d) => d.id));
+        }
+      } else {
+        setActiveTab('templates');
+        if (availableTemplates.length > 0) {
+          setSelectedTemplateId(availableTemplates[0].id);
+          setStops(JSON.parse(JSON.stringify(availableTemplates[0].stops)));
+        }
+      }
+    }
+  }, [isOpen, initialMode, currentDestination]);
+
+  // Step 2 Preferences
+  const [preferences, setPreferences] = useState({
+    diet: 'all', // 'all', 'Veg', 'Non-Veg'
+    maxBudget: 2000,
+    stopCount: 4,
+    mealPeriod: 'Lunch & Dinner', // 'Morning', 'Lunch', 'Lunch & Dinner', 'Late Night'
+    transport: 'driving' // 'walking', 'driving'
+  });
+
+  // Step 3 Itinerary Stops state
+  const [stops, setStops] = useState([]);
+
   if (!isOpen) return null;
 
   // Handle selecting a pre-built template
   const handleSelectTemplate = (template) => {
     setSelectedTemplateId(template.id);
+    setValidationError('');
     const dishIds = template.stops.map((s) => s.dishId).filter(Boolean);
     setCustomSelectedDishIds(dishIds);
     setStops(JSON.parse(JSON.stringify(template.stops)));
@@ -69,20 +94,32 @@ export default function FoodTrailWizard({
   // Toggle dish in custom picker
   const handleToggleCustomDish = (dishId) => {
     setSelectedTemplateId(null);
+    setValidationError('');
     setCustomSelectedDishIds((prev) =>
       prev.includes(dishId) ? prev.filter((id) => id !== dishId) : [...prev, dishId]
     );
   };
 
-  // Proceed to Step 2
+  // Proceed to Step 2 with strict validation
   const handleProceedToStep2 = () => {
+    if (activeTab === 'custom') {
+      if (!customSelectedDishIds || customSelectedDishIds.length === 0) {
+        setValidationError('Please select at least 1 dish (recommended 2–6) to build your custom trail.');
+        return;
+      }
+    } else {
+      if (!selectedTemplateId && availableTemplates.length > 0) {
+        handleSelectTemplate(availableTemplates[0]);
+      }
+    }
+    setValidationError('');
     setStep(2);
   };
 
   // Build / update itinerary for Step 3
   const handleBuildTrailItinerary = () => {
     // If a template was selected and stops exist, apply preferences to refine
-    if (selectedTemplateId) {
+    if (activeTab === 'templates' && selectedTemplateId) {
       const template = availableTemplates.find((t) => t.id === selectedTemplateId);
       if (template && template.stops.length > 0) {
         let refinedStops = [...template.stops];
@@ -258,112 +295,196 @@ export default function FoodTrailWizard({
           {/* STEP 1: CHOOSE DISHES & TEMPLATES */}
           {step === 1 && (
             <div>
-              <p className="fg-step-intro-text">
-                Select a curated signature trail template or build your own custom route by selecting dishes below.
-              </p>
+              {/* Mode Selection Switcher */}
+              <div className="fg-wizard-mode-tabs" role="tablist">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'templates'}
+                  className={`fg-mode-tab-btn ${activeTab === 'templates' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTab('templates');
+                    setValidationError('');
+                  }}
+                >
+                  <i className="fa-solid fa-layer-group"></i>
+                  <span>Curated Templates ({availableTemplates.length})</span>
+                </button>
 
-              {/* Pre-built Templates */}
-              <div className="fg-template-cards-grid">
-                {availableTemplates.map((template) => {
-                  const isSelected = selectedTemplateId === template.id;
-                  return (
-                    <div
-                      key={template.id}
-                      className={`fg-template-card ${isSelected ? 'selected' : ''}`}
-                      onClick={() => handleSelectTemplate(template)}
-                    >
-                      <div className="fg-tpl-img-box">
-                        <img
-                          src={template.heroImage || FALLBACK_FOOD_IMG}
-                          alt={template.name}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = FALLBACK_FOOD_IMG;
-                          }}
-                        />
-                        <span className="fg-tpl-tag">{template.tagline}</span>
-                      </div>
-                      <div className="fg-tpl-body">
-                        <h4>{template.name}</h4>
-                        <p>{template.tagline}</p>
-                        <div className="fg-tpl-meta">
-                          <span>📍 {template.totalStops} Stops</span>
-                          <span>⏳ {template.estimatedHours}</span>
-                          <span style={{ color: '#34D399', fontWeight: 700 }}>
-                            ₹{template.totalBudget}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'custom'}
+                  className={`fg-mode-tab-btn ${activeTab === 'custom' ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveTab('custom');
+                    setSelectedTemplateId(null);
+                    setValidationError('');
+                    if (customSelectedDishIds.length === 0 && destinationDishes.length > 0) {
+                      setCustomSelectedDishIds(destinationDishes.slice(0, 3).map((d) => d.id));
+                    }
+                  }}
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Custom Trail Builder ({customSelectedDishIds.length} Picked)</span>
+                </button>
               </div>
 
-              {/* Custom Dish Selector */}
-              <div className="fg-custom-picker-section">
-                <div className="fg-custom-picker-header">
-                  <h4>Or Build Your Own Custom Trail ({destinationDishes.length} Dishes in {currentDestination?.name})</h4>
-                  <small style={{ color: 'var(--fg-text-muted)' }}>Click dishes to include</small>
+              {/* Validation Error Message */}
+              {validationError && (
+                <div className="fg-wizard-error-banner" role="alert">
+                  <i className="fa-solid fa-circle-exclamation"></i>
+                  <span>{validationError}</span>
                 </div>
+              )}
 
-                <div className="fg-dish-selector-grid">
-                  {destinationDishes.map((dish) => {
-                    const isPicked = customSelectedDishIds.includes(dish.id);
-                    return (
-                      <div
-                        key={dish.id}
-                        className={`fg-dish-select-item ${isPicked ? 'selected' : ''}`}
-                        onClick={() => handleToggleCustomDish(dish.id)}
-                      >
-                        <img
-                          src={dish.image || FALLBACK_FOOD_IMG}
-                          alt={dish.name}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = FALLBACK_FOOD_IMG;
-                          }}
-                        />
-                        <div className="fg-dish-select-meta">
-                          <strong>{dish.name}</strong>
-                          <small>
-                            {dish.diet} • ₹{dish.minPrice} • {dish.establishment}
-                          </small>
-                        </div>
-                        <div style={{ marginLeft: 'auto', color: isPicked ? '#C084FC' : 'var(--fg-text-muted)' }}>
-                          <i className={`fa-${isPicked ? 'solid fa-circle-check' : 'regular fa-circle'}`}></i>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+              {/* TAB 1: CURATED TEMPLATES */}
+              {activeTab === 'templates' && (
+                <div>
+                  <p className="fg-step-intro-text">
+                    Choose a signature chef-curated culinary route in {currentDestination?.name || 'Goa'}.
+                  </p>
 
-                {/* Selected Tray */}
-                {customSelectedDishIds.length > 0 && (
-                  <div className="fg-selected-tray">
-                    <span style={{ fontSize: '12px', color: '#D8B4FE', fontWeight: 700, marginRight: '4px' }}>
-                      Selected ({customSelectedDishIds.length}):
-                    </span>
-                    {customSelectedDishIds.map((id) => {
-                      const dish = FOOD_DISHES.find((d) => d.id === id);
-                      if (!dish) return null;
+                  <div className="fg-template-cards-grid">
+                    {availableTemplates.map((template) => {
+                      const isSelected = selectedTemplateId === template.id;
                       return (
-                        <span key={id} className="fg-tray-pill">
-                          <span>{dish.name}</span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleCustomDish(id);
-                            }}
-                          >
-                            ×
-                          </button>
-                        </span>
+                        <div
+                          key={template.id}
+                          className={`fg-template-card ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleSelectTemplate(template)}
+                        >
+                          <div className="fg-tpl-img-box">
+                            <img
+                              src={template.heroImage || FALLBACK_FOOD_IMG}
+                              alt={template.name}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = FALLBACK_FOOD_IMG;
+                              }}
+                            />
+                            <span className="fg-tpl-tag">{template.tagline}</span>
+                          </div>
+                          <div className="fg-tpl-body">
+                            <h4>{template.name}</h4>
+                            <p>{template.tagline}</p>
+                            <div className="fg-tpl-meta">
+                              <span>📍 {template.totalStops} Stops</span>
+                              <span>⏳ {template.estimatedHours}</span>
+                              <span style={{ color: '#34D399', fontWeight: 700 }}>
+                                ₹{template.totalBudget}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+
+              {/* TAB 2: CUSTOM DISH SELECTOR */}
+              {activeTab === 'custom' && (
+                <div className="fg-custom-picker-section">
+                  <div className="fg-custom-picker-header">
+                    <div>
+                      <h4>Select Dishes for Your Custom Trail in {currentDestination?.name}</h4>
+                      <small style={{ color: 'var(--fg-text-muted)' }}>
+                        Click dishes to add or remove ({customSelectedDishIds.length} selected)
+                      </small>
+                    </div>
+
+                    {/* Quick Filters inside custom picker */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        className={`fg-filter-chip ${customDietFilter === 'all' ? 'active' : ''}`}
+                        style={{ padding: '4px 10px', fontSize: '11px' }}
+                        onClick={() => setCustomDietFilter('all')}
+                      >
+                        All ({destinationDishes.length})
+                      </button>
+                      <button
+                        type="button"
+                        className={`fg-filter-chip ${customDietFilter === 'Veg' ? 'active-diet-veg' : ''}`}
+                        style={{ padding: '4px 10px', fontSize: '11px' }}
+                        onClick={() => setCustomDietFilter('Veg')}
+                      >
+                        ● Veg
+                      </button>
+                      <button
+                        type="button"
+                        className={`fg-filter-chip ${customDietFilter === 'Non-Veg' ? 'active-diet-nonveg' : ''}`}
+                        style={{ padding: '4px 10px', fontSize: '11px' }}
+                        onClick={() => setCustomDietFilter('Non-Veg')}
+                      >
+                        ● Non-Veg
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="fg-dish-selector-grid">
+                    {destinationDishes
+                      .filter((d) => customDietFilter === 'all' || d.diet.toLowerCase() === customDietFilter.toLowerCase())
+                      .map((dish) => {
+                        const isPicked = customSelectedDishIds.includes(dish.id);
+                        return (
+                          <div
+                            key={dish.id}
+                            className={`fg-dish-select-item ${isPicked ? 'selected' : ''}`}
+                            onClick={() => handleToggleCustomDish(dish.id)}
+                          >
+                            <img
+                              src={dish.image || FALLBACK_FOOD_IMG}
+                              alt={dish.name}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = FALLBACK_FOOD_IMG;
+                              }}
+                            />
+                            <div className="fg-dish-select-meta">
+                              <strong>{dish.name}</strong>
+                              <small>
+                                {dish.diet} • ₹{dish.minPrice} • {dish.establishment}
+                              </small>
+                            </div>
+                            <div style={{ marginLeft: 'auto', color: isPicked ? '#C084FC' : 'var(--fg-text-muted)' }}>
+                              <i className={`fa-${isPicked ? 'solid fa-circle-check' : 'regular fa-circle'}`}></i>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+
+                  {/* Selected Tray */}
+                  {customSelectedDishIds.length > 0 && (
+                    <div className="fg-selected-tray">
+                      <span style={{ fontSize: '12px', color: '#D8B4FE', fontWeight: 700, marginRight: '4px' }}>
+                        Selected ({customSelectedDishIds.length}):
+                      </span>
+                      {customSelectedDishIds.map((id) => {
+                        const dish = FOOD_DISHES.find((d) => d.id === id);
+                        if (!dish) return null;
+                        return (
+                          <span key={id} className="fg-tray-pill">
+                            <span>{dish.name}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleCustomDish(id);
+                              }}
+                              title={`Remove ${dish.name}`}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -610,7 +731,7 @@ export default function FoodTrailWizard({
                 {/* Secondary Action: SAVE TRAIL */}
                 <button
                   type="button"
-                  className="btn-save-trail-action"
+                  className={`btn-save-trail-action ${isSavedSuccess ? 'saved' : ''}`}
                   onClick={() => {
                     const trailObj = {
                       id: `trail-${Date.now()}`,
@@ -623,11 +744,12 @@ export default function FoodTrailWizard({
                       summaryDistance
                     };
                     onSaveTrail(trailObj);
+                    setIsSavedSuccess(true);
                   }}
                   title="Save this itinerary to your profile"
                 >
-                  <i className="fa-solid fa-bookmark"></i>
-                  <span>Save Food Journey</span>
+                  <i className={`fa-${isSavedSuccess ? 'solid fa-check' : 'solid fa-bookmark'}`}></i>
+                  <span>{isSavedSuccess ? 'Saved to Food Journeys!' : 'Save Food Journey'}</span>
                 </button>
               </div>
             </div>
