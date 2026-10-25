@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
+import { useLanguage } from '../context/LanguageContext';
 import { getTodayDate, getFutureDate } from '../utils/dateUtils';
 
 const DEFAULT_FLIGHTS = [
@@ -64,6 +65,7 @@ const DEFAULT_FLIGHTS = [
 
 export default function AdminPage() {
   const { bookings, showToast, addBooking } = useTravel();
+  const { t } = useLanguage();
 
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
     try {
@@ -77,6 +79,7 @@ export default function AdminPage() {
   const [adminPasscode, setAdminPasscode] = useState('');
   const [authError, setAuthError] = useState('');
 
+  // Restore the editable flight inventory, falling back to the built-in demo schedule.
   const [flights, setFlights] = useState(() => {
     try {
       const saved = localStorage.getItem('travio_admin_flights');
@@ -107,6 +110,7 @@ export default function AdminPage() {
     price: 4999
   });
 
+  // Persist inventory edits so the admin schedule survives a page reload.
   useEffect(() => {
     try {
       localStorage.setItem('travio_admin_flights', JSON.stringify(flights));
@@ -256,11 +260,11 @@ export default function AdminPage() {
                 letterSpacing: '1px'
               }}
             >
-              PROTECTED ADMIN AREA
+              {t('phrases.PROTECTED ADMIN AREA', 'PROTECTED ADMIN AREA')}
             </span>
 
             <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '16px', marginBottom: '8px' }}>
-              Airline Fleet Console
+              {t('phrases.Airline Fleet Console', 'Airline Fleet Console')}
             </h2>
             <p style={{ color: 'rgba(255, 255, 255, 0.65)', fontSize: '0.9rem', marginBottom: '24px' }}>
               Access restricted to flight dispatchers, airline administrators, and PE-2 evaluators.
@@ -313,7 +317,7 @@ export default function AdminPage() {
                 }}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>key</span>
-                <span>Verify & Enter Console</span>
+                <span>{t('phrases.Verify & Enter Console', 'Verify & Enter Console')}</span>
               </button>
             </form>
 
@@ -338,7 +342,7 @@ export default function AdminPage() {
                 }}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>bolt</span>
-                <span>Evaluation Quick Demo Unlock</span>
+                <span>{t('phrases.Evaluation Quick Demo Unlock', 'Evaluation Quick Demo Unlock')}</span>
               </button>
             </div>
           </div>
@@ -380,13 +384,13 @@ export default function AdminPage() {
                   letterSpacing: '1px'
                 }}
               >
-                ADMIN CONSOLE
+                {t('phrases.ADMIN CONSOLE', 'ADMIN CONSOLE')}
               </span>
               <span style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.6)' }}>
                 System Flight & Booking Management Portal
               </span>
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0 }}>Airline & Fleet Administration</h1>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, margin: 0 }}>{t('phrases.Airline & Fleet Administration', 'Airline & Fleet Administration')}</h1>
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -408,7 +412,7 @@ export default function AdminPage() {
               }}
             >
               <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>logout</span>
-              Exit Admin
+              {t('phrases.Exit Admin', 'Exit Admin')}
             </button>
 
             <button
@@ -432,7 +436,7 @@ export default function AdminPage() {
               <span className="material-symbols-rounded" style={{ fontSize: '20px' }}>
                 add_circle
               </span>
-              Add New Flight
+              {t('phrases.Add New Flight', 'Add New Flight')}
             </button>
           </div>
         </div>
@@ -456,7 +460,7 @@ export default function AdminPage() {
             }}
           >
             <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600 }}>
-              ACTIVE FLIGHTS SCHEDULED
+              {t('phrases.ACTIVE FLIGHTS SCHEDULED', 'ACTIVE FLIGHTS SCHEDULED')}
             </span>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8', marginTop: '6px' }}>
               {flights.length}
@@ -473,7 +477,7 @@ export default function AdminPage() {
             }}
           >
             <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600 }}>
-              TOTAL PASSENGER BOOKINGS
+              {t('phrases.TOTAL PASSENGER BOOKINGS', 'TOTAL PASSENGER BOOKINGS')}
             </span>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '6px' }}>
               {bookings.length}
@@ -490,7 +494,7 @@ export default function AdminPage() {
             }}
           >
             <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600 }}>
-              RESERVATION REVENUE
+              {t('phrases.RESERVATION REVENUE', 'RESERVATION REVENUE')}
             </span>
             <div style={{ fontSize: '2rem', fontWeight: 800, color: '#a78bfa', marginTop: '6px' }}>
               ₹{totalRevenue.toLocaleString('en-IN')}
@@ -507,10 +511,10 @@ export default function AdminPage() {
             }}
           >
             <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600 }}>
-              SYSTEM STATUS
+              {t('phrases.SYSTEM STATUS', 'SYSTEM STATUS')}
             </span>
             <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#34d399', marginTop: '10px' }}>
-              ● Operational (2026)
+              ● {t('phrases.Operational', 'Operational')} (2026)
             </div>
           </div>
         </div>
@@ -541,7 +545,7 @@ export default function AdminPage() {
                 cursor: 'pointer'
               }}
             >
-              Scheduled Flights ({flights.length})
+              {t('phrases.Scheduled Flights', 'Scheduled Flights')} ({flights.length})
             </button>
 
             <button
@@ -558,7 +562,7 @@ export default function AdminPage() {
                 cursor: 'pointer'
               }}
             >
-              Passenger Reservations ({bookings.length})
+              {t('phrases.Passenger Reservations', 'Passenger Reservations')} ({bookings.length})
             </button>
           </div>
 
@@ -611,14 +615,14 @@ export default function AdminPage() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: 'rgba(255, 255, 255, 0.04)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>FLIGHT NO</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>AIRLINE</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>ROUTE</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>DEPARTURE</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>CLASS</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>SEATS</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>PRICE</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 700, textAlign: 'center' }}>ACTIONS</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.FLIGHT NO', 'FLIGHT NO')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.AIRLINE', 'AIRLINE')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.ROUTE', 'ROUTE')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.DEPARTURE', 'DEPARTURE')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.CLASS', 'CLASS')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.SEATS', 'SEATS')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700 }}>{t('phrases.PRICE', 'PRICE')}</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 700, textAlign: 'center' }}>{t('phrases.ACTIONS', 'ACTIONS')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -21,6 +21,7 @@ const Sidebar = ({ isHome }) => {
   const handleLogout = (e) => {
     e.preventDefault();
     try {
+      localStorage.setItem('auth_logged_out', 'true');
       localStorage.removeItem('auth_email');
       localStorage.removeItem('auth_role');
       localStorage.removeItem('auth_password');
@@ -62,13 +63,6 @@ const Sidebar = ({ isHome }) => {
               <span className="nav-text">{t('nav.explore', 'Explore')}</span>
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/wishlist">
-              <span className="material-symbols-rounded">favorite</span>
-              <span className="nav-text">{t('nav.wishlist', 'Wishlist')}</span>
-            </NavLink>
-          </li>
-          
           <li className="nav-divider"></li>
 
           {/* Tools & Features */}

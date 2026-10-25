@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import FlightBooking from './FlightBooking';
 import TrainBooking from './TrainBooking';
 import BusBooking from './BusBooking';
@@ -13,28 +13,28 @@ export default function MoveSection({ onSelectBookingItem }) {
     {
       id: 'flights',
       title: t('booking.flights', 'FLIGHTS'),
-      sub: 'Domestic & International',
+      sub: t('booking.domesticIntl', 'Domestic & International'),
       icon: 'flight',
       animClass: 'anim-airplane-fly',
     },
     {
       id: 'trains',
       title: t('booking.trains', 'TRAINS'),
-      sub: 'High Speed & Express',
+      sub: t('booking.highSpeedExpress', 'High Speed & Express'),
       icon: 'train',
       animClass: 'anim-train-track',
     },
     {
       id: 'buses',
       title: t('booking.buses', 'BUSES'),
-      sub: 'AC Sleeper & Electric',
+      sub: t('booking.acSleeperElectric', 'AC Sleeper & Electric'),
       icon: 'directions_bus',
       animClass: 'anim-bus-road',
     },
     {
       id: 'cabs',
       title: t('booking.cabs', 'CABS'),
-      sub: 'Outstation & Airport',
+      sub: t('booking.outstationAirport', 'Outstation & Airport'),
       icon: 'local_taxi',
       animClass: 'anim-cab-drive',
     },

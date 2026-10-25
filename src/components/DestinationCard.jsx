@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';

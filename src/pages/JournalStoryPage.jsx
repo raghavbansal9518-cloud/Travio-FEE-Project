@@ -27,6 +27,7 @@ function formatStoryDate(value, options = { day: 'numeric', month: 'long', year:
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('en', options).format(date);
 }
 
+// Resolve sample or owner-scoped stories and hide drafts/private entries from others.
 function loadEntry(entryId) {
   try {
     const data = loadJournalData();
@@ -56,6 +57,7 @@ function loadEntry(entryId) {
   }
 }
 
+// Load discussion independently so a comment-data issue does not block the story.
 function loadComments(entryId) {
   try {
     return { items: loadJournalComments(entryId), error: '' };
@@ -419,7 +421,7 @@ export default function JournalStoryPage() {
       <main className="journal-story-page">
         <div className="story-topbar">
           <Link className="story-back-link" to="/journal"><span className="material-symbols-rounded">arrow_back</span>{t('phrases.Back to Journal', 'Back to Journal')}</Link>
-          <span className="story-reading-type">{entry.status === 'draft' ? 'Private draft' : entry.isDemo ? 'Sample story' : 'Travel story'}</span>
+          <span className="story-reading-type">{entry.status === 'draft' ? t('Private draft', 'Private draft') : entry.isDemo ? t('Sample story', 'Sample story') : t('Travel story', 'Travel story')}</span>
         </div>
 
         <section className="story-hero">
@@ -434,12 +436,12 @@ export default function JournalStoryPage() {
               <span><strong>{writer.name}</strong><small>Story by · {formatStoryDate(entry.date)}</small></span>
             </div>
             <div className="story-hero__actions">
-              <button className={`story-button${isFavorite ? ' is-selected' : ''}`} type="button" onClick={toggleFavorite} aria-pressed={isFavorite}><span className="material-symbols-rounded">{isFavorite ? 'favorite' : 'favorite_border'}</span>{isFavorite ? 'Favorited' : 'Favorite'}</button>
-              <button className={`story-button${isBookmarked ? ' is-selected' : ''}`} type="button" onClick={toggleBookmark} aria-pressed={isBookmarked}><span className="material-symbols-rounded">{isBookmarked ? 'bookmark_added' : 'bookmark_add'}</span>{isBookmarked ? 'Saved' : 'Bookmark'}</button>
-              <button className="story-button" type="button" onClick={shareStory}><span className="material-symbols-rounded">share</span>Share</button>
+              <button className={`story-button${isFavorite ? ' is-selected' : ''}`} type="button" onClick={toggleFavorite} aria-pressed={isFavorite}><span className="material-symbols-rounded">{isFavorite ? 'favorite' : 'favorite_border'}</span>{isFavorite ? t('Favorited', 'Favorited') : t('Favorite', 'Favorite')}</button>
+              <button className={`story-button${isBookmarked ? ' is-selected' : ''}`} type="button" onClick={toggleBookmark} aria-pressed={isBookmarked}><span className="material-symbols-rounded">{isBookmarked ? 'bookmark_added' : 'bookmark_add'}</span>{isBookmarked ? t('Saved', 'Saved') : t('Bookmark', 'Bookmark')}</button>
+              <button className="story-button" type="button" onClick={shareStory}><span className="material-symbols-rounded">share</span>{t('Share', 'Share')}</button>
               {isOwner && <>
-                <button className="story-button" type="button" onClick={() => setIsEditing(true)}><span className="material-symbols-rounded">edit</span>Edit story</button>
-                <button className="story-button story-button--danger" type="button" onClick={deleteStory}><span className="material-symbols-rounded">delete</span>Delete</button>
+                <button className="story-button" type="button" onClick={() => setIsEditing(true)}><span className="material-symbols-rounded">edit</span>{t('Edit story', 'Edit story')}</button>
+                <button className="story-button story-button--danger" type="button" onClick={deleteStory}><span className="material-symbols-rounded">delete</span>{t('Delete', 'Delete')}</button>
               </>}
             </div>
           </div>
@@ -477,7 +479,7 @@ export default function JournalStoryPage() {
 
             {story.itinerary?.length > 0 && (
               <section className="story-section story-itinerary">
-                <div className="story-section-heading"><span className="material-symbols-rounded">route</span><div><span className="story-eyebrow">THE ROUTE</span><h2>Day-by-day itinerary</h2></div></div>
+                <div className="story-section-heading"><span className="material-symbols-rounded">route</span><div><span className="story-eyebrow">{t('THE ROUTE', 'THE ROUTE')}</span><h2>{t('Day-by-day itinerary', 'Day-by-day itinerary')}</h2></div></div>
                 {story.itinerary.map((day) => (
                   <details key={day.title}>
                     <summary>{day.title}<span className="material-symbols-rounded">expand_more</span></summary>
@@ -489,13 +491,13 @@ export default function JournalStoryPage() {
 
             {story.tips?.length > 0 && (
               <section className="story-tip-card">
-                <div className="story-section-heading"><span className="material-symbols-rounded">lightbulb</span><div><span className="story-eyebrow">NOTES FROM THE ROAD</span><h2>Tips we wish we knew</h2></div></div>
+                <div className="story-section-heading"><span className="material-symbols-rounded">lightbulb</span><div><span className="story-eyebrow">{t('NOTES FROM THE ROAD', 'NOTES FROM THE ROAD')}</span><h2>{t('Tips we wish we knew', 'Tips we wish we knew')}</h2></div></div>
                 <ul>{story.tips.map((tip) => <li key={tip}>{tip}</li>)}</ul>
               </section>
             )}
 
             <section className="story-section story-activities">
-              <div className="story-section-heading"><span className="material-symbols-rounded">hiking</span><div><span className="story-eyebrow">MAKE IT YOUR OWN</span><h2>Activities & experiences</h2></div></div>
+              <div className="story-section-heading"><span className="material-symbols-rounded">hiking</span><div><span className="story-eyebrow">{t('MAKE IT YOUR OWN', 'MAKE IT YOUR OWN')}</span><h2>{t('Activities & experiences', 'Activities & experiences')}</h2></div></div>
               {localActivities.length ? (
                 <div className="story-activity-list">
                   {localActivities.map((activity, index) => {
@@ -513,7 +515,7 @@ export default function JournalStoryPage() {
             </section>
 
             <section className="story-comments">
-              <div className="story-section-heading"><span className="material-symbols-rounded">forum</span><div><span className="story-eyebrow">SHARE A THOUGHT</span><h2>Join the conversation</h2></div></div>
+              <div className="story-section-heading"><span className="material-symbols-rounded">forum</span><div><span className="story-eyebrow">{t('SHARE A THOUGHT', 'SHARE A THOUGHT')}</span><h2>{t('Join the conversation', 'Join the conversation')}</h2></div></div>
               <div className="story-local-warning story-local-warning--compact" role="note"><span className="material-symbols-rounded">info</span><p>Comments are stored only in this browser. They are not shared with the writer or other Travio users until a community backend is connected.</p></div>
               {commentState.error && <p className="story-error" role="alert">{commentState.error}</p>}
               <form className="story-comment-form" onSubmit={submitComment}>
@@ -535,31 +537,31 @@ export default function JournalStoryPage() {
 
           <aside className="story-sidebar">
             <section className="story-side-card story-writer-card">
-              <span className="story-eyebrow">ABOUT THE WRITER</span>
+              <span className="story-eyebrow">{t('ABOUT THE WRITER', 'ABOUT THE WRITER')}</span>
               <div className="story-writer-card__profile"><img src={writer.avatar || '/images/ai-bot.png'} alt="" /><div><h2>{writer.name}</h2><span>{writer.bio}</span></div></div>
               <div className="story-writer-card__stats"><span><strong>{entry.isDemo ? DEMO_JOURNAL_ENTRIES.filter((item) => item.id.startsWith('demo-')).length : loaded.data.userEntries.filter((item) => item.ownerId === entry.ownerId && item.status !== 'draft').length}</strong> stories</span><span><strong>{writer.interests?.length || 0}</strong> travel interests</span></div>
               {writer.interests?.length > 0 && <div className="story-interests">{writer.interests.map((interest) => <span key={interest}>{interest}</span>)}</div>}
-              <button type="button" className="story-button story-button--secondary story-full-width" onClick={() => setIsProfileOpen(true)}><span className="material-symbols-rounded">person</span>View Profile</button>
-              <button type="button" className="story-button story-button--primary story-full-width" disabled={writerIsSelf} onClick={() => setIsMessageOpen(true)}><span className="material-symbols-rounded">mail</span>{writerIsSelf ? 'This is your story' : 'Message Writer'}</button>
+              <button type="button" className="story-button story-button--secondary story-full-width" onClick={() => setIsProfileOpen(true)}><span className="material-symbols-rounded">person</span>{t('View Profile', 'View Profile')}</button>
+              <button type="button" className="story-button story-button--primary story-full-width" disabled={writerIsSelf} onClick={() => setIsMessageOpen(true)}><span className="material-symbols-rounded">mail</span>{writerIsSelf ? t('This is your story', 'This is your story') : t('Message Writer', 'Message Writer')}</button>
             </section>
 
             <section className="story-side-card story-destination-card">
-              <div className="story-section-heading"><span className="material-symbols-rounded">explore</span><div><span className="story-eyebrow">DESTINATION GUIDE</span><h2>{entry.destination}</h2></div></div>
+              <div className="story-section-heading"><span className="material-symbols-rounded">explore</span><div><span className="story-eyebrow">{t('DESTINATION GUIDE', 'DESTINATION GUIDE')}</span><h2>{entry.destination}</h2></div></div>
               <p>{destinationInfo?.overview || destinationInfo?.description || 'Destination details have not been added to the local travel guide yet.'}</p>
               {destinationInfo ? (
                 <>
-                  {destinationInfo.bestTime && <div className="story-destination-row"><span>Best time</span><strong>{destinationInfo.bestTime}</strong></div>}
-                  {destinationInfo.weather && <div className="story-destination-row"><span>Seasonal climate guide</span><strong>{destinationInfo.weather.bestSeason || destinationInfo.weather.condition}</strong></div>}
-                  {destinationInfo.attractions?.length > 0 && <div className="story-destination-block"><h3>Highlights</h3><ul>{destinationInfo.attractions.map((place) => <li key={place}>{place}</li>)}</ul></div>}
-                  {destinationInfo.topPlaces?.length > 0 && <div className="story-destination-block"><h3>Places to explore</h3><ul>{destinationInfo.topPlaces.slice(0, 4).map((place) => <li key={place.name}>{place.name}</li>)}</ul></div>}
-                  {destinationInfo.food?.length > 0 && <div className="story-destination-block"><h3>Local food</h3><ul>{destinationInfo.food.map((food) => <li key={food}>{food}</li>)}</ul></div>}
-                  {destinationInfo.transport && <div className="story-destination-row"><span>Getting around</span><strong>{destinationInfo.transport}</strong></div>}
-                  {destinationInfo.safety && <div className="story-destination-row"><span>Travel note</span><strong>{destinationInfo.safety}</strong></div>}
+                  {destinationInfo.bestTime && <div className="story-destination-row"><span>{t('Best time', 'Best time')}</span><strong>{destinationInfo.bestTime}</strong></div>}
+                  {destinationInfo.weather && <div className="story-destination-row"><span>{t('Seasonal climate guide', 'Seasonal climate guide')}</span><strong>{destinationInfo.weather.bestSeason || destinationInfo.weather.condition}</strong></div>}
+                  {destinationInfo.attractions?.length > 0 && <div className="story-destination-block"><h3>{t('Highlights', 'Highlights')}</h3><ul>{destinationInfo.attractions.map((place) => <li key={place}>{place}</li>)}</ul></div>}
+                  {destinationInfo.topPlaces?.length > 0 && <div className="story-destination-block"><h3>{t('Places to explore', 'Places to explore')}</h3><ul>{destinationInfo.topPlaces.slice(0, 4).map((place) => <li key={place.name}>{place.name}</li>)}</ul></div>}
+                  {destinationInfo.food?.length > 0 && <div className="story-destination-block"><h3>{t('Local food', 'Local food')}</h3><ul>{destinationInfo.food.map((food) => <li key={food}>{food}</li>)}</ul></div>}
+                  {destinationInfo.transport && <div className="story-destination-row"><span>{t('Getting around', 'Getting around')}</span><strong>{destinationInfo.transport}</strong></div>}
+                  {destinationInfo.safety && <div className="story-destination-row"><span>{t('Travel note', 'Travel note')}</span><strong>{destinationInfo.safety}</strong></div>}
                 </>
               ) : <p className="story-muted">No live or curated guide data is available for this place yet.</p>}
               {story.budget && <div className="story-destination-row"><span>Writer's budget note</span><strong>{story.budget}</strong></div>}
-              {entry.destinationId && <Link className="story-button story-button--secondary story-full-width" to={`/destination/${entry.destinationId}`}><span className="material-symbols-rounded">open_in_new</span>Explore destination</Link>}
-              <a className="story-map-link" href={mapUrl} target="_blank" rel="noreferrer"><span className="material-symbols-rounded">map</span>View on map</a>
+              {entry.destinationId && <Link className="story-button story-button--secondary story-full-width" to={`/destination/${entry.destinationId}`}><span className="material-symbols-rounded">open_in_new</span>{t('Explore destination', 'Explore destination')}</Link>}
+              <a className="story-map-link" href={mapUrl} target="_blank" rel="noreferrer"><span className="material-symbols-rounded">map</span>{t('View on map', 'View on map')}</a>
             </section>
           </aside>
         </div>

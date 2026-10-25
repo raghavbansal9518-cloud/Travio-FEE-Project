@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import BookingBackground from './booking/BookingBackground';
 import CategoryNav from './booking/CategoryNav';
@@ -225,7 +225,7 @@ export default function Booking() {
           <div className="booking-hero-top-row">
             <div className="booking-hero-pill">
               <span className="material-symbols-rounded">rocket_launch</span>
-              <span>TRAVIO FAST-TRACK RESERVATION ENGINE</span>
+              <span>{t('phrases.TRAVIO FAST-TRACK RESERVATION ENGINE', 'TRAVIO FAST-TRACK RESERVATION ENGINE')}</span>
             </div>
 
             {/* Quick Access to My Bookings Manager (CRUD) */}
@@ -242,9 +242,7 @@ export default function Booking() {
             </Link>
           </div>
 
-          <h1 className="booking-hero-title">
-            Your Next Journey, <span className="title-accent">Seamlessly Booked</span>
-          </h1>
+          <h1 className="booking-hero-title">{t('phrases.Your Next Journey, Seamlessly Booked', 'Your Next Journey, Seamlessly Booked')}</h1>
           <p className="booking-hero-subtitle">
             {t('booking.subtitle', 'Instant reservations for flights, luxury stays, scenic trains, intercity coaches, and chauffeur cabs.')}
           </p>

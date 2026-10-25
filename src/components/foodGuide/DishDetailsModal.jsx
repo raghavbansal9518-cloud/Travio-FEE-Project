@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { FALLBACK_FOOD_IMG, FOOD_DESTINATIONS } from '../../data/foodGuideData';
 
 export default function DishDetailsModal({
@@ -10,6 +11,8 @@ export default function DishDetailsModal({
   isInTrail,
   onSeeOnMap
 }) {
+  const { t } = useLanguage();
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -20,7 +23,7 @@ export default function DishDetailsModal({
 
   if (!dish) return null;
 
-  const isVeg = dish.diet === 'Veg' || dish.diet.toLowerCase().includes('veg');
+  const isVeg = dish.diet === 'Veg' || dish.diet?.toLowerCase().includes('veg');
   const spiceRating = dish.spiceLevel === 'Fiery' ? 3 : dish.spiceLevel === 'Medium' ? 2 : 1;
   const destFlag = dish.flag || FOOD_DESTINATIONS.find(d => d.id === dish.destinationId)?.flag || '📍';
 
@@ -68,7 +71,7 @@ export default function DishDetailsModal({
           <div className="fg-modal-stats-bar">
             <div className="fg-modal-stat-pill" style={{ color: '#FBBF24' }}>
               <i className="fa-solid fa-star"></i>
-              <span>{dish.rating} ({dish.reviews.toLocaleString()} reviews)</span>
+              <span>{dish.rating} ({dish.reviews?.toLocaleString()} reviews)</span>
             </div>
 
             <div className="fg-modal-stat-pill" style={{ color: '#34D399' }}>
@@ -78,7 +81,7 @@ export default function DishDetailsModal({
 
             <div className="fg-modal-stat-pill" style={{ color: isVeg ? '#6EE7B7' : '#FCA5A5' }}>
               <span>●</span>
-              <span>{dish.diet}</span>
+              <span>{isVeg ? t('phrases.Veg', 'Veg') : t('phrases.Non-Veg', 'Non-Veg')}</span>
             </div>
 
             <div className="fg-modal-stat-pill" style={{ color: '#C084FC' }}>
@@ -94,12 +97,12 @@ export default function DishDetailsModal({
           {/* Taste & Spice Grid */}
           <div className="fg-taste-spice-grid">
             <div className="fg-taste-item">
-              <label>Taste Profile</label>
+              <label>{t('phrases.Taste Profile', 'Taste Profile')}</label>
               <span>{dish.tasteProfile || 'Rich & authentic regional flavors'}</span>
             </div>
 
             <div className="fg-taste-item">
-              <label>Spice Level ({dish.spiceLevel || 'Mild'})</label>
+              <label>{t('phrases.Spice Level', 'Spice Level')} ({dish.spiceLevel || 'Mild'})</label>
               <div className="fg-spice-dots">
                 {[1, 2, 3].map((lvl) => (
                   <span
@@ -116,7 +119,7 @@ export default function DishDetailsModal({
           {dish.origin && (
             <div style={{ marginBottom: '20px' }}>
               <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--fg-text-muted)', fontWeight: 700, letterSpacing: '0.8px', display: 'block', marginBottom: '4px' }}>
-                Culinary Heritage & Origin
+                {t('phrases.Culinary Heritage & Origin', 'Culinary Heritage & Origin')}
               </span>
               <p style={{ fontSize: '13px', color: '#D8B4FE', margin: 0, lineHeight: 1.5 }}>
                 {dish.origin}
@@ -127,7 +130,7 @@ export default function DishDetailsModal({
           {/* Ingredients */}
           {dish.ingredients && dish.ingredients.length > 0 && (
             <div className="fg-ingredients-wrap">
-              <h4>Key Ingredients</h4>
+              <h4>{t('phrases.Key Ingredients', 'Key Ingredients')}</h4>
               <div className="fg-ing-chips">
                 {dish.ingredients.map((ing, i) => (
                   <span key={i} className="fg-ing-chip">
@@ -140,7 +143,7 @@ export default function DishDetailsModal({
 
           {/* Where to Try It */}
           <div className="fg-places-section">
-            <h3>Where to Try It in {dish.destinationName}</h3>
+            <h3>{t('phrases.Where to Try It in', 'Where to Try It in')} {dish.destinationName}</h3>
             {dish.recommendedPlaces && dish.recommendedPlaces.length > 0 ? (
               dish.recommendedPlaces.map((place, index) => (
                 <div key={index} className="fg-place-item">
@@ -164,7 +167,7 @@ export default function DishDetailsModal({
                       title="See restaurant location on Travio's interactive map"
                     >
                       <i className="fa-solid fa-location-arrow"></i>
-                      <span>See on Map</span>
+                      <span>{t('phrases.See on Map', 'See on Map')}</span>
                     </button>
                   </div>
                 </div>
@@ -185,7 +188,7 @@ export default function DishDetailsModal({
               onClick={() => onAddToTrail(dish)}
             >
               <i className={`fa-solid ${isInTrail ? 'fa-check' : 'fa-plus'}`}></i>
-              <span>{isInTrail ? 'Included in Food Trail' : 'Add to Food Trail'}</span>
+              <span>{isInTrail ? t('phrases.Included in Food Trail', 'Included in Food Trail') : t('phrases.Add to Food Trail', 'Add to Food Trail')}</span>
             </button>
 
             <button

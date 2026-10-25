@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function CategoryNav({ activeCategory, onSelectCategory }) {
@@ -7,27 +6,27 @@ export default function CategoryNav({ activeCategory, onSelectCategory }) {
   const categories = [
     {
       id: 'MOVE',
-      title: 'MOVE',
+      title: t('booking.moveTab', 'MOVE'),
       subtitle: t('nav.transport', 'Transport'),
       subtext: `${t('booking.flights', 'Flights')} • ${t('booking.trains', 'Trains')} • ${t('booking.buses', 'Buses')} • ${t('booking.cabs', 'Cabs')}`,
       icon: 'flight_takeoff',
-      badge: t('nav.transport', 'Transit'),
+      badge: t('Transit', 'Transit'),
     },
     {
       id: 'STAY',
-      title: 'STAY',
-      subtitle: t('booking.stays', 'Luxury Stays'),
-      subtext: t('booking.stays', 'Hotels • Resorts • Villas'),
+      title: t('booking.stayTab', 'STAY'),
+      subtitle: t('Luxury Stays', 'Luxury Stays'),
+      subtext: t('Hotels • Resorts • Villas', 'Hotels • Resorts • Villas'),
       icon: 'apartment',
-      badge: t('explore.luxury', 'Luxury'),
+      badge: t('Luxury', 'Luxury'),
     },
     {
       id: 'EXPERIENCE',
-      title: 'EXPERIENCE',
+      title: t('booking.experienceTab', 'EXPERIENCE'),
       subtitle: t('nav.activities', 'Activities'),
-      subtext: t('activities.title', 'Tours • Attractions • Adventures'),
+      subtext: t('Tours • Attractions • Adventures', 'Tours • Attractions • Adventures'),
       icon: 'local_activity',
-      badge: t('explore.adventure', 'Adventures'),
+      badge: t('Adventures', 'Adventures'),
     },
   ];
 

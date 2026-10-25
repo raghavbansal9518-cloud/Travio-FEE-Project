@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 
 export default function FoodFilters({
@@ -60,7 +59,7 @@ export default function FoodFilters({
           title="Switch to Curated Food Trails"
         >
           <i className="fa-solid fa-route"></i>
-          <span>Curated Food Trails</span>
+          <span>{t('food.trails', 'Curated Food Trails')}</span>
         </button>
 
         <button
@@ -75,7 +74,7 @@ export default function FoodFilters({
           title="Open interactive 3-step Food Trail planner"
         >
           <i className="fa-solid fa-wand-magic-sparkles"></i>
-          <span>Trail Planner</span>
+          <span>{t('phrases.Trail Planner', 'Trail Planner')}</span>
         </button>
 
         {savedTrailsCount > 0 && (
@@ -86,7 +85,7 @@ export default function FoodFilters({
             title="View your saved food itineraries"
           >
             <i className="fa-solid fa-bookmark" style={{ color: '#C084FC' }}></i>
-            <span>Saved Trails ({savedTrailsCount})</span>
+            <span>{t('phrases.Saved Trails', 'Saved Trails')} ({savedTrailsCount})</span>
           </button>
         )}
       </div>
@@ -130,7 +129,7 @@ export default function FoodFilters({
           onClick={() => onBudgetChange(budgetFilter === 'budget' ? 'all' : 'budget')}
         >
           <i className="fa-solid fa-wallet"></i>
-          <span>Budget (&lt; ₹150)</span>
+          <span>{t('phrases.Budget (< ₹150)', 'Budget (< ₹150)')}</span>
         </button>
 
         {/* Budget: 150 - 400 */}
@@ -150,7 +149,7 @@ export default function FoodFilters({
           onClick={() => onMinRatingChange(minRating === 4.8 ? 0 : 4.8)}
         >
           <i className="fa-solid fa-star" style={{ color: '#FBBF24' }}></i>
-          <span>4.8+ Top Rated</span>
+          <span>4.8+ {t('phrases.Top Rated', 'Top Rated')}</span>
         </button>
 
         {/* Street Food */}
@@ -160,7 +159,7 @@ export default function FoodFilters({
           onClick={() => onEstablishmentChange(establishmentFilter === 'Street Food' ? 'all' : 'Street Food')}
         >
           <i className="fa-solid fa-bowl-food"></i>
-          <span>Street Food</span>
+          <span>{t('phrases.Street Food', 'Street Food')}</span>
         </button>
 
         {/* Café & Dessert */}
@@ -170,7 +169,7 @@ export default function FoodFilters({
           onClick={() => onEstablishmentChange(establishmentFilter === 'Bakery & Dessert' ? 'all' : 'Bakery & Dessert')}
         >
           <i className="fa-solid fa-cake-candles"></i>
-          <span>Bakery & Sweets</span>
+          <span>{t('phrases.Bakery & Sweets', 'Bakery & Sweets')}</span>
         </button>
 
         {/* Clear All Filters */}
@@ -181,7 +180,7 @@ export default function FoodFilters({
             onClick={onResetFilters}
           >
             <i className="fa-solid fa-rotate-left" style={{ marginRight: '4px' }}></i>
-            Clear Filters
+            {t('phrases.Clear Filters', 'Clear Filters')}
           </button>
         )}
       </div>

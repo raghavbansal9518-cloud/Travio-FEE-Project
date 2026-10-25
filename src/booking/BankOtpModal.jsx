@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function BankOtpModal({ paymentDetails, onSuccess, onCancel }) {
+  const { t } = useLanguage();
   const [otp, setOtp] = useState('');
   const [timer, setTimer] = useState(30);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -118,7 +120,7 @@ export default function BankOtpModal({ paymentDetails, onSuccess, onCancel }) {
                     handleAutoFill();
                   }}
                 >
-                  Resend OTP Now
+                  {t('Resend OTP')} Now
                 </button>
               )}
             </span>

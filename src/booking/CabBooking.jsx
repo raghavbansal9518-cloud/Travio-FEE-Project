@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { searchLiveCabs } from '../services/bookingService';
 import { getTodayDate, getFutureDate, getCurrentTime12, getNearestPickupTime, isToday, timeToMinutes, getCurrentTime24 } from '../utils/dateUtils';
 
@@ -59,6 +60,7 @@ const AIRPORTS_DATA = [
 ];
 
 export default function CabBooking({ onSelectBookingItem }) {
+  const { t } = useLanguage();
   const [serviceType, setServiceType] = useState('one-way'); // 'one-way', 'round-trip', 'airport', 'hourly'
   const [fromCity, setFromCity] = useState('Delhi NCR');
   const [toCity, setToCity] = useState('Agra');
@@ -415,7 +417,7 @@ export default function CabBooking({ onSelectBookingItem }) {
               <span className="material-symbols-rounded">
                 {isSearching ? 'sync' : 'local_taxi'}
               </span>
-              <span>{isSearching ? 'Calculating Cabs...' : 'SEARCH CABS'}</span>
+              <span>{isSearching ? 'Calculating Cabs...' : t('SEARCH CABS')}</span>
             </button>
           </div>
         </div>

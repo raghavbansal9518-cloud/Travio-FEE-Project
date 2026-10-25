@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '../context/LanguageContext';
@@ -27,6 +27,7 @@ export default function Header({ variant = '' }) {
 
   const handleLogout = () => {
     try {
+      localStorage.setItem('auth_logged_out', 'true');
       localStorage.removeItem('auth_email');
       localStorage.removeItem('auth_role');
       localStorage.removeItem('auth_password');

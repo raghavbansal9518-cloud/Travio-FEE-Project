@@ -1,4 +1,3 @@
-import React from 'react';
 import { CATEGORIES, DESTINATIONS } from '../data/destinationsData';
 import { useLanguage } from '../context/LanguageContext';
 

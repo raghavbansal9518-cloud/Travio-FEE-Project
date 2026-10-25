@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function SeatSelection({ item, onSelectionChange, selectedDetails }) {
+  const { t } = useLanguage();
   const travelersCount = item?.travelersCount || 1;
 
   // Flight Seats State: support multi-seat selection when travelersCount > 1
@@ -171,17 +173,17 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
           </div>
 
           <div className="seat-legend">
-            <span className="legend-item"><span className="legend-box available" /> Available</span>
+            <span className="legend-item"><span className="legend-box available" /> {t('phrases.Available', 'Available')}</span>
             <span className="legend-item">
               <span className="legend-box selected" /> Selected: {selectedSeats.join(', ')} ({selectedSeats.length}/{travelersCount})
             </span>
-            <span className="legend-item"><span className="legend-box booked" /> Booked</span>
+            <span className="legend-item"><span className="legend-box booked" /> {t('phrases.Booked', 'Booked')}</span>
             <span className="legend-item"><span className="legend-box extra-leg" /> Extra Legroom (+₹650)</span>
           </div>
 
           <div className="airplane-fuselage">
             <div className="cockpit-nose">
-              <i className="fa-solid fa-chevron-up"></i> FRONT OF AIRCRAFT
+              <i className="fa-solid fa-chevron-up"></i> {t('phrases.FRONT OF AIRCRAFT', 'FRONT OF AIRCRAFT')}
             </div>
 
             <div className="airplane-seats-grid">
@@ -442,6 +444,37 @@ export default function SeatSelection({ item, onSelectionChange, selectedDetails
                 <i className="fa-regular fa-clock"></i>
                 <span>{slot}</span>
               </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 7. PACKAGE / EXPLORE TRIP PREFERENCES */}
+      {item.type === 'PACKAGE' && (
+        <div className="hotel-room-pref-box">
+          <div className="seatmap-header">
+            <h4><i className="fa-solid fa-route"></i> Curated Package Inclusions & Upgrades</h4>
+            <p>Tailored for {travelersCount} Traveler{travelersCount > 1 ? 's' : ''} to {item.toCity || item.to}</p>
+          </div>
+
+          <div className="room-categories-grid">
+            {[
+              { type: 'Standard Itinerary Package', desc: 'Handpicked Boutique Stays • Guided City Tours • Airport Pickup', cost: 0 },
+              { type: 'Premium Explorer Upgrade', desc: 'All Monument & Activity VIP Fast-Track Entry Passes Included', cost: 2500 },
+              { type: 'All-Inclusive VIP Butler Villa', desc: '5★ Luxury Sanctuary • Private Chauffeur • All Gourmet Meals', cost: 7500 }
+            ].map((p) => (
+              <div
+                key={p.type}
+                className={`room-tier-card ${roomType === p.type ? 'active' : ''}`}
+                onClick={() => handleRoomSelect(p.type, p.cost)}
+              >
+                <div className="tier-header">
+                  <strong>{p.type}</strong>
+                  <span className="tier-cost">{p.cost > 0 ? `+₹${p.cost.toLocaleString('en-IN')}` : 'Included'}</span>
+                </div>
+                <p className="tier-desc">{p.desc}</p>
+                <div className="tier-select-badge">{roomType === p.type ? '✓ Selected' : 'Choose Package'}</div>
+              </div>
             ))}
           </div>
         </div>

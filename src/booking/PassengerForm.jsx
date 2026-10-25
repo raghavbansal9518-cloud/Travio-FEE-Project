@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 // Reusable Form Input Component
 function FormInput({ label, name, type = 'text', value, onChange, onBlur, error, icon, placeholder, maxLength }) {
@@ -32,7 +33,8 @@ function FormInput({ label, name, type = 'text', value, onChange, onBlur, error,
   );
 }
 
-export default function PassengerForm({ 
+export default function PassengerForm({
+  /* props */ 
   formData, 
   setFormData, 
   errors, 
@@ -42,6 +44,7 @@ export default function PassengerForm({
   promoDiscount, 
   setPromoDiscount 
 }) {
+  const { t } = useLanguage();
   const [promoInput, setPromoInput] = useState('');
   const [promoMessage, setPromoMessage] = useState(null);
 
@@ -139,14 +142,14 @@ export default function PassengerForm({
   return (
     <div className="passenger-form-container">
       <div className="form-section-intro">
-        <h4><i className="fa-solid fa-user-shield"></i> Primary Traveler & Contact Information</h4>
+        <h4><i className="fa-solid fa-user-shield"></i> {t('Primary Traveler & Contact Information', 'Primary Traveler & Contact Information')}</h4>
         <p>E-ticket confirmation and live SMS gate alerts will be sent to these details</p>
       </div>
 
       <div className="form-grid-2col">
         {/* Full Name */}
         <FormInput
-          label="Full Name (As on Govt ID)"
+          label={t("Full Name (As on Govt ID)", "Full Name (As on Govt ID)")}
           name="fullName"
           icon="fa-id-card"
           value={formData.fullName}
@@ -158,7 +161,7 @@ export default function PassengerForm({
 
         {/* Email */}
         <FormInput
-          label="Email Address (For E-Ticket)"
+          label={t("Email Address (For E-Ticket)", "Email Address (For E-Ticket)")}
           name="email"
           type="email"
           icon="fa-envelope"
@@ -171,7 +174,7 @@ export default function PassengerForm({
 
         {/* Mobile Number */}
         <FormInput
-          label="Mobile Number (10 Digits)"
+          label={t("Mobile Number (10 Digits)", "Mobile Number (10 Digits)")}
           name="phone"
           type="tel"
           icon="fa-phone"
@@ -187,7 +190,7 @@ export default function PassengerForm({
         <div className="age-gender-row">
           <div className="age-field">
             <FormInput
-              label="Age"
+              label={t("Age", "Age")}
               name="age"
               type="number"
               icon="fa-cake-candles"

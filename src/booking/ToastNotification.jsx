@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function ToastNotification({ toasts, onDismiss }) {
   if (!toasts || toasts.length === 0) return null;

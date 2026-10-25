@@ -1,4 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { useTravel } from '../context/TravelContext';
 import { HOTELS_DATA } from './bookingData';
 import { searchLiveStays } from '../services/bookingService';
 import { getTodayDate, getFutureDate } from '../utils/dateUtils';
@@ -16,6 +18,9 @@ const POPULAR_HOTEL_DESTINATIONS = [
 ];
 
 export default function StaySection({ onSelectBookingItem }) {
+  const { t } = useLanguage();
+  const { isWishlisted, toggleWishlist } = useTravel();
+
   const [destination, setDestination] = useState('Goa, India');
   const [checkIn, setCheckIn] = useState(getTodayDate());
   const [checkOut, setCheckOut] = useState(getFutureDate(2));
@@ -107,7 +112,7 @@ export default function StaySection({ onSelectBookingItem }) {
           <div className="stay-fields-grid">
             {/* WHERE Field */}
             <div className="flight-field-block stay-where-block">
-              <span className="field-subhead">WHERE</span>
+              <span className="field-subhead">{t('WHERE ARE YOU STAYING?', 'WHERE ARE YOU STAYING?')}</span>
               <div className="field-city-row">
                 <span className="material-symbols-rounded" style={{ color: '#38bdf8', fontSize: '20px' }}>location_on</span>
                 <input
@@ -130,7 +135,7 @@ export default function StaySection({ onSelectBookingItem }) {
 
             {/* CHECK-IN */}
             <div className="flight-field-block date-field-block">
-              <span className="field-subhead">CHECK-IN</span>
+              <span className="field-subhead">{t('CHECK-IN', 'CHECK-IN')}</span>
               <div className="date-box single-date-box">
                 <span className="date-label-tiny">ARRIVAL</span>
                 <input
@@ -145,7 +150,7 @@ export default function StaySection({ onSelectBookingItem }) {
 
             {/* CHECK-OUT */}
             <div className="flight-field-block date-field-block">
-              <span className="field-subhead">CHECK-OUT</span>
+              <span className="field-subhead">{t('CHECK-OUT', 'CHECK-OUT')}</span>
               <div className="date-box single-date-box">
                 <span className="date-label-tiny">DEPARTURE</span>
                 <input
@@ -160,7 +165,7 @@ export default function StaySection({ onSelectBookingItem }) {
 
             {/* ROOMS & GUESTS */}
             <div className="flight-field-block travelers-field-block">
-              <span className="field-subhead">ROOMS & GUESTS</span>
+              <span className="field-subhead">{t('GUESTS & ROOMS', 'GUESTS & ROOMS')}</span>
               <button
                 type="button"
                 className="traveler-selector-btn"
@@ -268,7 +273,7 @@ export default function StaySection({ onSelectBookingItem }) {
             {/* PRICE PER NIGHT SLIDER */}
             <div className="flight-field-block price-slider-block">
               <div className="field-header-split">
-                <span className="field-subhead">PRICE PER NIGHT</span>
+                <span className="field-subhead">{t('PRICE PER NIGHT', 'PRICE PER NIGHT')}</span>
                 <span className="price-slider-readout">Up to ₹{maxPrice.toLocaleString('en-IN')}</span>
               </div>
               <input
@@ -299,7 +304,7 @@ export default function StaySection({ onSelectBookingItem }) {
                 <span className="material-symbols-rounded">
                   {isSearching ? 'sync' : 'search'}
                 </span>
-                <span>{isSearching ? 'Searching...' : 'SEARCH HOTELS'}</span>
+                <span>{isSearching ? 'Searching...' : t('SEARCH STAYS', 'SEARCH STAYS')}</span>
               </button>
             </div>
           </div>
@@ -366,11 +371,33 @@ export default function StaySection({ onSelectBookingItem }) {
                 <span className="hotel-tag-badge">{hotel.tag}</span>
                 <button
                   type="button"
-                  className="hotel-wishlist-btn"
-                  title="Save to Wishlist"
+                  className={`hotel-wishlist-btn ${isWishlisted(`hotel-${hotel.id}`) ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist({
+                      id: `hotel-${hotel.id}`,
+                      name: hotel.name,
+                      country: hotel.location,
+                      flag: '🏨',
+                      rating: hotel.rating,
+                      reviews: `${hotel.reviewsCount} reviews`,
+                      budgetStarting: `₹${hotel.price?.toLocaleString('en-IN')}`,
+                      budgetNum: hotel.price,
+                      cardImage: hotel.image,
+                      heroImage: hotel.image,
+                      tagline: `${hotel.tag} • ${hotel.type}`,
+                      category: hotel.location.toLowerCase().includes('goa') || hotel.location.toLowerCase().includes('beach') ? 'beaches' : hotel.location.toLowerCase().includes('manali') ? 'mountains' : 'heritage',
+                      itemType: 'stay',
+                      tags: ['Hotel', 'Stay', hotel.tag],
+                      status: 'saved'
+                    });
+                  }}
+                  title={isWishlisted(`hotel-${hotel.id}`) ? 'Remove from Wishlist' : 'Save to Wishlist'}
                   aria-label="Save to Wishlist"
                 >
-                  <span className="material-symbols-rounded">favorite</span>
+                  <span className="material-symbols-rounded" style={{ color: isWishlisted(`hotel-${hotel.id}`) ? '#f43f5e' : 'inherit' }}>
+                    favorite
+                  </span>
                 </button>
               </div>
 
@@ -432,7 +459,7 @@ export default function StaySection({ onSelectBookingItem }) {
                       image: hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80',
                     })}
                   >
-                    <span>View Hotel</span>
+                    <span>{t('Reserve Suite', 'Reserve Suite')}</span>
                     <span className="material-symbols-rounded">arrow_forward</span>
                   </button>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { getTrailTemplates, FOOD_DISHES, FOOD_DESTINATIONS, FALLBACK_FOOD_IMG } from '../../data/foodGuideData';
 
 export default function FoodTrailWizard({

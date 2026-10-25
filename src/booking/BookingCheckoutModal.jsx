@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import '../BookingCheckout.css';
+import { useState } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import SeatSelection from './SeatSelection';
 import PassengerForm from './PassengerForm';
 import PaymentGateway from './PaymentGateway';
@@ -6,9 +8,12 @@ import BankOtpModal from './BankOtpModal';
 import { downloadTicketVoucher, printTicketVoucher } from './ticketExportUtils';
 import { getTodayDate, formatDisplayDate } from '../utils/dateUtils';
 
-export default function BookingCheckoutModal({ item, onClose, onBookingComplete, initialTicket }) {
+export default function BookingCheckoutModal({ item, onClose, onBookingComplete, initialTicket, initialStep }) {
+  const { t } = useLanguage();
   // Stepper state: 'SEAT' | 'PASSENGER' | 'PAYMENT' | 'TICKET'
-  const [currentStep, setCurrentStep] = useState(initialTicket ? 'TICKET' : 'SEAT');
+  const [currentStep, setCurrentStep] = useState(
+    initialTicket ? 'TICKET' : (initialStep || (item?.type === 'PACKAGE' ? 'PASSENGER' : 'SEAT'))
+  );
 
   // Step 1: Seat & Customization State (Dynamic per transport mode)
   const travelersCount = item?.travelersCount || 1;
@@ -33,6 +38,13 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
     }
     if (item?.type === 'EXPERIENCE') {
       return { seat: 'Pass', seatPrice: 0, summary: item.seats || `09:00 AM Batch (${travelersCount} Pass(es))` };
+    }
+    if (item?.type === 'PACKAGE') {
+      return {
+        seat: item.seats || `${travelersCount} Travelers`,
+        seatPrice: 0,
+        summary: item.seatSummary || item.seats || `${travelersCount} Travelers Package`
+      };
     }
     const defaultSeats = travelersCount === 2 ? 'Seats 12A, 12B' 
       : travelersCount === 3 ? 'Seats 12A, 12B, 12C'
@@ -144,6 +156,14 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
     setConfirmedTicket(newBooking);
     setCurrentStep('TICKET');
 
+    // Sync to user bookings in localStorage
+    try {
+      const stored = JSON.parse(localStorage.getItem('travio_user_bookings') || '[]');
+      localStorage.setItem('travio_user_bookings', JSON.stringify([newBooking, ...stored.filter(b => b.id !== newBooking.id)]));
+    } catch (err) {
+      console.error(err);
+    }
+
     // Notify parent to save in localStorage / state
     if (onBookingComplete) {
       onBookingComplete(newBooking);
@@ -176,7 +196,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
         <div className="modal-header-bar">
           <div className="modal-brand-badge">
             <span className="material-symbols-rounded">rocket_launch</span>
-            <span>TRAVIO FAST-TRACK CHECKOUT & RESERVATION</span>
+            <span>{t('TRAVIO FAST-TRACK CHECKOUT & RESERVATION')}</span>
           </div>
 
           <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close modal">
@@ -188,10 +208,10 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
         {currentStep !== 'TICKET' && (
           <div className="checkout-stepper-bar">
             {[
-              { id: 'SEAT', num: 1, label: 'Seat & Options', icon: 'fa-couch' },
-              { id: 'PASSENGER', num: 2, label: 'Guest Details', icon: 'fa-user' },
-              { id: 'PAYMENT', num: 3, label: 'Payment Gateway', icon: 'fa-credit-card' },
-              { id: 'TICKET', num: 4, label: 'Confirmed Ticket', icon: 'fa-ticket' }
+              { id: 'SEAT', num: 1, label: t('Seat & Options'), icon: 'fa-couch' },
+              { id: 'PASSENGER', num: 2, label: t('Guest Details'), icon: 'fa-user' },
+              { id: 'PAYMENT', num: 3, label: t('Payment Gateway'), icon: 'fa-credit-card' },
+              { id: 'TICKET', num: 4, label: t('Confirmed Ticket'), icon: 'fa-ticket' }
             ].map((step, idx) => {
               const isPast = (step.id === 'SEAT' && (currentStep === 'PASSENGER' || currentStep === 'PAYMENT')) ||
                              (step.id === 'PASSENGER' && currentStep === 'PAYMENT');
@@ -251,10 +271,10 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
             <div className="checkout-nav-footer">
               <button type="button" className="btn-glass" onClick={handlePrevStep}>
                 <i className="fa-solid fa-arrow-left"></i>
-                <span>Back to Seat Selection</span>
+                <span>{t('Back to Seat Selection')}</span>
               </button>
               <button type="button" className="btn-primary" onClick={handleNextStep}>
-                <span>Proceed to Payment Gateway</span>
+                <span>{t('Proceed to Payment Gateway')}</span>
                 <i className="fa-solid fa-lock"></i>
               </button>
             </div>
@@ -276,7 +296,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
             <div className="checkout-nav-footer" style={{ marginTop: '20px' }}>
               <button type="button" className="btn-glass" onClick={handlePrevStep}>
                 <i className="fa-solid fa-arrow-left"></i>
-                <span>Back to Passenger Details</span>
+                <span>{t('Back to Passenger Details')}</span>
               </button>
             </div>
           </div>
@@ -310,6 +330,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                         : confirmedTicket.type === 'BUS' ? 'directions_bus' 
                         : confirmedTicket.type === 'CAB' ? 'local_taxi' 
                         : confirmedTicket.type === 'HOTEL' ? 'hotel' 
+                        : confirmedTicket.type === 'PACKAGE' ? 'explore'
                         : 'attractions'}
                     </span>
                     <span>
@@ -318,6 +339,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                         : confirmedTicket.type === 'HOTEL' ? 'TRAVIO LUXURY RETREATS • STAY VOUCHER' 
                         : confirmedTicket.type === 'BUS' ? 'TRAVIO EXPRESS COACH • BOARDING PASS' 
                         : confirmedTicket.type === 'CAB' ? 'TRAVIO CHAUFFEUR • TRIP RECEIPT' 
+                        : confirmedTicket.type === 'PACKAGE' ? 'TRAVIO EXPEDITIONS • OFFICIAL TRIP PASS'
                         : 'TRAVIO VIP EXPERIENCES • ACTIVITY PASS'}
                     </span>
                   </span>
@@ -346,6 +368,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                         : confirmedTicket.type === 'BUS' ? 'directions_bus' 
                         : confirmedTicket.type === 'CAB' ? 'local_taxi' 
                         : confirmedTicket.type === 'HOTEL' ? 'hotel' 
+                        : confirmedTicket.type === 'PACKAGE' ? 'explore'
                         : 'attractions'}
                     </span>
                     <span className="flow-dash" />
@@ -391,6 +414,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
                         : confirmedTicket.type === 'HOTEL' ? '02:00 PM Check-in' 
                         : confirmedTicket.type === 'BUS' ? (confirmedTicket.from || 'Terminal Bay #4') 
                         : confirmedTicket.type === 'CAB' ? (confirmedTicket.carrier || 'Prime Sedan') 
+                        : confirmedTicket.type === 'PACKAGE' ? '09:00 AM • Main Resort Lobby'
                         : 'Instant Mobile Pass'}
                     </strong>
                   </div>
@@ -419,7 +443,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
             <div className="ticket-actions-row">
               <button type="button" className="btn-glass" onClick={handlePrintTicket}>
                 <i className="fa-solid fa-print"></i>
-                <span>Print Ticket</span>
+                <span>{t('Print Ticket')}</span>
               </button>
 
               <button type="button" className="btn-primary" onClick={handleDownloadTicket}>
@@ -429,7 +453,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
 
               <button type="button" className="btn-glass" onClick={onClose}>
                 <i className="fa-solid fa-house"></i>
-                <span>Back to Bookings</span>
+                <span>{t('Back to Bookings')}</span>
               </button>
             </div>
           </div>

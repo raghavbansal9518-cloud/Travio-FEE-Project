@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { BUSES_DATA } from './bookingData';
 import { searchLiveBuses } from '../services/bookingService';
 import { getTodayDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
@@ -47,6 +48,7 @@ export const BUS_CITIES = [
 ];
 
 export default function BusBooking({ onSelectBookingItem }) {
+  const { t } = useLanguage();
   const [fromCity, setFromCity] = useState(BUS_CITIES[0]); // Delhi
   const [toCity, setToCity] = useState(BUS_CITIES[1]); // Agra
   const [travelDate, setTravelDate] = useState(getTodayDate());
@@ -189,7 +191,7 @@ export default function BusBooking({ onSelectBookingItem }) {
 
           {/* TRAVEL DATE */}
           <div className="flight-field-block date-field-block">
-            <span className="field-subhead">TRAVEL DATE</span>
+            <span className="field-subhead">{t('TRAVEL DATE')}</span>
             <div className="date-box single-date-box">
               <span className="date-label-tiny">JOURNEY DATE</span>
               <input
@@ -244,7 +246,7 @@ export default function BusBooking({ onSelectBookingItem }) {
               <span className="material-symbols-rounded">
                 {isSearching ? 'sync' : 'search'}
               </span>
-              <span>{isSearching ? 'Finding Buses...' : 'SEARCH BUSES'}</span>
+              <span>{isSearching ? 'Finding Buses...' : t('SEARCH BUSES')}</span>
             </button>
           </div>
         </div>

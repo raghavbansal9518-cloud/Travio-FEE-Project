@@ -373,7 +373,7 @@ const GeoWeather = () => {
   const dates7 = weatherData?.daily?.time?.slice(0, 7) || [];
   const minTemps7 = weatherData?.daily?.temperature_2m_min?.slice(0, 7) || [];
   
-  // Find which index represents "Today"
+  // Align the chart highlight with the first forecast date that is not in the past.
   const todayDateStr = new Date().toISOString().split('T')[0];
   let todayIndex = dates7.findIndex(t => t >= todayDateStr);
   if (todayIndex === -1) todayIndex = 0;
@@ -382,6 +382,7 @@ const GeoWeather = () => {
   const minT = temps7.length > 0 ? Math.min(...temps7) : 10;
   const range = maxT - minT === 0 ? 1 : maxT - minT;
   
+  // Scale forecast temperatures into SVG coordinates, then join them into a smooth curve.
   const points = temps7.map((temp, i) => {
     const x = i * 100 + 50;
     const y = 40 - ((temp - minT) / range) * 30;

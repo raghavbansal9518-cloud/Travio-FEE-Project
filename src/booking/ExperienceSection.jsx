@@ -1,7 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { useState, useMemo, useEffect } from 'react';
 import { ACTIVITIES_DATA } from './bookingData';
 import { searchLiveExperiences } from '../services/bookingService';
 import { getTodayDate } from '../utils/dateUtils';
+import { useTravel } from '../context/TravelContext';
 
 const POPULAR_EXPERIENCE_DESTINATIONS = [
   'Singapore',
@@ -25,6 +27,8 @@ const ACTIVITY_CATEGORIES = [
 ];
 
 export default function ExperienceSection({ onSelectBookingItem }) {
+  const { t } = useLanguage();
+  const { isWishlisted, toggleWishlist } = useTravel();
   const [searchDestination, setSearchDestination] = useState('');
   const [activityDate, setActivityDate] = useState(getTodayDate());
   const [selectedDestinationFilter, setSelectedDestinationFilter] = useState('');
@@ -140,11 +144,11 @@ export default function ExperienceSection({ onSelectBookingItem }) {
         <div className="stay-sub-header">
           <div className="stay-title-tag">
             <span className="material-symbols-rounded">attractions</span>
-            <span>Tours, Attractions & Unforgettable Experiences</span>
+            <span>{t('Tours, Attractions & Unforgettable Experiences')}</span>
           </div>
           <span className="stay-verified-badge">
             <span className="material-symbols-rounded">bolt</span>
-            <span>Instant Confirmation Tickets</span>
+            <span>{t('Instant Confirmation Tickets')}</span>
           </span>
         </div>
 
@@ -152,7 +156,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
           <div className="experience-fields-grid">
             {/* SEARCH DESTINATION */}
             <div className="flight-field-block experience-dest-block">
-              <span className="field-subhead">SEARCH DESTINATION</span>
+              <span className="field-subhead">{t('SEARCH DESTINATION')}</span>
               <div className="field-city-row">
                 <span className="material-symbols-rounded" style={{ color: '#a855f7', fontSize: '22px' }}>explore</span>
                 <input
@@ -177,17 +181,17 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                   </button>
                 )}
               </div>
-              <span className="field-airport-desc">Tours, Theme Parks, Museums, Water Sports</span>
+              <span className="field-airport-desc">{t('Tours, Theme Parks, Museums, Water Sports')}</span>
             </div>
 
             {/* DATE OF ACTIVITY (OPTIONAL) */}
             <div className="flight-field-block date-field-block experience-date-block">
               <div className="field-header-split">
-                <span className="field-subhead">DATE OF ACTIVITY</span>
+                <span className="field-subhead">{t('DATE OF ACTIVITY')}</span>
                 <span className="mini-note">Optional</span>
               </div>
               <div className="date-box single-date-box">
-                <span className="date-label-tiny">EXPERIENCE DATE</span>
+                <span className="date-label-tiny">{t('EXPERIENCE DATE')}</span>
                 <input
                   type="date"
                   className="glass-date-input"
@@ -203,7 +207,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
           <div className="booking-action-next-row">
             <div className="form-perks-info">
               <span className="material-symbols-rounded">bolt</span>
-              <span>Instant QR Mobile Pass • Priority Skip-the-Line Admission Included</span>
+              <span>{t('Instant QR Mobile Pass • Priority Skip-the-Line Admission Included')}</span>
             </div>
 
             <div className="flight-submit-container">
@@ -215,7 +219,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                 <span className="material-symbols-rounded">
                   {isSearching ? 'sync' : 'search'}
                 </span>
-                <span>{isSearching ? 'Finding Tours...' : 'SEARCH ACTIVITIES'}</span>
+                <span>{isSearching ? t('Finding Tours...') : t('SEARCH ACTIVITIES')}</span>
               </button>
             </div>
           </div>
@@ -283,7 +287,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
           </div>
           <div className="hotel-guarantee-pill">
             <span className="material-symbols-rounded">qr_code_scanner</span>
-            <span>Direct Mobile Gate Entry</span>
+            <span>{t('Direct Mobile Gate Entry')}</span>
           </div>
         </div>
 
@@ -343,6 +347,49 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                   />
                   <div className="activity-image-overlay" />
                   <span className="activity-badge-pill">{act.badge}</span>
+                  <button
+                    type="button"
+                    style={{
+                      position: 'absolute',
+                      top: '12px',
+                      right: '12px',
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '50%',
+                      background: isWishlisted(`act-${act.id}`) ? '#f43f5e' : 'rgba(8, 12, 22, 0.75)',
+                      border: '1px solid rgba(255, 255, 255, 0.25)',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      zIndex: 3
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist({
+                        id: `act-${act.id}`,
+                        name: act.name,
+                        country: act.destination,
+                        flag: '🎟️',
+                        rating: act.rating,
+                        reviews: `${act.reviewsCount} reviews`,
+                        budgetStarting: `₹${act.price?.toLocaleString('en-IN')}`,
+                        budgetNum: act.price,
+                        cardImage: act.image,
+                        heroImage: act.image,
+                        tagline: `${act.duration} • ${act.category}`,
+                        category: 'activities',
+                        itemType: 'activity',
+                        tags: ['Activity', act.category.toUpperCase()],
+                        status: 'saved'
+                      });
+                    }}
+                    title={isWishlisted(`act-${act.id}`) ? 'Remove from Wishlist' : 'Save to Wishlist'}
+                    aria-label="Save to Wishlist"
+                  >
+                    <i className={isWishlisted(`act-${act.id}`) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                  </button>
                   <span className="activity-duration-pill">
                     <span className="material-symbols-rounded">schedule</span>
                     <span>{act.duration}</span>
@@ -383,7 +430,7 @@ export default function ExperienceSection({ onSelectBookingItem }) {
                       <div className="price-active-row">
                         <span className="curr">₹</span>
                         <span className="amt">{act.price.toLocaleString('en-IN')}</span>
-                        <span className="unit">/ person</span>
+                        <span className="unit">{t('/ person')}</span>
                       </div>
                     </div>
 

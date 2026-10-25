@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -243,7 +243,7 @@ export default function TransportPage() {
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
-                Compare flights, Vande Bharat trains, UNESCO heritage toy trains, Shinkansen bullet trains, and mountain luxury Volvo buses.
+                {t('Compare flights, Vande Bharat trains, UNESCO heritage toy trains, Shinkansen bullet trains, and mountain luxury Volvo buses.')}
               </p>
             </div>
           </div>
@@ -310,12 +310,12 @@ export default function TransportPage() {
             <div className="banner-left-info">
               <span className="material-symbols-rounded live-clock-icon">schedule</span>
               <span>
-                Current Real-Time Clock: <strong style={{ color: '#38bdf8' }}>{currentTime12}</strong> — Schedules strictly calculated from present moment onwards
+                {t('Current Real-Time Clock:')} <strong style={{ color: '#38bdf8' }}>{currentTime12}</strong> — {t('Schedules strictly calculated from present moment onwards')}
               </span>
             </div>
             <span className="live-status-pill">
               <span className="live-pulse-dot"></span>
-              Live Dispatch Active
+              {t('Live Dispatch Active')}
             </span>
           </div>
 
@@ -398,7 +398,7 @@ export default function TransportPage() {
                     <div style={{ width: '100%', height: '2px', background: 'rgba(255, 255, 255, 0.1)', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ position: 'absolute', width: '8px', height: '8px', borderRadius: '50%', background: '#38bdf8' }}></div>
                     </div>
-                    <span style={{ fontSize: '10px', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>On Schedule</span>
+                    <span style={{ fontSize: '10px', color: '#10b981', marginTop: '4px', fontWeight: 600 }}>{t('On Schedule')}</span>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
@@ -412,7 +412,7 @@ export default function TransportPage() {
                 {/* Tags and price */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', minWidth: '220px', justifyContent: 'flex-end' }}>
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Starting from</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t('Starting from')}</span>
                     <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#38bdf8' }}>
                       ₹{route.price.toLocaleString('en-IN')}
                     </div>
@@ -433,7 +433,7 @@ export default function TransportPage() {
                       boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)'
                     }}
                   >
-                    Select Fare
+                    {t('Select Fare', 'Select Fare')}
                   </button>
                 </div>
               </div>

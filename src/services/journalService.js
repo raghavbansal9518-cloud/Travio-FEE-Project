@@ -16,6 +16,7 @@ export function getJournalOwner() {
   return email.trim().toLowerCase() || 'guest';
 }
 
+// Reject malformed saved data instead of silently replacing it with an empty value.
 function readJson(key, fallback, validate) {
   const stored = localStorage.getItem(key);
   if (stored === null) return fallback;
@@ -38,6 +39,7 @@ function readUserEntries(ownerKey) {
   const stored = localStorage.getItem(key);
   if (stored !== null) return readJson(key, [], Array.isArray);
 
+  // Import the pre-account journal once, then scope future reads to the active owner.
   const legacyOwner = localStorage.getItem(LEGACY_IMPORT_KEY);
   const legacy = localStorage.getItem(LEGACY_ENTRIES_KEY);
   if (legacy === null || legacyOwner) return [];
@@ -56,6 +58,7 @@ export function loadJournalData() {
     (value) => value && Array.isArray(value.favorites) && value.overrides && typeof value.overrides === 'object' && Array.isArray(value.hidden)
   );
 
+  // Keep personal entries and editable sample-story state separate for this owner.
   return {
     userEntries: readUserEntries(ownerKey),
     demoState

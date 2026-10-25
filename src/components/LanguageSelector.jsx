@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LanguageSelector({ variant = 'header' }) {
