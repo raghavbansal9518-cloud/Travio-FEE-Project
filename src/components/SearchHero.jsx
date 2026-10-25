@@ -84,7 +84,7 @@ export default function SearchHero({
 
       <div className="hero-header-content">
         <div className="hero-tag">
-          <i className="fa-solid fa-compass"></i> DISCOVER DESTINATIONS
+          <i className="fa-solid fa-compass"></i> {t('DISCOVER DESTINATIONS', 'DISCOVER DESTINATIONS')}
         </div>
 
         <h1 className="hero-main-title">{t('explore.heroTitle', 'EXPLORE THE WORLD')}</h1>

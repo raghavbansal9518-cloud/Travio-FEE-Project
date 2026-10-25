@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const LandingPage = ({ onComplete }) => {
+  const { t } = useLanguage();
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
 
@@ -14,9 +16,11 @@ const LandingPage = ({ onComplete }) => {
   }, []);
 
   const handleGetStarted = () => {
-    // Mark splash as seen so it doesn't show again on dashboard navigation
-    if (onComplete) onComplete();
-    navigate('/auth');
+    if (onComplete) {
+      onComplete();
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
@@ -44,16 +48,16 @@ const LandingPage = ({ onComplete }) => {
         
         <h1 className="landing-title">Travio</h1>
         <p className="landing-subtitle">
-          Your ultimate travel companion. Discover new destinations, organize your trips, and explore the world seamlessly.
+          {t('Your ultimate travel companion. Discover new destinations, organize your trips, and explore the world seamlessly.')}
         </p>
         
         <button className="landing-start-btn" onClick={handleGetStarted}>
-          <span>Get Started</span>
+          <span>{t('Enter Dashboard')}</span>
           <span className="material-symbols-rounded">arrow_forward</span>
         </button>
         
         <div className="landing-footer-text">
-          <p>Adventure awaits.</p>
+          <p>{t('Adventure awaits.')}</p>
         </div>
       </div>
     </main>

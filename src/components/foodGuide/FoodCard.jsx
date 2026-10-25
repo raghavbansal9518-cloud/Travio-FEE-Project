@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
 import { FALLBACK_FOOD_IMG } from '../../data/foodGuideData';
 
 export default function FoodCard({
@@ -9,7 +10,8 @@ export default function FoodCard({
   onAddToTrail,
   isInTrail
 }) {
-  const isVeg = dish.diet === 'Veg' || dish.diet.toLowerCase().includes('veg');
+  const { t } = useLanguage();
+  const isVeg = dish.diet === 'Veg' || dish.diet?.toLowerCase().includes('veg');
 
   const handleImgError = (e) => {
     e.currentTarget.onerror = null;
@@ -31,7 +33,7 @@ export default function FoodCard({
         <div className="fg-card-badges-top">
           <span className={`fg-badge-diet ${isVeg ? 'veg' : 'non-veg'}`}>
             <span>●</span>
-            <span>{isVeg ? 'Veg' : 'Non-Veg'}</span>
+            <span>{isVeg ? t('phrases.Veg', 'Veg') : t('phrases.Non-Veg', 'Non-Veg')}</span>
           </span>
 
           <span className="fg-badge-rating">
@@ -49,7 +51,7 @@ export default function FoodCard({
               e.stopPropagation();
               onToggleFavourite(dish);
             }}
-            title={isFavourited ? 'Remove from favourites' : 'Save to favourites'}
+            title={isFavourited ? t('phrases.Remove from favourites', 'Remove from favourites') : t('phrases.Save to favourites', 'Save to favourites')}
             aria-label={`Favourite ${dish.name}`}
           >
             <i className={`fa-${isFavourited ? 'solid' : 'regular'} fa-heart`}></i>
@@ -91,7 +93,7 @@ export default function FoodCard({
             className="fg-btn-view-details"
             onClick={() => onViewDetails(dish)}
           >
-            <span>Details</span>
+            <span>{t('phrases.Details', 'Details')}</span>
             <i className="fa-solid fa-arrow-right" style={{ marginLeft: '4px', fontSize: '11px' }}></i>
           </button>
 
@@ -102,10 +104,10 @@ export default function FoodCard({
               e.stopPropagation();
               onAddToTrail(dish);
             }}
-            title={isInTrail ? 'Included in your Food Trail' : 'Add to Food Trail itinerary'}
+            title={isInTrail ? t('phrases.Included in your Food Trail', 'Included in your Food Trail') : t('phrases.Add to Food Trail itinerary', 'Add to Food Trail itinerary')}
           >
             <i className={`fa-solid ${isInTrail ? 'fa-check' : 'fa-plus'}`}></i>
-            <span>{isInTrail ? 'In Trail' : 'Add Trail'}</span>
+            <span>{isInTrail ? t('phrases.In Trail', 'In Trail') : t('phrases.Add Trail', 'Add Trail')}</span>
           </button>
         </div>
       </div>

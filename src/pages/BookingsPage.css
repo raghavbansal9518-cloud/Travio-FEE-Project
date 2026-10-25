@@ -1111,10 +1111,111 @@
   color: #06b6d4;
 }
 
+/* Financial Summary Bar */
+.bookings-financial-summary {
+  margin: 1.25rem 0 1.75rem 0;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.financial-summary-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.financial-summary-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.financial-summary-sublabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 700;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.financial-summary-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.financial-stat-pill {
+  font-size: 14px;
+  color: #f8fafc;
+}
+
+.financial-stat-pill strong {
+  color: #38bdf8;
+}
+
+.financial-stat-pill.sub {
+  color: var(--text-muted, #cbd5e1);
+  font-size: 13.5px;
+}
+
+.financial-stat-pill.sub strong {
+  color: #f1f5f9;
+}
+
+.financial-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* ==========================================================================
-   6. PRINT STYLESHEET FOR PHYSICAL BOARDING PASSES
+   6. PRINT STYLESHEET FOR PHYSICAL BOARDING PASSES & PDF EXPORT
    ========================================================================== */
+@page {
+  size: A4 portrait;
+  margin: 12mm;
+}
+
 @media print {
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body * {
     visibility: hidden;
   }
@@ -1126,22 +1227,27 @@
   }
 
   .ticket-modal-overlay {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
     background: transparent !important;
     backdrop-filter: none !important;
     padding: 0 !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
   .ticket-modal-container {
-    max-width: 100% !important;
-    border: 1px solid #000 !important;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+    border: 1.5px solid #cbd5e1 !important;
     box-shadow: none !important;
-    background: #fff !important;
-    color: #000 !important;
-    page-break-inside: avoid;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    border-radius: 16px !important;
   }
 
   .btn-close-ticket-modal,
@@ -1150,22 +1256,45 @@
   }
 
   .ticket-header-band {
-    background: #2563eb !important;
-    color: #fff !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-top-left-radius: 14px !important;
+    border-top-right-radius: 14px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ticket-header-band * {
+    color: #ffffff !important;
   }
 
   .ticket-journey-strip,
   .ticket-details-body,
   .ticket-barcode-footer {
-    background: #fff !important;
-    color: #000 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
   }
 
   .journey-node-code,
   .ticket-cell-val {
-    color: #000 !important;
+    color: #0f172a !important;
+  }
+
+  .ticket-cell-lbl,
+  .journey-node-city {
+    color: #64748b !important;
+  }
+
+  .fare-title-sub {
+    color: #64748b !important;
+  }
+
+  .fare-total-number {
+    color: #1e3a8a !important;
+  }
+
+  .ticket-barcode-bars {
+    filter: invert(1);
   }
 }
 

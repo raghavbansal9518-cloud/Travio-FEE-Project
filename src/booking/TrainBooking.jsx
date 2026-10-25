@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { TRAINS_DATA } from './bookingData';
 import { searchLiveTrains, checkLivePNR, checkLiveTrainTracking } from '../services/bookingService';
 import { getTodayDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
@@ -19,6 +20,7 @@ const TRAIN_STATIONS = [
 ];
 
 export default function TrainBooking({ onSelectBookingItem }) {
+  const { t } = useLanguage();
   const [trainMode, setTrainMode] = useState('book'); // 'book', 'pnr', 'live'
   
   // Booking fields
@@ -137,7 +139,7 @@ export default function TrainBooking({ onSelectBookingItem }) {
             onClick={() => setTrainMode('pnr')}
           >
             <span className="material-symbols-rounded">confirmation_number</span>
-            <span>Check PNR Status</span>
+            <span>{t('Check PNR Status')}</span>
           </button>
           <button
             type="button"
@@ -218,7 +220,7 @@ export default function TrainBooking({ onSelectBookingItem }) {
 
               {/* TRAVEL DATE */}
               <div className="flight-field-block date-field-block">
-                <span className="field-subhead">TRAVEL DATE</span>
+                <span className="field-subhead">{t('TRAVEL DATE')}</span>
                 <div className="date-box single-date-box">
                   <span className="date-label-tiny">DEPARTURE</span>
                   <input
@@ -233,14 +235,14 @@ export default function TrainBooking({ onSelectBookingItem }) {
 
               {/* CLASS DROPDOWN */}
               <div className="flight-field-block class-field-block">
-                <span className="field-subhead">CLASS</span>
+                <span className="field-subhead">{t('CLASS')}</span>
                 <div className="dropdown-field-wrapper" style={{ marginTop: '6px' }}>
                   <select
                     className="glass-select full-width"
                     value={trainClass}
                     onChange={(e) => setTrainClass(e.target.value)}
                   >
-                    <option value="All Classes">All Classes</option>
+                    <option value="All Classes">{t('All Classes')}</option>
                     <option value="EC">Executive Chair Car (EC)</option>
                     <option value="CC">AC Chair Car (CC)</option>
                     <option value="1A">AC 1st Class (1A)</option>
@@ -279,7 +281,7 @@ export default function TrainBooking({ onSelectBookingItem }) {
                   <span className="material-symbols-rounded">
                     {isSameStation ? 'warning' : isSearching ? 'sync' : 'search'}
                   </span>
-                  <span>{isSameStation ? 'Select Different Station' : isSearching ? 'Checking Trains...' : 'SEARCH TRAINS'}</span>
+                  <span>{isSameStation ? t('Select Different Station') : isSearching ? t('Checking Trains...') : t('SEARCH TRAINS')}</span>
                 </button>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import { FLIGHTS_DATA } from './bookingData';
 import { searchLiveFlights } from '../services/bookingService';
 import { getTodayDate, getFutureDate, getCurrentTime12, isToday, getTimeStatusBadge } from '../utils/dateUtils';
@@ -22,6 +23,7 @@ const AIRPORTS_LIST = [
 ];
 
 export default function FlightBooking({ onSelectBookingItem }) {
+  const { t } = useLanguage();
   const [tripType, setTripType] = useState('round'); // 'round', 'oneway', 'multi'
   const [cabinClass, setCabinClass] = useState('Economy');
   const [directOnly, setDirectOnly] = useState(true);
@@ -98,7 +100,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
             onClick={() => setTripType('round')}
           >
             <span className="material-symbols-rounded">sync_alt</span>
-            <span>Round Trip</span>
+            <span>{t('Round Trip')}</span>
           </button>
           <button
             type="button"
@@ -106,7 +108,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
             onClick={() => setTripType('oneway')}
           >
             <span className="material-symbols-rounded">arrow_right_alt</span>
-            <span>One Way</span>
+            <span>{t('One Way')}</span>
           </button>
           <button
             type="button"
@@ -114,22 +116,22 @@ export default function FlightBooking({ onSelectBookingItem }) {
             onClick={() => setTripType('multi')}
           >
             <span className="material-symbols-rounded">alt_route</span>
-            <span>Multi City</span>
+            <span>{t('Multi City')}</span>
           </button>
         </div>
 
         <div className="flight-options-row">
           <div className="dropdown-field-wrapper">
-            <span className="dropdown-label">Cabin Class</span>
+            <span className="dropdown-label">{t('Cabin Class')}</span>
             <select
               className="glass-select"
               value={cabinClass}
               onChange={(e) => setCabinClass(e.target.value)}
             >
-              <option value="Economy">Economy</option>
-              <option value="Premium Economy">Premium Economy</option>
-              <option value="Business">Business Class</option>
-              <option value="First">First Class</option>
+              <option value="Economy">{t('Economy')}</option>
+              <option value="Premium Economy">{t('Premium Economy')}</option>
+              <option value="Business">{t('Business Class')}</option>
+              <option value="First">{t('First Class')}</option>
             </select>
           </div>
 
@@ -142,7 +144,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
             <span className="custom-checkbox-indicator">
               <span className="material-symbols-rounded">check</span>
             </span>
-            <span>Direct Flights Only</span>
+            <span>{t('Direct Flights Only')}</span>
           </label>
         </div>
       </div>
@@ -152,7 +154,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
         <div className="flight-fields-grid">
           {/* FROM Field */}
           <div className="flight-field-block">
-            <span className="field-subhead">FROM</span>
+            <span className="field-subhead">{t('FROM')}</span>
             <div className="field-city-row">
               <span className="field-city-name">{fromAirport.city}</span>
               <span className="field-code-badge">{fromAirport.code}</span>
@@ -189,7 +191,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
 
           {/* TO Field */}
           <div className="flight-field-block">
-            <span className="field-subhead">TO</span>
+            <span className="field-subhead">{t('TO')}</span>
             <div className="field-city-row">
               <span className="field-city-name">{toAirport.city}</span>
               <span className="field-code-badge">{toAirport.code}</span>
@@ -214,12 +216,12 @@ export default function FlightBooking({ onSelectBookingItem }) {
           {/* DATES Field */}
           <div className="flight-field-block date-field-block">
             <div className="field-header-split">
-              <span className="field-subhead">TRAVEL DATES</span>
+              <span className="field-subhead">{t('TRAVEL DATES')}</span>
               <span className="mini-note">{tripType === 'round' ? 'Round Trip' : 'One Way'}</span>
             </div>
             <div className="dates-display-row">
               <div className="date-box">
-                <span className="date-label-tiny">DEPART</span>
+                <span className="date-label-tiny">{t('DEPART')}</span>
                 <input 
                   type="date" 
                   className="glass-date-input" 
@@ -230,7 +232,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
               </div>
               {tripType === 'round' && (
                 <div className="date-box">
-                  <span className="date-label-tiny">RETURN</span>
+                  <span className="date-label-tiny">{t('RETURN')}</span>
                   <input 
                     type="date" 
                     className="glass-date-input" 
@@ -245,7 +247,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
 
           {/* TRAVELERS Field */}
           <div className="flight-field-block travelers-field-block">
-            <span className="field-subhead">TRAVELERS</span>
+            <span className="field-subhead">{t('TRAVELERS')}</span>
             <button
               type="button"
               className="traveler-selector-btn"
@@ -254,7 +256,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
               <div className="traveler-val-wrap">
                 <span className="traveler-count-big">{totalTravelers}</span>
                 <span className="traveler-label-text">
-                  {totalTravelers === 1 ? 'Traveler' : 'Travelers'}
+                  {totalTravelers === 1 ? t('Traveler') : t('Travelers')}
                 </span>
               </div>
               <span className="material-symbols-rounded">expand_more</span>
@@ -264,7 +266,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
               <div className="glass-travelers-popover">
                 <div className="traveler-counter-row">
                   <div>
-                    <div className="traveler-type-title">Adults</div>
+                    <div className="traveler-type-title">{t('Adults')}</div>
                     <div className="traveler-type-hint">12+ years</div>
                   </div>
                   <div className="counter-controls">
@@ -289,7 +291,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
 
                 <div className="traveler-counter-row">
                   <div>
-                    <div className="traveler-type-title">Children</div>
+                    <div className="traveler-type-title">{t('Children')}</div>
                     <div className="traveler-type-hint">2-11 years</div>
                   </div>
                   <div className="counter-controls">
@@ -317,7 +319,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                   className="popover-done-btn"
                   onClick={() => setShowTravelersDropdown(false)}
                 >
-                  Apply
+                  {t('Apply')}
                 </button>
               </div>
             )}
@@ -328,7 +330,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
         <div className="booking-action-next-row">
           <div className="form-perks-info">
             <span className="material-symbols-rounded">verified</span>
-            <span>Zero cancellation fee on select flights • Real-time lowest fare lock</span>
+            <span>{t('Zero cancellation fee on select flights • Real-time lowest fare lock')}</span>
           </div>
 
           <div className="flight-submit-container">
@@ -340,7 +342,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
               <span className="material-symbols-rounded">
                 {searchLoading ? 'sync' : 'search'}
               </span>
-              <span>{searchLoading ? 'Searching Flights...' : 'SEARCH FLIGHTS'}</span>
+              <span>{searchLoading ? t('Searching Flights...') : t('SEARCH FLIGHTS')}</span>
             </button>
           </div>
         </div>
@@ -360,7 +362,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
               </div>
               <span className="live-status-pill">
                 <span className="live-pulse-dot"></span>
-                <span>LIVE PRESENT SCHEDULE</span>
+                <span>{t('LIVE PRESENT SCHEDULE')}</span>
               </span>
             </div>
           )}
@@ -433,7 +435,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                     <div className="price-tag-wrap">
                       <span className="currency-symbol">₹</span>
                       <span className="price-amount">{flight.price.toLocaleString('en-IN')}</span>
-                      <span className="price-sub">per adult</span>
+                      <span className="price-sub">{t('per adult')}</span>
                     </div>
                     <button
                       type="button"
@@ -457,7 +459,7 @@ export default function FlightBooking({ onSelectBookingItem }) {
                         image: flight.logo || 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&auto=format&fit=crop&q=80',
                       })}
                     >
-                      <span>Select Flight</span>
+                      <span>{t('Select Flight')}</span>
                       <span className="material-symbols-rounded">chevron_right</span>
                     </button>
                   </div>

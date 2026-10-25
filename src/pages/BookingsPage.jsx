@@ -152,7 +152,9 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
 
   // Aggregate Metrics
   const confirmedCount = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").length;
-  const totalInvestment = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").reduce((sum, b) => sum + (Number(b?.totalCost) || 0), 0);
+  const totalInvestment = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").reduce((sum, b) => sum + (Number(b?.totalCost) || Number(b?.amountPaid) || Number(b?.price) || 0), 0);
+  const baseFareTotal = Math.round(totalInvestment / 1.18);
+  const gstTotal = totalInvestment - baseFareTotal;
 
   const handleCopyRef = (refId) => {
     if (!refId) return;
@@ -183,7 +185,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
               </span>
             </div>
             <p className="bookings-hero-desc">
-              Track live airline boarding passes, IRCTC rail reservations, luxury villa vouchers, and verified activities in real-time.
+              {t('Track live airline boarding passes, IRCTC rail reservations, luxury villa vouchers, and verified activities in real-time.')}
             </p>
           </div>
         </div>
@@ -220,7 +222,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
               <i className="fa-solid fa-plane-departure"></i>
             </div>
             <div>
-              <span className="kpi-label">Total Bookings</span>
+              <span className="kpi-label">{t('Total Bookings', 'Total Bookings')}</span>
               <div className="kpi-value" style={{ color: 'var(--text-dark, #fff)' }}>
                 {bookings.length}
               </div>
@@ -232,7 +234,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
               <i className="fa-solid fa-circle-check"></i>
             </div>
             <div>
-              <span className="kpi-label">Active / Confirmed</span>
+              <span className="kpi-label">{t('Active / Confirmed', 'Active / Confirmed')}</span>
               <div className="kpi-value" style={{ color: '#10b981' }}>
                 {confirmedCount}
               </div>
@@ -244,7 +246,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
               <i className="fa-solid fa-receipt"></i>
             </div>
             <div>
-              <span className="kpi-label">Total Package Value</span>
+              <span className="kpi-label">{t('Total Package Value', 'Total Package Value')}</span>
               <div className="kpi-value" style={{ color: 'var(--text-dark, #fff)' }}>
                 ₹{totalInvestment.toLocaleString('en-IN')}
               </div>
@@ -258,9 +260,38 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
             <div>
               <span className="kpi-label">Travio Guarantee</span>
               <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f43f5e', marginTop: '4px' }}>
-                100% Verified Passes
+                {t('100% Verified Passes', '100% Verified Passes')}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Total Bill & Financial Breakdown Bar */}
+        <div className="bookings-financial-summary">
+          <div className="financial-summary-info">
+            <div className="financial-summary-icon">
+              <i className="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+              <span className="financial-summary-sublabel">
+                {t('phrases.Total Expense Summary', 'Total Expense & Invoice Summary')}
+              </span>
+              <div className="financial-summary-stats-row">
+                <span className="financial-stat-pill">
+                  {t('phrases.Total Bill', 'Total Bill')}: <strong>₹{totalInvestment.toLocaleString('en-IN')}</strong>
+                </span>
+                <span className="financial-stat-pill sub">
+                  {t('Base Fares')}: <strong>₹{baseFareTotal.toLocaleString('en-IN')}</strong>
+                </span>
+                <span className="financial-stat-pill sub">
+                  GST (18%): <strong style={{ color: '#10b981' }}>₹{gstTotal.toLocaleString('en-IN')}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="financial-summary-badge">
+            <i className="fa-solid fa-circle-check"></i>
+            <span>{t('100% Tax Invoiced', '100% Tax Invoiced')}</span>
           </div>
         </div>
 
@@ -575,8 +606,11 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                   {/* Actions & Price Column */}
                   <div className="booking-card-action-col">
                     <div className="booking-pricing-box">
-                      <span className="pricing-label-tiny">Total Paid</span>
-                      <div className="pricing-grand-total">₹{Number(b.totalCost).toLocaleString('en-IN')}</div>
+                      <span className="pricing-label-tiny">Total Bill (Incl. GST)</span>
+                      <div className="pricing-grand-total">₹{Number(b.totalCost || b.amountPaid || b.price || 0).toLocaleString('en-IN')}</div>
+                      <span style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '2px', display: 'block' }}>
+                        Base: ₹{Math.round(Number(b.totalCost || b.amountPaid || b.price || 0) / 1.18).toLocaleString('en-IN')} + GST 18%
+                      </span>
                     </div>
 
                     <div className="booking-action-btns-row">
@@ -809,11 +843,18 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                   {/* Barcode & Total Price Footer */}
                   <div className="ticket-barcode-footer">
                     <div className="ticket-fare-summary">
-                      <span className="fare-title-sub">TOTAL AMOUNT PAID</span>
+                      <span className="fare-title-sub">TOTAL AMOUNT BILLED & PAID</span>
                       <div className="fare-total-number">
-                        ₹{Number(selectedTicket.totalCost).toLocaleString('en-IN')}
+                        ₹{Number(selectedTicket.totalCost || selectedTicket.amountPaid || selectedTicket.price || 0).toLocaleString('en-IN')}
                       </div>
-                      <span className="fare-tax-tag">Inclusive of all GST, taxes & fees</span>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px', display: 'flex', gap: '8px' }}>
+                        <span>Base Fare: ₹{Math.round(Number(selectedTicket.totalCost || selectedTicket.amountPaid || selectedTicket.price || 0) / 1.18).toLocaleString('en-IN')}</span>
+                        <span>•</span>
+                        <span>GST (18%): ₹{(Number(selectedTicket.totalCost || selectedTicket.amountPaid || selectedTicket.price || 0) - Math.round(Number(selectedTicket.totalCost || selectedTicket.amountPaid || selectedTicket.price || 0) / 1.18)).toLocaleString('en-IN')}</span>
+                      </div>
+                      <span className="fare-tax-tag" style={{ color: '#10b981', fontWeight: 600, marginTop: '3px', display: 'block' }}>
+                        ✔ Official Tax Invoice • Ref #{selectedTicket.id}
+                      </span>
                     </div>
 
                     <div className="ticket-codes-group">
@@ -855,10 +896,10 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                       type="button"
                       className="btn-print-pass"
                       onClick={() => window.print()}
-                      title="Print or Save PDF"
+                      title="Download or Print E-Ticket as PDF"
                     >
-                      <i className="fa-solid fa-print"></i>
-                      <span>Print / Save E-Ticket</span>
+                      <i className="fa-solid fa-file-pdf"></i>
+                      <span>Download / Print E-Ticket (PDF)</span>
                     </button>
 
                     <button

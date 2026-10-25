@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <>
@@ -75,7 +77,7 @@ export default function NotFoundPage() {
               margin: '0 0 12px 0'
             }}
           >
-            Lost in the Wilderness?
+            {t('phrases.Lost in the Wilderness?', 'Lost in the Wilderness?')}
           </h1>
 
           <p
@@ -86,7 +88,7 @@ export default function NotFoundPage() {
               margin: '0 0 32px 0'
             }}
           >
-            The travel destination or coordinate you are looking for doesn't exist, has taken a detour, or was moved.
+            {t('phrases.notFoundDesc', "The travel destination or coordinate you are looking for doesn't exist, has taken a detour, or was moved.")}
           </p>
 
           <div

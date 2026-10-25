@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import DestinationCard from './DestinationCard';
 
 export default function TrendingCarousel({ destinations }) {
+  const { t } = useLanguage();
   const carouselRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -40,11 +42,11 @@ export default function TrendingCarousel({ destinations }) {
       <div className="trending-carousel-header">
         <div className="section-header" style={{ marginBottom: 0 }}>
           <div className="section-tag">
-            <i className="fa-solid fa-fire-flame-curved" style={{ color: '#f97316' }}></i> TRENDING NOW
+            <i className="fa-solid fa-fire-flame-curved" style={{ color: '#f97316' }}></i> {t('phrases.TRENDING NOW', 'TRENDING NOW')}
           </div>
-          <h2 className="section-title">POPULAR DESTINATIONS</h2>
+          <h2 className="section-title">{t('phrases.POPULAR DESTINATIONS', 'POPULAR DESTINATIONS')}</h2>
           <p className="section-subtitle">
-            Places travellers are exploring right now across India & the globe (Auto-sliding).
+            {t('phrases.trendingSubtitle', 'Places travellers are exploring right now across India & the globe (Auto-sliding).')}
           </p>
         </div>
 

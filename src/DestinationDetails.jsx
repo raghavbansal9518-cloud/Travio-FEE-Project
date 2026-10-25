@@ -5,6 +5,7 @@ import { DESTINATIONS } from './data/destinationsData';
 import { getDestinationDetails } from './data/destinationDetailsHelper';
 import { getDestinationById, findLocalDestination } from './services/destinationService';
 import TripPlannerModal from './components/TripPlannerModal';
+import BookingCheckoutModal from './booking/BookingCheckoutModal';
 import { useTravel } from './context/TravelContext';
 import { useLanguage } from './context/LanguageContext';
 import './DestinationDetails.css';
@@ -15,7 +16,59 @@ export default function DestinationDetails() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('places');
   const [isPlannerOpen, setIsPlannerOpen] = useState(false);
-  const { isWishlisted, toggleWishlist } = useTravel();
+  const [checkoutItem, setCheckoutItem] = useState(null);
+  const { isWishlisted, toggleWishlist, addBooking } = useTravel();
+
+  const handleReserveStay = (stay) => {
+    const parsedPrice = parseInt(String(stay.price || '').replace(/[^0-9]/g, ''), 10) || 14500;
+    setCheckoutItem({
+      id: `stay-${destination.id}-${Date.now()}`,
+      type: 'HOTEL',
+      title: `${stay.name} - ${destination.name}`,
+      carrier: stay.type || 'Luxury Resort & Villa',
+      from: '02:00 PM Check-in',
+      to: `${destination.name}, ${destination.country}`,
+      fromCity: 'Direct Booking',
+      toCity: destination.name,
+      date: new Date().toISOString().split('T')[0],
+      time: '02:00 PM Check-in',
+      duration: '3 Nights / 4 Days',
+      seats: 'Deluxe Balcony Suite (2 Guests)',
+      seatSummary: `${stay.name} • Deluxe Suite (2 Guests)`,
+      price: parsedPrice,
+      totalCost: parsedPrice,
+      amountPaid: parsedPrice,
+      travelersCount: 2,
+      image: stay.image || destination.heroImage || DEFAULT_FALLBACK_IMG,
+      destination: destination,
+      bookingRef: `TRV-${Math.floor(100000 + Math.random() * 900000)}`
+    });
+  };
+
+  const handleBookExperience = (act) => {
+    setCheckoutItem({
+      id: `exp-${destination.id}-${Date.now()}`,
+      type: 'EXPERIENCE',
+      title: `${act.name} in ${destination.name}`,
+      carrier: act.category || 'Travio Guided Experience',
+      from: destination.name,
+      to: act.name,
+      fromCity: destination.name,
+      toCity: act.name,
+      date: new Date().toISOString().split('T')[0],
+      time: '09:00 AM (Morning Glow Batch)',
+      duration: act.duration || 'Half-Day Adventure',
+      seats: '2 Activity Passes (VIP Priority Access)',
+      seatSummary: `${act.name} • 2 Passes`,
+      price: 3500,
+      totalCost: 3500,
+      amountPaid: 3500,
+      travelersCount: 2,
+      image: destination.heroImage || DEFAULT_FALLBACK_IMG,
+      destination: destination,
+      bookingRef: `TRV-${Math.floor(100000 + Math.random() * 900000)}`
+    });
+  };
   const { t } = useLanguage();
 
   // Synchronously initialize if local destination exists
@@ -432,8 +485,9 @@ export default function DestinationDetails() {
                       type="button"
                       className="btn-glass" 
                       style={{ width: '100%', marginTop: '12px', justifyContent: 'center' }}
-                      onClick={() => setIsPlannerOpen(true)}
+                      onClick={() => handleBookExperience(act)}
                     >
+                      <i className="fa-solid fa-credit-card" style={{ marginRight: '6px' }}></i>
                       <span>Book Experience</span>
                       <i className="fa-solid fa-arrow-right"></i>
                     </button>
@@ -488,7 +542,8 @@ export default function DestinationDetails() {
                     </div>
                     <div className="stay-rate-row">
                       <span className="stay-price">{stay.price}</span>
-                      <button type="button" className="btn-primary" onClick={() => setIsPlannerOpen(true)}>
+                      <button type="button" className="btn-primary" onClick={() => handleReserveStay(stay)}>
+                        <i className="fa-solid fa-credit-card" style={{ marginRight: '6px' }}></i>
                         Reserve
                       </button>
                     </div>
@@ -551,6 +606,28 @@ export default function DestinationDetails() {
           isOpen={isPlannerOpen}
           onClose={() => setIsPlannerOpen(false)}
         />
+
+        {/* DIRECT CHECKOUT MODAL WITH PAYMENT GATEWAY FOR STAYS & EXPERIENCES */}
+        {checkoutItem && (
+          <BookingCheckoutModal
+            item={checkoutItem}
+            initialStep="PASSENGER"
+            onClose={() => setCheckoutItem(null)}
+            onBookingComplete={(newBooking) => {
+              if (typeof addBooking === 'function') {
+                addBooking({
+                  ...newBooking,
+                  destination,
+                  departureDate: newBooking.date,
+                  origin: newBooking.from,
+                  destinationName: newBooking.to,
+                  totalCost: newBooking.amountPaid,
+                  status: 'confirmed'
+                });
+              }
+            }}
+          />
+        )}
       </div>
     </>
   );

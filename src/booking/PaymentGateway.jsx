@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
-export default function PaymentGateway({ 
+export default function PaymentGateway({
+  /* props */ 
   item, 
   passengerData, 
   seatSelection, 
@@ -8,6 +10,7 @@ export default function PaymentGateway({
   appliedPromo, 
   onInitiatePayment 
 }) {
+  const { t } = useLanguage();
   const [paymentMode, setPaymentMode] = useState('UPI'); // 'UPI', 'CARD', 'NETBANKING', 'WALLET'
 
   // UPI State
@@ -73,7 +76,7 @@ export default function PaymentGateway({
     return isNaN(num) ? 3000 : num;
   };
 
-  const baseFare = parseCost(item.rate || item.price || item.budgetStarting);
+  const baseFare = parseCost(item.totalCost || item.amountPaid || item.price || item.rate || item.budgetStarting);
   const seatAddon = seatSelection?.seatPrice || 0;
   const insuranceCost = passengerData?.hasInsurance ? 199 : 0;
   const carbonCost = passengerData?.hasCarbonOffset ? 49 : 0;

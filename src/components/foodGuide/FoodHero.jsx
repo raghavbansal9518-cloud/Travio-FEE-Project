@@ -33,7 +33,7 @@ export default function FoodHero({
       <div className="fg-hero-content">
         <div className="fg-badge-pill">
           <span className="fg-badge-dot"></span>
-          <span>TRAVIO CULINARY EXPEDITION</span>
+          <span>{t('phrases.TRAVIO CULINARY EXPEDITION', 'TRAVIO CULINARY EXPEDITION')}</span>
         </div>
 
         <h1>
@@ -52,7 +52,7 @@ export default function FoodHero({
         <div className="fg-dest-switcher">
           <span className="fg-dest-switcher-label">
             <i className="fa-solid fa-compass" style={{ color: '#A855F7', marginRight: '4px' }}></i>
-            Popular:
+            {t('phrases.Popular:', 'Popular:')}
           </span>
 
           {featuredDestinations.map((dest) => {
@@ -117,7 +117,7 @@ export default function FoodHero({
             onClick={onSwitchToTrailsView || onOpenTrailWizard}
           >
             <i className="fa-solid fa-route"></i>
-            <span>Explore {activeDest.name} Food Trails</span>
+            <span>{t('phrases.Explore Food Trails in', 'Explore Food Trails in')} {activeDest.name}</span>
           </button>
 
           <button
@@ -141,7 +141,7 @@ export default function FoodHero({
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
           >
             <i className="fa-solid fa-wand-magic-sparkles" style={{ color: '#C084FC' }}></i>
-            <span>Custom Trail Planner</span>
+            <span>{t('phrases.Custom Trail Planner', 'Custom Trail Planner')}</span>
           </button>
         </div>
       </div>
@@ -153,8 +153,8 @@ export default function FoodHero({
             <i className="fa-solid fa-utensils"></i>
           </div>
           <div className="fg-float-info">
-            <strong>{dishCount} Iconic Dishes</strong>
-            <small>Handpicked in {activeDest.name}</small>
+            <strong>{dishCount} {t('phrases.Iconic Dishes', 'Iconic Dishes')}</strong>
+            <small>{t('phrases.Handpicked in', 'Handpicked in')} {activeDest.name}</small>
           </div>
         </div>
 
@@ -163,8 +163,8 @@ export default function FoodHero({
             <i className="fa-solid fa-route"></i>
           </div>
           <div className="fg-float-info">
-            <strong style={{ color: '#E9D5FF' }}>Food Trail Ready ✨</strong>
-            <small style={{ color: '#A855F7' }}>Click to View Curated Routes</small>
+            <strong style={{ color: '#E9D5FF' }}>{t('phrases.Food Trail Ready ✨', 'Food Trail Ready ✨')}</strong>
+            <small style={{ color: '#A855F7' }}>{t('phrases.Click to View Curated Routes', 'Click to View Curated Routes')}</small>
           </div>
         </div>
       </div>

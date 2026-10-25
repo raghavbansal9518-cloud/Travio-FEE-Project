@@ -92,8 +92,8 @@ function BadgeCard({ badge, unlocked, onSelect }) {
         <BadgeArtwork badgeId={badge.id} locked={!unlocked} />
         {!unlocked && <span className="badge-card__lock material-symbols-rounded" aria-label="Locked">lock</span>}
       </span>
-      <strong className="badge-card__name">{badge.name}</strong>
-      <span className="badge-card__description">{badge.requirement}</span>
+      <strong className="badge-card__name">{t(badge.name, badge.name)}</strong>
+      <span className="badge-card__description">{t(badge.requirement, badge.requirement)}</span>
       <BadgeProgressBar badge={badge} />
       <span className={`badge-card__status${unlocked ? ' is-earned' : ''}`}>
         <span className="material-symbols-rounded" aria-hidden="true">{unlocked ? 'verified' : 'lock'}</span>
@@ -130,9 +130,9 @@ function BadgeDetail({ badge, achievements, onBack }) {
         </div>
         <div className="badge-detail__hero-copy">
           <span className="badge-category-label">{badge.category} badge</span>
-          <h1>{badge.name}</h1>
-          <p>{badge.description}</p>
-          <div className="badge-detail__requirement">{badge.requirement}</div>
+          <h1>{t(badge.name, badge.name)}</h1>
+          <p>{t(badge.description, badge.description)}</p>
+          <div className="badge-detail__requirement">{t(badge.requirement, badge.requirement)}</div>
           <BadgeProgressBar badge={badge} />
           {achievedAt && <p className="badge-unlocked-date">Unlocked {formatUnlockDate(achievedAt)}</p>}
         </div>
@@ -160,7 +160,7 @@ function BadgeDetail({ badge, achievements, onBack }) {
             <p>{badge.description} Travio checks your saved trip records and your own journal entries to recognize this achievement.</p>
             <div className="badge-requirement-box">
               <strong>How to unlock</strong>
-              <p>{badge.requirement}</p>
+              <p>{t(badge.requirement, badge.requirement)}</p>
               <BadgeProgressBar badge={badge} />
             </div>
           </section>
@@ -398,7 +398,7 @@ export default function BadgesPage() {
                 <section className="badges-collection" aria-labelledby="badges-collection-title">
                   <div className="badges-section-heading">
                     <div><span className="badges-eyebrow">KEEP EXPLORING</span><h2 id="badges-collection-title">{t('badges.allBadges')}</h2></div>
-                    <span>{filteredBadges.length} of {BADGE_DEFINITIONS.length} badges</span>
+                    <span>{filteredBadges.length} {t('phrases.of', 'of')} {BADGE_DEFINITIONS.length} {t('phrases.badges earned', 'badges')}</span>
                   </div>
                   {filteredBadges.length ? (
                     <div className="badges-grid">
@@ -423,12 +423,12 @@ export default function BadgesPage() {
                       <div className="badge-total-progress__ring" style={{ '--badge-progress': `${Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%` }}>
                         <strong>{unlockedCount}</strong><span>/ {BADGE_DEFINITIONS.length}</span>
                       </div>
-                      <div><strong>{unlockedCount} Badges Unlocked</strong><p>Keep exploring to earn more achievements.</p></div>
+                      <div><strong>{unlockedCount} {t('phrases.Badges Unlocked', 'Badges Unlocked')}</strong><p>{t('phrases.Keep exploring to earn more achievements.', 'Keep exploring to earn more achievements.')}</p></div>
                     </div>
                     <div className="badge-side-progress" role="progressbar" aria-label="Badge collection progress" aria-valuemin="0" aria-valuemax={BADGE_DEFINITIONS.length} aria-valuenow={unlockedCount}>
                       <span style={{ width: `${Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%` }} />
                     </div>
-                    <p className="badge-side-caption">{unlockedCount} of {BADGE_DEFINITIONS.length} badges earned · {Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%</p>
+                    <p className="badge-side-caption">{unlockedCount} {t('phrases.of', 'of')} {BADGE_DEFINITIONS.length} {t('phrases.badges earned', 'badges earned')} · {Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%</p>
                   </section>
 
                   <section className="badge-side-panel">
@@ -439,7 +439,7 @@ export default function BadgesPage() {
                           <li key={badge.id}>
                             <Link to={`/badges/${badge.id}`}>
                               <BadgeArtwork badgeId={badge.id} />
-                              <span><strong>{badge.name}</strong><small>{formatUnlockDate(achievements[badge.id]?.unlockedAt)}</small></span>
+                              <span><strong>{t(badge.name, badge.name)}</strong><small>{formatUnlockDate(achievements[badge.id]?.unlockedAt)}</small></span>
                               <span className="badge-recent-status">{t('badges.unlocked', 'Unlocked')}</span>
                             </Link>
                           </li>
@@ -448,8 +448,8 @@ export default function BadgesPage() {
                     ) : <p className="badge-side-empty">Your earned badges will appear here when you complete a real travel achievement.</p>}
                   </section>
 
-                  <blockquote className="badges-quote">“The world is full of places waiting for your stories.”<span /></blockquote>
-                  <p className="badges-data-note">Progress is based on this browser profile’s recorded travel data.</p>
+                  <blockquote className="badges-quote">“{t('phrases.The world is full of places waiting for your stories.', 'The world is full of places waiting for your stories.')}”<span /></blockquote>
+                  <p className="badges-data-note">{t('phrases.Progress is based on this browser profile\'s recorded travel data.', 'Progress is based on this browser profile\'s recorded travel data.')}</p>
                 </aside>
               </div>
             </main>

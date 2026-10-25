@@ -18,6 +18,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Shimla',
     country: 'Himachal Pradesh, India',
     flag: '🇮🇳',
+    category: 'mountains',
     rating: 4.4,
     reviews: '12K+ reviews',
     tags: ['Hill Station', 'Nature'],
@@ -33,6 +34,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Manali',
     country: 'Himachal Pradesh, India',
     flag: '🇮🇳',
+    category: 'mountains',
     rating: 4.3,
     reviews: '10K+ reviews',
     tags: ['Adventure', 'Nature'],
@@ -48,6 +50,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Goa',
     country: 'Goa, India',
     flag: '🇮🇳',
+    category: 'beaches',
     rating: 4.5,
     reviews: '24K+ reviews',
     tags: ['Beach', 'Nightlife'],
@@ -63,6 +66,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Jaipur',
     country: 'Rajasthan, India',
     flag: '🇮🇳',
+    category: 'heritage',
     rating: 4.3,
     reviews: '18K+ reviews',
     tags: ['Heritage', 'Culture'],
@@ -78,6 +82,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Japan (Tokyo)',
     country: 'Tokyo, Japan',
     flag: '🇯🇵',
+    category: 'heritage',
     rating: 4.7,
     reviews: '32K+ reviews',
     tags: ['Culture', 'City Life'],
@@ -93,6 +98,7 @@ export const DEFAULT_WISHLIST = [
     name: 'Ladakh',
     country: 'Ladakh, India',
     flag: '🇮🇳',
+    category: 'mountains',
     rating: 4.6,
     reviews: '8K+ reviews',
     tags: ['Adventure', 'Mountains'],
@@ -189,14 +195,14 @@ export const normalizeBooking = (b) => {
     else if (id.includes('HT-') || b.title?.toLowerCase().includes('hotel') || b.title?.toLowerCase().includes('resort') || b.title?.toLowerCase().includes('villa')) type = 'HOTEL';
     else if (id.includes('BS-') || b.title?.toLowerCase().includes('bus')) type = 'BUS';
     else if (id.includes('CB-') || b.title?.toLowerCase().includes('cab') || b.title?.toLowerCase().includes('sedan') || b.title?.toLowerCase().includes('suv')) type = 'CAB';
-    else if (id.includes('EXP-') || b.title?.toLowerCase().includes('tour') || b.title?.toLowerCase().includes('pass')) type = 'EXPERIENCE';
+    else if (id.includes('EXP-') || id.includes('ACT-') || b.title?.toLowerCase().includes('tour') || b.title?.toLowerCase().includes('pass') || b.title?.toLowerCase().includes('safari') || b.title?.toLowerCase().includes('dive') || b.title?.toLowerCase().includes('trek')) type = 'EXPERIENCE';
     else type = 'FLIGHT';
   }
   if (type === 'STAY') type = 'HOTEL';
 
   const destName = b.destinationName || b.destination?.name || b.toCity || b.to || b.title || 'Goa';
   const origin = b.origin || b.fromCity || b.from || (type === 'FLIGHT' ? 'Delhi (DEL)' : type === 'TRAIN' ? 'New Delhi (NDLS)' : 'New Delhi');
-  const carrier = b.carrier || (type === 'FLIGHT' ? 'Air India' : type === 'TRAIN' ? 'Indian Railways (IRCTC)' : type === 'HOTEL' ? (destName + ' Luxury Resort') : 'TRAVIO Partner');
+  const carrier = b.carrier || (type === 'FLIGHT' ? 'Air India' : type === 'TRAIN' ? 'Indian Railways (IRCTC)' : type === 'HOTEL' ? (destName + ' Luxury Resort') : type === 'EXPERIENCE' ? 'TRAVIO VIP Experience' : 'TRAVIO Partner');
   const title = b.title || (type === 'FLIGHT' ? `${carrier} (${id.split('-')?.[2] || 'AI-805'})` : type === 'HOTEL' ? `${destName} Grand Stay` : `${destName} Journey`);
   
   let depDate = b.departureDate || b.date || getTodayDate();
@@ -237,6 +243,7 @@ export const normalizeBooking = (b) => {
   if (type === 'FLIGHT') defaultNotes = 'Non-stop • Cabin Baggage 7kg + Check-in 15kg • In-flight Refreshment';
   else if (type === 'TRAIN') defaultNotes = 'Superfast Express • Electric Locomotive • Clean Rail Guarantee';
   else if (type === 'HOTEL') defaultNotes = 'Complimentary Breakfast • Free High-Speed WiFi • Pool & Gym Access';
+  else if (type === 'EXPERIENCE') defaultNotes = 'VIP Fast-track Access • Certified Local Guide Included • Safety Equipment Provided';
 
   return {
     ...b,
@@ -257,7 +264,7 @@ export const normalizeBooking = (b) => {
     travelers,
     seats,
     travelStyle: type,
-    totalCost: Number(b.totalCost || b.price || 4500),
+    totalCost: Number(b.totalCost || b.amountPaid || b.price || 4500),
     specialNotes: b.specialNotes || b.extra || defaultNotes,
     status: b.status || 'Confirmed',
     createdAt: b.createdAt || new Date().toISOString()
@@ -279,6 +286,17 @@ export const TravelProvider = ({ children }) => {
                 String(d.name || '').toLowerCase() === String(item.name || '').toLowerCase()
             );
             const status = item.status || defaultMatch?.status || 'saved';
+            let category = item.category || defaultMatch?.category;
+            if (!category || category === 'destinations') {
+              const str = String(item.tags?.join(' ') || item.travelType || item.name || item.country || item.category || '').toLowerCase();
+              if (str.includes('beach') || str.includes('coastal') || str.includes('goa') || str.includes('maldives') || str.includes('bali')) category = 'beaches';
+              else if (str.includes('mountain') || str.includes('hill') || str.includes('alps') || str.includes('manali') || str.includes('ladakh')) category = 'mountains';
+              else if (str.includes('heritage') || str.includes('culture') || str.includes('history') || str.includes('city') || str.includes('cities') || str.includes('jaipur') || str.includes('delhi') || str.includes('paris')) category = 'heritage';
+              else if (str.includes('activit') || str.includes('adventure') || str.includes('sport') || str.includes('trek') || item.itemType === 'activity') category = 'activities';
+              else if (str.includes('food') || str.includes('culinary') || str.includes('dining') || item.itemType === 'food') category = 'food';
+              else category = 'destinations';
+            }
+
             const isSeededDemo = item.demoRecord === true || (
               item.demoRecord !== false
               && defaultMatch
@@ -288,6 +306,9 @@ export const TravelProvider = ({ children }) => {
             );
             return {
               ...item,
+              category,
+              tags: item.tags || defaultMatch?.tags || [category.charAt(0).toUpperCase() + category.slice(1)],
+              itemType: item.itemType || (category === 'activities' ? 'activity' : category === 'food' ? 'food' : 'destination'),
               addedDate: item.addedDate ? item.addedDate.replace('2025', '2026') : '15 Oct 2026',
               status,
               demoRecord: !!isSeededDemo
@@ -443,35 +464,51 @@ export const TravelProvider = ({ children }) => {
             String(item.name || '').toLowerCase() !== String(destination.name || '').toLowerCase()
         )
       );
-      showToast(`Removed "${destination.name}" from your Wishlist`, 'info');
+      showToast(`Removed "${destination.name || destination.title}" from your Wishlist`, 'info');
     } else {
       // Current date formatted e.g. "15 Oct 2026"
       const now = new Date();
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const todayFormatted = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
 
+      // Normalize category: detect beaches, mountains, heritage, wildlife, adventure, activity, food, or general
+      let rawCategory = String(destination.category || destination.itemType || destination.travelType || destination.location || destination.country || '').toLowerCase();
+      let tagsStr = Array.isArray(destination.tags) ? destination.tags.join(' ').toLowerCase() : '';
+      let combined = `${rawCategory} ${tagsStr} ${String(destination.name || '').toLowerCase()}`;
+      
+      let category = 'destinations';
+      if (combined.includes('beach') || combined.includes('coastal') || combined.includes('goa') || combined.includes('maldives') || combined.includes('bali')) category = 'beaches';
+      else if (combined.includes('mountain') || combined.includes('hill') || combined.includes('alps') || combined.includes('manali') || combined.includes('ladakh') || combined.includes('himalaya')) category = 'mountains';
+      else if (combined.includes('heritage') || combined.includes('culture') || combined.includes('history') || combined.includes('city') || combined.includes('cities') || combined.includes('jaipur') || combined.includes('delhi') || combined.includes('paris') || combined.includes('rome') || combined.includes('kyoto')) category = 'heritage';
+      else if (combined.includes('activit') || combined.includes('adventure') || combined.includes('sport') || combined.includes('trek') || combined.includes('dive') || combined.includes('snorkel') || combined.includes('ski') || destination.itemType === 'activity') category = 'activities';
+      else if (combined.includes('food') || combined.includes('dining') || combined.includes('culinary') || destination.itemType === 'food') category = 'food';
+      else if (destination.category) category = destination.category.toLowerCase();
+
       // Normalize destination schema for consistent card rendering
       const normalizedItem = {
         id: destination.id,
-        name: destination.name,
-        country: destination.country || 'Global Destination',
+        name: destination.name || destination.title,
+        country: destination.country || destination.location || 'Global Destination',
         flag: destination.flag || '🌍',
         rating: destination.rating || 4.8,
         reviews: destination.reviews || '1.2K',
-        budgetStarting: destination.budgetStarting || '₹25,000',
-        budgetNum: destination.budgetNum || 25000,
+        budgetStarting: destination.budgetStarting || (destination.price ? `₹${Number(destination.price).toLocaleString('en-IN')}` : '₹25,000'),
+        budgetNum: destination.budgetNum || parseInt(String(destination.price || '').replace(/[^0-9]/g, '')) || 25000,
         cardImage: destination.cardImage || destination.heroImage || destination.image || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
         heroImage: destination.heroImage || destination.cardImage || destination.image,
         image: destination.image || destination.cardImage || destination.heroImage,
-        tagline: destination.tagline || 'Experience the wonder',
+        tagline: destination.tagline || destination.description || destination.desc || 'Experience the wonder',
         bestTime: destination.bestTime || destination.weather?.bestSeason || 'Year-round',
-        travelType: destination.travelType || 'All',
+        travelType: destination.travelType || category,
+        category: category,
+        itemType: destination.itemType || (category === 'activities' ? 'activity' : category === 'food' ? 'food' : 'destination'),
+        tags: Array.isArray(destination.tags) && destination.tags.length > 0 ? destination.tags : [category.charAt(0).toUpperCase() + category.slice(1)],
         addedDate: destination.addedDate || todayFormatted,
         status: destination.status || 'saved'
       };
 
       setWishlist((prev) => [{ ...normalizedItem, demoRecord: false }, ...prev]);
-      showToast(`Added "${destination.name}" to your Dream Wishlist! ❤️`, 'success');
+      showToast(`Added "${normalizedItem.name}" to your Wishlist! ❤️`, 'success');
     }
   };
 

@@ -21,6 +21,7 @@ const Sidebar = ({ isHome }) => {
   const handleLogout = (e) => {
     e.preventDefault();
     try {
+      localStorage.setItem('auth_logged_out', 'true');
       localStorage.removeItem('auth_email');
       localStorage.removeItem('auth_role');
       localStorage.removeItem('auth_password');

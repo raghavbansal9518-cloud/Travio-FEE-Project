@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import DestinationCard from './DestinationCard';
 
 export default function RecommendedSection({ destinations }) {
+  const { t } = useLanguage();
   const carouselRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -40,11 +42,11 @@ export default function RecommendedSection({ destinations }) {
       <div className="trending-carousel-header">
         <div className="section-header" style={{ marginBottom: 0 }}>
           <div className="section-tag">
-            <i className="fa-solid fa-wand-magic-sparkles"></i> CURATED AI PICKS
+            <i className="fa-solid fa-wand-magic-sparkles"></i> {t('phrases.CURATED AI PICKS', 'CURATED AI PICKS')}
           </div>
-          <h2 className="section-title">✨ RECOMMENDED FOR YOU</h2>
+          <h2 className="section-title">✨ {t('phrases.RECOMMENDED FOR YOU', 'RECOMMENDED FOR YOU')}</h2>
           <p className="section-subtitle">
-            Personalized destinations tailored to your travel vibes & affinity (Auto-sliding).
+            {t('phrases.recommendedSubtitle', 'Personalized destinations tailored to your travel vibes & affinity (Auto-sliding).')}
           </p>
         </div>
 

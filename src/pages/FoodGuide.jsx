@@ -22,7 +22,7 @@ import './FoodGuide.css';
 export default function FoodGuide() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { showToast } = useTravel();
+  const { showToast, toggleWishlist, isWishlisted } = useTravel();
   const { t } = useLanguage();
 
   // Active View Tab: 'dishes' | 'trails'
@@ -170,17 +170,33 @@ export default function FoodGuide() {
     setMustTryOnly(false);
   };
 
-  // Toggle favourite
+    // Toggle favourite and synchronize with global Wishlist
   const handleToggleFavourite = (dish) => {
     setFavouriteDishIds((prev) => {
       const exists = prev.includes(dish.id);
       if (exists) {
-        showToast(`Removed "${dish.name}" from favourites`, 'info');
         return prev.filter((id) => id !== dish.id);
       } else {
-        showToast(`Saved "${dish.name}" to your favourites! ❤️`, 'success');
         return [...prev, dish.id];
       }
+    });
+
+    toggleWishlist({
+      id: dish.id,
+      name: dish.name,
+      country: `${dish.destinationName}, India`,
+      flag: '🍲',
+      rating: dish.rating || 4.8,
+      reviews: `${dish.reviews || '500+'} foodies`,
+      budgetStarting: `₹${dish.minPrice || 250}`,
+      budgetNum: dish.minPrice || 250,
+      cardImage: dish.image,
+      heroImage: dish.image,
+      tagline: `${dish.cuisine} • ${dish.establishment}`,
+      category: 'food',
+      itemType: 'food',
+      tags: ['Culinary', dish.diet || 'Food'],
+      status: 'saved'
     });
   };
 
@@ -326,7 +342,7 @@ export default function FoodGuide() {
             >
               <i className="fa-solid fa-route"></i>
               <span>{t('food.trails', 'Curated Food Trails')}</span>
-              <span className="fg-tab-sparkle-pill">✦ Explore</span>
+              <span className="fg-tab-sparkle-pill">✦ {t('phrases.Explore', 'Explore')}</span>
             </button>
           </div>
         </div>
@@ -377,14 +393,14 @@ export default function FoodGuide() {
             <section aria-label={`Must Try Dishes in ${currentDestination.name}`}>
               <div className="fg-section-header">
                 <div className="fg-section-title-wrap">
-                  <p className="eyebrow">CURATED GASTRONOMY</p>
-                  <h2>Must Try in {currentDestination.name} {currentDestination.flag}</h2>
+                  <p className="eyebrow">{t('phrases.CURATED GASTRONOMY', 'CURATED GASTRONOMY')}</p>
+                  <h2>{t('phrases.Must Try in', 'Must Try in')} {currentDestination.name} {currentDestination.flag}</h2>
                   <p className="subtitle">
-                    Iconic dishes and legendary local spots you simply cannot miss!
+                    {t('phrases.foodSubtitle', 'Iconic dishes and legendary local spots you simply cannot miss!')}
                   </p>
                 </div>
                 <div className="fg-results-count">
-                  Showing <strong>{filteredDishes.length}</strong> {filteredDishes.length === 1 ? 'dish' : 'dishes'}
+                  {t('phrases.Showing', 'Showing')} <strong>{filteredDishes.length}</strong> {filteredDishes.length === 1 ? t('phrases.dish', 'dish') : t('phrases.dishes', 'dishes')}
                 </div>
               </div>
 
@@ -409,7 +425,7 @@ export default function FoodGuide() {
               ) : (
                 <div className="fg-empty-state">
                   <i className="fa-solid fa-utensils fg-empty-icon"></i>
-                  <h3>No dishes match your selected filters</h3>
+                  <h3>{t('phrases.No dishes match your selected filters', 'No dishes match your selected filters')}</h3>
                   <p>
                     Try adjusting your budget, spice, or dietary preferences to explore more local culinary treats in {currentDestination.name}.
                   </p>
@@ -418,7 +434,7 @@ export default function FoodGuide() {
                     className="btn-launch-trail"
                     onClick={handleResetFilters}
                   >
-                    Reset All Filters
+                    {t('phrases.Reset All Filters', 'Reset All Filters')}
                   </button>
                 </div>
               )}

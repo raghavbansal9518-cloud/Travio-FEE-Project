@@ -200,7 +200,7 @@ export default function PackingPage() {
           <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '18px', padding: '1.5rem', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-dark)' }}>
-                Packing Readiness: {checkedCount} of {items.length} items packed
+                {t('phrases.Packing Readiness', 'Packing Readiness')}: {checkedCount} {t('phrases.of', 'of')} {items.length} {t('phrases.items packed', 'items packed')}
               </span>
               <span style={{ fontSize: '14px', fontWeight: 800, color: '#10b981' }}>
                 {progressPercent}%
@@ -223,7 +223,7 @@ export default function PackingPage() {
           <form onSubmit={addItem} style={{ display: 'flex', gap: '10px', marginBottom: '2rem', flexWrap: 'wrap' }}>
             <input
               type="text"
-              placeholder="Add personal gear or document..."
+              placeholder={t('phrases.Add personal gear or document...', 'Add personal gear or document...')}
               value={newItemText}
               onChange={(e) => setNewItemText(e.target.value)}
               style={{
@@ -250,12 +250,12 @@ export default function PackingPage() {
                 outline: 'none'
               }}
             >
-              <option value="Essentials">Essentials</option>
-              <option value="Clothing">Clothing</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Gear">Gear & Equipment</option>
-              <option value="Medical">Medical</option>
-              <option value="Accessories">Accessories</option>
+              <option value="Essentials">{t('phrases.Essentials', 'Essentials')}</option>
+              <option value="Clothing">{t('phrases.Clothing', 'Clothing')}</option>
+              <option value="Electronics">{t('phrases.Electronics', 'Electronics')}</option>
+              <option value="Gear">{t('phrases.Gear & Equipment', 'Gear & Equipment')}</option>
+              <option value="Medical">{t('phrases.Medical', 'Medical')}</option>
+              <option value="Accessories">{t('phrases.Accessories', 'Accessories')}</option>
             </select>
             <button
               type="submit"
@@ -274,7 +274,7 @@ export default function PackingPage() {
               }}
             >
               <i className="fa-solid fa-plus"></i>
-              <span>Add Item</span>
+              <span>{t('phrases.Add Item', '+ Add Item')}</span>
             </button>
           </form>
 
@@ -315,7 +315,7 @@ export default function PackingPage() {
                         fontSize: '14px',
                         fontWeight: item.checked ? 400 : 600
                       }}>
-                        {item.text}
+                        {t(item.text, item.text)}
                       </span>
                       <span style={{
                         marginLeft: '10px',
@@ -325,7 +325,7 @@ export default function PackingPage() {
                         borderRadius: '6px',
                         color: 'var(--text-muted)'
                       }}>
-                        {item.category}
+                        {t(item.category, item.category)}
                       </span>
                     </div>
                   </label>

@@ -455,8 +455,8 @@ function JournalCard({ entry, isDemo, favorite, bookmarked, menuOpen, readOnly, 
             event.currentTarget.src = FALLBACK_IMAGE;
           }} />
         </span>
-        <span className="journal-card__type">{entry.kind === 'photo' ? 'Photo' : entry.kind === 'note' ? 'Note' : 'Trip'}</span>
-        {isDemo && <span className="journal-card__demo">Sample</span>}
+        <span className="journal-card__type">{entry.kind === 'photo' ? t('phrases.Photo', 'Photo') : entry.kind === 'note' ? t('phrases.Note', 'Note') : t('phrases.Trip', 'Trip')}</span>
+        {isDemo && <span className="journal-card__demo">{t('phrases.Sample', 'Sample')}</span>}
         {entry.status === 'draft' && <span className="journal-card__draft">Draft · Private</span>}
         <button className={`journal-card__favorite${favorite ? ' is-favorite' : ''}`} type="button" onClick={(event) => {
           event.stopPropagation();
@@ -472,12 +472,12 @@ function JournalCard({ entry, isDemo, favorite, bookmarked, menuOpen, readOnly, 
             <span className="material-symbols-rounded" aria-hidden="true">location_on</span>{entry.destination}
           </span>
         </div>
-        <h2>{entry.title}</h2>
+        <h2>{t(entry.title, entry.title)}</h2>
         <p className="journal-card__description">{entry.description}</p>
         <p className="journal-card__writer">By {entry.authorName || 'Maya Chen'} · Read story</p>
         <div className="journal-card__footer">
           <div className="journal-tags" aria-label="Categories">
-            {(entry.tags || []).map((tag) => <span className="journal-tag" key={tag}>{tag}</span>)}
+            {(entry.tags || []).map((tag) => <span className="journal-tag" key={tag}>{t(tag, tag)}</span>)}
           </div>
           <div className="journal-card__menu-wrap">
             <button className={`journal-icon-button journal-card__bookmark${bookmarked ? ' is-bookmarked' : ''}`} type="button" aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark story'} aria-pressed={bookmarked} disabled={readOnly} onClick={(event) => {
@@ -774,8 +774,8 @@ export default function JournalPage() {
           <div className="journal-content">
             <section className="journal-entries" aria-label="Journal entries">
               <div className="journal-results-heading">
-                <div><span className="journal-eyebrow">A LITTLE MORE WANDERLUST</span><h2>{FILTERS.find((filter) => filter.id === activeFilter)?.label}</h2></div>
-                <span>{filteredEntries.length} {filteredEntries.length === 1 ? 'story' : 'stories'}</span>
+                <div><span className="journal-eyebrow">{t('phrases.A LITTLE MORE WANDERLUST', 'A LITTLE MORE WANDERLUST')}</span><h2>{t(FILTERS.find((filter) => filter.id === activeFilter)?.label, FILTERS.find((filter) => filter.id === activeFilter)?.label)}</h2></div>
+                <span>{filteredEntries.length} {filteredEntries.length === 1 ? t('phrases.story', 'story') : t('phrases.stories', 'stories')}</span>
               </div>
               {filteredEntries.length ? (
                 <div className="journal-grid">
@@ -809,20 +809,20 @@ export default function JournalPage() {
 
             <aside className="journal-aside" aria-label="Travel journal information">
               <section className="journal-panel journal-stats-panel">
-                <div className="journal-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">bar_chart</span><h2>Travel Stats</h2></div>
+                <div className="journal-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">bar_chart</span><h2>{t('phrases.Travel Stats', 'Travel Stats')}</h2></div>
                 <div className="journal-stat-grid">
                   {stats.map((stat) => (
                     <div className="journal-stat" key={stat.label}>
                       <span className={`journal-stat__icon is-${stat.color}`}><span className="material-symbols-rounded" aria-hidden="true">{stat.icon}</span></span>
                       <span className="journal-stat__value">{stat.value}</span>
-                      <span className="journal-stat__label">{stat.label}</span>
+                      <span className="journal-stat__label">{t(stat.label, stat.label)}</span>
                     </div>
                   ))}
                 </div>
               </section>
 
               <section className="journal-panel journal-recent-panel">
-                <div className="journal-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">location_on</span><h2>Recent Destinations</h2></div>
+                <div className="journal-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">location_on</span><h2>{t('phrases.Recent Destinations', 'Recent Destinations')}</h2></div>
                 {recentDestinations.length ? (
                   <ul className="journal-recent-list">
                     {recentDestinations.map((entry) => (
@@ -843,7 +843,7 @@ export default function JournalPage() {
 
               <figure className="journal-quote">
                 <span className="material-symbols-rounded journal-quote__icon" aria-hidden="true">send</span>
-                <blockquote>“Travel is the only thing you buy that makes you richer.”</blockquote>
+                <blockquote>“{t('phrases.Travel is the only thing you buy that makes you richer.', 'Travel is the only thing you buy that makes you richer.')}”</blockquote>
                 <span className="journal-quote__rule" />
               </figure>
             </aside>

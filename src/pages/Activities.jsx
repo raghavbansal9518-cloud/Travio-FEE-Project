@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
+import BookingCheckoutModal from '../booking/BookingCheckoutModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -137,11 +138,12 @@ const ACTIVITIES_DATA = [
 
 export default function Activities() {
   const navigate = useNavigate();
-  const { addBooking, showToast } = useTravel();
+  const { addBooking, showToast, isWishlisted, toggleWishlist } = useTravel();
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [bookedActivities, setBookedActivities] = useState(new Set());
+  const [checkoutActivity, setCheckoutActivity] = useState(null);
 
   const categories = [
     { id: 'all', label: t('common.all', 'All Activities'), icon: 'fa-earth-asia' },
@@ -162,31 +164,28 @@ export default function Activities() {
   });
 
   const handleBookActivity = (activity) => {
-    setBookedActivities((prev) => new Set(prev).add(activity.id));
-    const newBooking = {
+    const bookingItem = {
       id: `TRV-ACT-${Date.now().toString(36).toUpperCase()}`,
       type: 'EXPERIENCE',
       title: activity.title,
       carrier: 'Travio VIP Experiences',
-      origin: activity.destinationName,
-      destinationName: activity.destinationName,
-      destinationCountry: `${activity.destinationName}, ${activity.country}`,
-      destinationFlag: activity.flag || '🎟️',
-      destinationImage: activity.image,
-      departureDate: new Date().toISOString().split('T')[0],
+      from: activity.destinationName,
+      to: activity.country,
+      fromCity: activity.destinationName,
+      toCity: activity.country,
+      date: new Date().toISOString().split('T')[0],
       time: `${activity.duration} • VIP Session`,
       duration: activity.duration,
-      durationDays: 1,
-      travelers: 1,
-      seats: 'VIP All-Access Pass',
-      travelStyle: 'EXPERIENCE',
+      travelersCount: 1,
+      price: activity.price,
       totalCost: activity.price,
-      specialNotes: `${activity.difficulty} Activity • ${activity.rating} ★ Rating (${activity.reviews} reviews)`,
-      status: 'Confirmed',
-      createdAt: new Date().toISOString()
+      amountPaid: activity.price,
+      seats: 'VIP All-Access Pass',
+      extra: `${activity.difficulty} Activity • ${activity.rating} ★ Rating (${activity.reviews} reviews)`,
+      image: activity.image,
+      bookingRef: `TRV-ACT-${Math.floor(100000 + Math.random() * 900000)}`
     };
-    addBooking(newBooking);
-    showToast(`Booked: "${activity.title}" for ₹${activity.price.toLocaleString('en-IN')}! Saved to My Bookings 🎟️`, 'success');
+    setCheckoutActivity(bookingItem);
   };
 
   return (
@@ -236,11 +235,11 @@ export default function Activities() {
                   fontSize: '13px', 
                   fontWeight: 700 
                 }}>
-                  {ACTIVITIES_DATA.length} Curated Experiences
+                  {ACTIVITIES_DATA.length} {t('Curated Experiences')}
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '1rem', maxWidth: '620px' }}>
-                From paragliding in Solang Valley to scuba diving in Goa and Tokyo culinary safaris.
+                {t('From paragliding in Solang Valley to scuba diving in Goa and Tokyo culinary safaris.')}
               </p>
             </div>
           </div>
@@ -316,7 +315,7 @@ export default function Activities() {
                 onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}
                 style={{ marginTop: '10px', background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', fontWeight: 600 }}
               >
-                Reset Filters
+                {t('Reset Filters')}
               </button>
             </div>
           ) : (
@@ -383,6 +382,53 @@ export default function Activities() {
                           {act.difficulty}
                         </span>
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist({
+                            id: act.id,
+                            name: act.title,
+                            country: act.destinationName,
+                            flag: act.flag || '🎟️',
+                            rating: act.rating,
+                            reviews: `${act.reviews} reviews`,
+                            budgetStarting: `₹${Number(act.price).toLocaleString('en-IN')}`,
+                            budgetNum: act.price,
+                            cardImage: act.image,
+                            heroImage: act.image,
+                            tagline: `${act.duration} • ${act.difficulty}`,
+                            category: 'activities',
+                            itemType: 'activity',
+                            tags: ['Activity', act.category ? act.category.toUpperCase() : 'ADVENTURE'],
+                            status: 'saved'
+                          });
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: isWishlisted(act.id) ? '#f43f5e' : 'rgba(8, 12, 22, 0.75)',
+                          backdropFilter: 'blur(8px)',
+                          border: '1px solid rgba(255, 255, 255, 0.25)',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontSize: '15px',
+                          transition: 'all 0.2s ease',
+                          zIndex: 5
+                        }}
+                        title={isWishlisted(act.id) ? 'Saved in Wishlist' : 'Add to Wishlist'}
+                        aria-label="Toggle Wishlist"
+                      >
+                        <i className={isWishlisted(act.id) ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}></i>
+                      </button>
 
                       <div style={{ position: 'absolute', bottom: '10px', left: '12px', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', padding: '3px 10px', borderRadius: '8px', fontSize: '11px', color: '#fff', fontWeight: 600 }}>
                         <i className="fa-solid fa-clock" style={{ marginRight: '6px', color: '#38bdf8' }}></i>
@@ -451,7 +497,7 @@ export default function Activities() {
                             }}
                           >
                             <i className={`fa-solid ${isBooked ? 'fa-check' : 'fa-calendar-check'}`}></i>
-                            <span>{isBooked ? 'Booked' : 'Book Now'}</span>
+                            <span>{isBooked ? t('Booked') : t('Book Now')}</span>
                           </button>
                         </div>
                       </div>
@@ -463,6 +509,26 @@ export default function Activities() {
           )}
         </div>
       </div>
+
+      {/* CHECKOUT MODAL WITH PAYMENT GATEWAY FOR ACTIVITIES */}
+      {checkoutActivity && (
+        <BookingCheckoutModal
+          item={checkoutActivity}
+          initialStep="PASSENGER"
+          onClose={() => setCheckoutActivity(null)}
+          onBookingComplete={(newBooking) => {
+            setBookedActivities((prev) => new Set(prev).add(checkoutActivity.id));
+            addBooking({
+              ...newBooking,
+              origin: checkoutActivity.from,
+              destinationName: checkoutActivity.destination?.name || checkoutActivity.from,
+              totalCost: newBooking.amountPaid,
+              status: 'confirmed'
+            });
+            showToast(`Booked: "${checkoutActivity.title}" for ₹${(newBooking.amountPaid || checkoutActivity.price).toLocaleString('en-IN')}! Saved to My Bookings 🎟️`, 'success');
+          }}
+        />
+      )}
     </>
   );
 }

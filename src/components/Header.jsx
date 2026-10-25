@@ -27,6 +27,7 @@ export default function Header({ variant = '' }) {
 
   const handleLogout = () => {
     try {
+      localStorage.setItem('auth_logged_out', 'true');
       localStorage.removeItem('auth_email');
       localStorage.removeItem('auth_role');
       localStorage.removeItem('auth_password');

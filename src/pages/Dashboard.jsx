@@ -413,19 +413,19 @@ const Dashboard = () => {
             <p>Explore the world with smarter travel planning.</p>
           </div>
           <div className="footer-column">
-            <h3>Company</h3>
+            <h3>{t('Company', 'Company')}</h3>
             <ul>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>About Us</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Careers</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Blog</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('About Us', 'About Us')}</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('Careers', 'Careers')}</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('Blog', 'Blog')}</a></li>
             </ul>
           </div>
           <div className="footer-column">
-            <h3>Support</h3>
+            <h3>{t('Support', 'Support')}</h3>
             <ul>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Help Center</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Contact Us</a></li>
-              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>Privacy Policy</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('Help Center', 'Help Center')}</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('Contact Us', 'Contact Us')}</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()} style={{ textDecoration: 'none', color: 'inherit' }}>{t('Privacy Policy', 'Privacy Policy')}</a></li>
             </ul>
           </div>
           <div className="footer-column">
