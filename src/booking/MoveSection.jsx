@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import FlightBooking from './FlightBooking';
 import TrainBooking from './TrainBooking';
 import BusBooking from './BusBooking';

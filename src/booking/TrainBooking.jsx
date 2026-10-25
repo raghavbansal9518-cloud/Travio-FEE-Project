@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { TRAINS_DATA } from './bookingData';
 import { searchLiveTrains, checkLivePNR, checkLiveTrainTracking } from '../services/bookingService';

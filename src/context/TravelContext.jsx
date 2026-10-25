@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getTodayDate, getFutureDate } from '../utils/dateUtils';
 import { calculateBadgeProgress, recordBadgeUnlocks } from '../services/badgeService';
 import { loadJournalData } from '../services/journalService';

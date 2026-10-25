@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function SeatSelection({ item, onSelectionChange, selectedDetails }) {

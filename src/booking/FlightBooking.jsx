@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { FLIGHTS_DATA } from './bookingData';
 import { searchLiveFlights } from '../services/bookingService';

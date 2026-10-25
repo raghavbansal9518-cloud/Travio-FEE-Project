@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTravel } from '../context/TravelContext';
 import { HOTELS_DATA } from './bookingData';

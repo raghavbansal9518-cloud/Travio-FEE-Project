@@ -1,4 +1,3 @@
-import React from 'react';
 import { POPULAR_COUNTRIES } from '../data/destinationsData';
 import { useLanguage } from '../context/LanguageContext';
 

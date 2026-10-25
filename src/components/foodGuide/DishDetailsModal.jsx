@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { FALLBACK_FOOD_IMG, FOOD_DESTINATIONS } from '../../data/foodGuideData';
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import DestinationCard from './DestinationCard';
 

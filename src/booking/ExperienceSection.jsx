@@ -1,5 +1,5 @@
 import { useLanguage } from '../context/LanguageContext';
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ACTIVITIES_DATA } from './bookingData';
 import { searchLiveExperiences } from '../services/bookingService';
 import { getTodayDate } from '../utils/dateUtils';

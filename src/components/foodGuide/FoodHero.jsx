@@ -1,4 +1,3 @@
-import React from 'react';
 import { FOOD_DESTINATIONS, FEATURED_DESTINATION_IDS } from '../../data/foodGuideData';
 import { useLanguage } from '../../context/LanguageContext';
 

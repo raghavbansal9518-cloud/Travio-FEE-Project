@@ -1,5 +1,5 @@
 import '../BookingCheckout.css';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import SeatSelection from './SeatSelection';
 import PassengerForm from './PassengerForm';

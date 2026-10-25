@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { SUPPORTED_LANGUAGES, TRANSLATIONS } from './translationsData';
 
 export { SUPPORTED_LANGUAGES, TRANSLATIONS };
