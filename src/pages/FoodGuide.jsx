@@ -35,13 +35,9 @@ export default function FoodGuide() {
     const destParam = searchParams.get('destination');
     if (destParam) {
       const target = destParam.toLowerCase();
-      const matched = FOOD_DESTINATIONS.find(
-        (d) =>
-          d.id.toLowerCase() === target ||
-          d.id.toLowerCase().startsWith(target) ||
-          target.startsWith(d.id.toLowerCase()) ||
-          d.name.toLowerCase().includes(target)
-      );
+      const matched = FOOD_DESTINATIONS.find((d) => d.id.toLowerCase() === target) ||
+        FOOD_DESTINATIONS.find((d) => d.name.toLowerCase() === target) ||
+        FOOD_DESTINATIONS.find((d) => d.name.toLowerCase().includes(target));
       if (matched) return matched;
     }
     return FOOD_DESTINATIONS[0];
@@ -59,16 +55,26 @@ export default function FoodGuide() {
   const [selectedDishForModal, setSelectedDishForModal] = useState(null);
   const [isTrailWizardOpen, setIsTrailWizardOpen] = useState(false);
   const [trailWizardMode, setTrailWizardMode] = useState('templates'); // 'templates' | 'custom'
+  const [trailWizardStep, setTrailWizardStep] = useState(1);
   const [isSavedTrailsOpen, setIsSavedTrailsOpen] = useState(false);
 
   // Distinct Handlers for Trail Planner vs Custom Trail Planner
   const handleOpenCustomTrailPlanner = () => {
     setTrailWizardMode('custom');
+    setTrailWizardStep(1);
     setIsTrailWizardOpen(true);
   };
 
   const handleOpenTrailPlanner = () => {
     setTrailWizardMode('templates');
+    setTrailWizardStep(1);
+    setIsTrailWizardOpen(true);
+  };
+
+  // Plan & Reorder Trail: Opens directly into Step 3 with active trail stops ready to reorder!
+  const handleOpenPlanAndReorder = () => {
+    setTrailWizardMode('custom');
+    setTrailWizardStep(3);
     setIsTrailWizardOpen(true);
   };
 
@@ -123,13 +129,9 @@ export default function FoodGuide() {
     const destParam = searchParams.get('destination');
     if (destParam) {
       const target = destParam.toLowerCase();
-      const matched = FOOD_DESTINATIONS.find(
-        (d) =>
-          d.id.toLowerCase() === target ||
-          d.id.toLowerCase().startsWith(target) ||
-          target.startsWith(d.id.toLowerCase()) ||
-          d.name.toLowerCase().includes(target)
-      );
+      const matched = FOOD_DESTINATIONS.find((d) => d.id.toLowerCase() === target) ||
+        FOOD_DESTINATIONS.find((d) => d.name.toLowerCase() === target) ||
+        FOOD_DESTINATIONS.find((d) => d.name.toLowerCase().includes(target));
       if (matched && matched.id !== currentDestination.id) {
         setCurrentDestination(matched);
       }
@@ -217,6 +219,8 @@ export default function FoodGuide() {
       showToast('Please add at least one stop to view on map', 'warning');
       return;
     }
+
+    setIsTrailWizardOpen(false);
 
     const firstStop = stops[0];
     const mapLocation = {
@@ -509,7 +513,7 @@ export default function FoodGuide() {
             <button
               type="button"
               className="btn-trail-plan-action"
-              onClick={() => setIsTrailWizardOpen(true)}
+              onClick={handleOpenPlanAndReorder}
             >
               <i className="fa-solid fa-wand-magic-sparkles"></i>
               <span>Plan &amp; Reorder Trail</span>
@@ -573,16 +577,20 @@ export default function FoodGuide() {
       )}
 
       {/* 6. THREE-STEP FOOD TRAIL WIZARD */}
-      <FoodTrailWizard
+      {isTrailWizardOpen && (
+        <FoodTrailWizard
         isOpen={isTrailWizardOpen}
         onClose={() => setIsTrailWizardOpen(false)}
         currentDestination={currentDestination}
         trailDishes={trailDishes}
+        onUpdateTrailDishes={(updated) => setTrailDishes(updated)}
         onRemoveFromTrail={handleToggleDishInTrail}
         onOpenInMap={handleOpenInMap}
         onSaveTrail={handleSaveTrail}
         initialMode={trailWizardMode}
+        initialStep={trailWizardStep}
       />
+      )}
 
       {/* 7. SAVED TRAILS MODAL */}
       <SavedTrailsModal

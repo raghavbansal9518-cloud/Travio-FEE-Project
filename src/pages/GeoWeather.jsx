@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import './GeoWeather.css';
@@ -16,6 +17,15 @@ L.Icon.Default.mergeOptions({
 });
 
 // Custom marker matching the glowing orange/purple style
+
+// Custom numbered trail stop pin icon for food trail integration
+const createStopIcon = (stopNumber) => new L.DivIcon({
+  className: 'custom-trail-stop-marker',
+  html: `<div style="background: linear-gradient(135deg, #9333EA, #EC4899); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; box-shadow: 0 0 12px rgba(147, 51, 234, 0.7); border: 2px solid white;">${stopNumber}</div>`,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15]
+});
+
 const customIcon = new L.DivIcon({
   className: 'custom-map-marker',
   html: `<div class="marker-circle"></div>`,
@@ -51,16 +61,28 @@ function ChangeView({ center, zoom }) {
 }
 
 // Controller for the full modal map: invalidates container size on modal open and handles map clicks
-function MapModalController({ center, zoom, onLocationSelect }) {
+function MapModalController({ center, zoom, onLocationSelect, trailStops = [] }) {
   const map = useMap();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       map.invalidateSize();
-      if (center) map.setView(center, zoom);
+      if (trailStops && trailStops.length > 1) {
+        const validCoords = trailStops.filter(s => typeof s.lat === 'number' && typeof s.lng === 'number' && !isNaN(s.lat) && !isNaN(s.lng));
+        if (validCoords.length > 1) {
+          const bounds = L.latLngBounds(validCoords.map(s => [s.lat, s.lng]));
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+          return;
+        }
+      }
+      if (trailStops && trailStops.length === 1 && typeof trailStops[0].lat === 'number' && typeof trailStops[0].lng === 'number') {
+        map.setView([trailStops[0].lat, trailStops[0].lng], 15);
+      } else if (center && center[0] !== undefined && center[1] !== undefined) {
+        map.setView(center, zoom);
+      }
     }, 150);
     return () => clearTimeout(timer);
-  }, [center, zoom, map]);
+  }, [center, zoom, map, trailStops]);
 
   useMapEvents({
     click(e) {
@@ -75,8 +97,38 @@ function MapModalController({ center, zoom, onLocationSelect }) {
 
 const GeoWeather = () => {
   const { t } = useLanguage();
+  const routerLocation = useLocation();
+
+  const initialIncoming = routerLocation.state && routerLocation.state.from === 'food-guide' ? routerLocation.state : null;
+
+  const [trailInfo, setTrailInfo] = useState(() => {
+    if (initialIncoming && Array.isArray(initialIncoming.trailStops)) {
+      return {
+        trailName: initialIncoming.trailName || 'Food Trail',
+        trailStops: initialIncoming.trailStops
+      };
+    }
+    return null;
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [location, setLocation] = useState({ name: 'Brooklyn, New York, USA', lat: 40.6501, lon: -73.9495 });
+  const [location, setLocation] = useState(() => {
+    if (initialIncoming?.location && typeof initialIncoming.location.lat === 'number' && typeof initialIncoming.location.lon === 'number') {
+      return {
+        name: initialIncoming.location.name || 'Food Trail Location',
+        lat: initialIncoming.location.lat,
+        lon: initialIncoming.location.lon
+      };
+    }
+    if (initialIncoming?.trailStops?.[0]?.lat && initialIncoming?.trailStops?.[0]?.lng) {
+      return {
+        name: initialIncoming.trailName || initialIncoming.trailStops[0].restaurantName || 'Food Trail Location',
+        lat: initialIncoming.trailStops[0].lat,
+        lon: initialIncoming.trailStops[0].lng
+      };
+    }
+    return { name: 'Brooklyn, New York, USA', lat: 40.6501, lon: -73.9495 };
+  });
   const [weatherData, setWeatherData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
@@ -95,9 +147,45 @@ const GeoWeather = () => {
   });
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(() => Boolean(initialIncoming));
   const [showDetails, setShowDetails] = useState(false);
   const [showAllRecent, setShowAllRecent] = useState(false);
+
+
+  // Listen for navigation state transitions from Food Guide
+  useEffect(() => {
+    if (routerLocation.state && routerLocation.state.from === 'food-guide') {
+      const incoming = routerLocation.state;
+      if (incoming.location && typeof incoming.location.lat === 'number' && typeof incoming.location.lon === 'number') {
+        setLocation({
+          name: incoming.location.name || 'Food Trail Location',
+          lat: incoming.location.lat,
+          lon: incoming.location.lon
+        });
+      } else if (incoming.trailStops?.[0]?.lat && incoming.trailStops?.[0]?.lng) {
+        setLocation({
+          name: incoming.trailName || incoming.trailStops[0].restaurantName || 'Food Trail Location',
+          lat: incoming.trailStops[0].lat,
+          lon: incoming.trailStops[0].lng
+        });
+      }
+      if (Array.isArray(incoming.trailStops) && incoming.trailStops.length > 0) {
+        setTrailInfo({
+          trailName: incoming.trailName || 'Food Trail',
+          trailStops: incoming.trailStops
+        });
+      }
+      setIsMapExpanded(true);
+    }
+  }, [routerLocation.state]);
+
+  // Filter valid coordinates for map markers
+  const validTrailStops = useMemo(() => {
+    if (!trailInfo || !Array.isArray(trailInfo.trailStops)) return [];
+    return trailInfo.trailStops.filter(
+      (s) => typeof s.lat === 'number' && typeof s.lng === 'number' && !isNaN(s.lat) && !isNaN(s.lng)
+    );
+  }, [trailInfo]);
 
   useEffect(() => {
     fetchWeather(location.lat, location.lon);
@@ -343,6 +431,32 @@ const GeoWeather = () => {
             <button className="close-modal-btn" onClick={() => setIsMapExpanded(false)}>
               <span className="material-symbols-rounded">close</span>
             </button>
+            {trailInfo?.trailName && (
+              <div style={{
+                position: 'absolute',
+                top: '16px',
+                left: '20px',
+                zIndex: 1000,
+                background: 'rgba(15, 23, 42, 0.88)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(168, 85, 247, 0.5)',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                color: '#F8F7FF',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontSize: '13px',
+                fontWeight: 600,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+              }}>
+                <span style={{ color: '#C084FC', fontSize: '16px' }}>🗺️</span>
+                <span>{trailInfo.trailName}</span>
+                <span style={{ background: '#7C3AED', padding: '2px 8px', borderRadius: '8px', fontSize: '11px', color: '#fff' }}>
+                  {validTrailStops.length} {validTrailStops.length === 1 ? 'Stop' : 'Stops'}
+                </span>
+              </div>
+            )}
             <MapContainer 
               center={[location.lat, location.lon]} 
               zoom={10} 
@@ -354,11 +468,60 @@ const GeoWeather = () => {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 className="map-tiles"
               />
-              <Marker position={[location.lat, location.lon]} icon={customIcon} />
+              {validTrailStops.length > 0 ? (
+                validTrailStops.map((stop, i) => (
+                  <Marker
+                    key={stop.stopNumber || i}
+                    position={[stop.lat, stop.lng]}
+                    icon={createStopIcon(stop.stopNumber || i + 1)}
+                  >
+                    <Popup className="trail-stop-popup">
+                      <div style={{ minWidth: '180px', color: '#1F2937', padding: '4px' }}>
+                        {stop.dishImage && (
+                          <img
+                            src={stop.dishImage}
+                            alt={stop.dishName || 'Dish'}
+                            style={{ width: '100%', height: '85px', objectFit: 'cover', borderRadius: '8px', marginBottom: '6px' }}
+                          />
+                        )}
+                        <div style={{ fontSize: '11px', color: '#7C3AED', fontWeight: 700, textTransform: 'uppercase' }}>
+                          Stop {stop.stopNumber || i + 1}
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: '14px', margin: '2px 0' }}>
+                          {stop.restaurantName || stop.dishName}
+                        </div>
+                        {stop.dishName && stop.restaurantName && stop.dishName !== stop.restaurantName && (
+                          <div style={{ fontSize: '12px', color: '#4B5563', marginBottom: '4px' }}>
+                            ✨ Must Order: <strong>{stop.dishName}</strong>
+                          </div>
+                        )}
+                        {stop.address && (
+                          <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '2px' }}>
+                            📍 {stop.address}
+                          </div>
+                        )}
+                        {stop.priceEstimate && (
+                          <div style={{ fontSize: '12px', color: '#059669', fontWeight: 700, marginTop: '4px' }}>
+                            {stop.priceEstimate}
+                          </div>
+                        )}
+                        {stop.notes && (
+                          <div style={{ fontSize: '11px', color: '#8B5CF6', marginTop: '2px', fontStyle: 'italic' }}>
+                            💡 {stop.notes}
+                          </div>
+                        )}
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))
+              ) : (
+                <Marker position={[location.lat, location.lon]} icon={customIcon} />
+              )}
               <MapModalController 
                 center={[location.lat, location.lon]} 
                 zoom={10} 
                 onLocationSelect={handleMapSelect} 
+                trailStops={validTrailStops}
               />
             </MapContainer>
           </div>
@@ -435,8 +598,18 @@ const GeoWeather = () => {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   className="map-tiles"
                 />
-                <Marker position={[location.lat, location.lon]} icon={customIcon} />
-                <ChangeView center={[location.lat, location.lon]} zoom={10} />
+                {validTrailStops.length > 0 ? (
+                  validTrailStops.map((stop, i) => (
+                    <Marker
+                      key={stop.stopNumber || i}
+                      position={[stop.lat, stop.lng]}
+                      icon={createStopIcon(stop.stopNumber || i + 1)}
+                    />
+                  ))
+                ) : (
+                  <Marker position={[location.lat, location.lon]} icon={customIcon} />
+                )}
+                <ChangeView center={[location.lat, location.lon]} zoom={validTrailStops.length > 0 ? 12 : 10} />
               </MapContainer>
             </div>
             <div className="map-footer-label">{location.name.split(',')[0]}</div>

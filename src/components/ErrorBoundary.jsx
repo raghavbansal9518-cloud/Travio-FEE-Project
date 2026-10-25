@@ -63,9 +63,25 @@ export default class ErrorBoundary extends React.Component {
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', fontWeight: 700 }}>
               Navigation In Flight
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.75rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
               We encountered a minor turbulence loading this view. Let's get you back on course.
             </p>
+            {this.state.error && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                marginBottom: '1.5rem',
+                textAlign: 'left',
+                fontSize: '0.82rem',
+                color: '#fca5a5',
+                overflowX: 'auto',
+                fontFamily: 'monospace'
+              }}>
+                <strong>Error: </strong>{this.state.error.message || String(this.state.error)}
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button

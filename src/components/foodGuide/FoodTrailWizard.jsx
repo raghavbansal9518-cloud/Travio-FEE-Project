@@ -6,12 +6,14 @@ export default function FoodTrailWizard({
   onClose,
   currentDestination,
   trailDishes = [],
+  onUpdateTrailDishes,
   onRemoveFromTrail,
   onOpenInMap,
   onSaveTrail,
-  initialMode = 'templates'
+  initialMode = 'templates',
+  initialStep = 1
 }) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(initialStep);
   const [activeTab, setActiveTab] = useState(initialMode === 'custom' ? 'custom' : 'templates');
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [validationError, setValidationError] = useState('');
@@ -31,42 +33,68 @@ export default function FoodTrailWizard({
   // Destination specific dishes for custom picker
   const destinationDishes = useMemo(() => {
     const target = (currentDestination?.id || 'goa').toLowerCase();
-    return FOOD_DISHES.filter((d) => {
-      const dId = d.destinationId.toLowerCase();
-      return (
-        dId === target ||
-        dId.startsWith(target) ||
-        target.startsWith(dId) ||
-        d.destinationName.toLowerCase().includes(target)
-      );
-    });
+    return FOOD_DISHES.filter((d) => d.destinationId.toLowerCase() === target);
   }, [currentDestination]);
 
-  // Sync dishes and modes whenever modal opens or initialMode changes
+  // Sync dishes and modes whenever modal opens or initialMode / initialStep changes
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
+      setStep(initialStep || 1);
       setValidationError('');
       setIsSavedSuccess(false);
 
-      if (trailDishes && trailDishes.length > 0) {
-        setCustomSelectedDishIds(trailDishes.map((d) => d.id));
+      if (initialMode === 'custom') {
         setActiveTab('custom');
-      } else if (initialMode === 'custom') {
-        setActiveTab('custom');
-        // Pre-select 3 iconic dishes as starter recommendation if none picked
-        if (destinationDishes.length > 0) {
-          setCustomSelectedDishIds(destinationDishes.slice(0, 3).map((d) => d.id));
+        const dishIds = trailDishes && trailDishes.length > 0
+          ? trailDishes.map((d) => d.id)
+          : [];
+        setCustomSelectedDishIds(dishIds);
+
+        // If opened directly into Step 3 (Plan & Reorder) with active trail dishes
+        if (initialStep === 3 && trailDishes && trailDishes.length > 0) {
+          const mealTimes = ['10:00 AM', '1:00 PM', '4:30 PM', '7:30 PM', '9:45 PM'];
+          const generatedStops = trailDishes.map((dish, index) => {
+            const place = dish.recommendedPlaces && dish.recommendedPlaces[0]
+              ? dish.recommendedPlaces[0]
+              : {
+                  name: `${dish.destinationName} Heritage Kitchen`,
+                  neighborhood: dish.destinationName,
+                  address: `${dish.destinationName} Central Street`,
+                  distanceKm: 2.1,
+                  lat: currentDestination?.coordinates?.lat || 15.2993,
+                  lng: currentDestination?.coordinates?.lng || 74.1240
+                };
+            return {
+              stopNumber: index + 1,
+              dishName: dish.name,
+              restaurantName: place.name,
+              dishId: dish.id,
+              dishImage: dish.image || FALLBACK_FOOD_IMG,
+              neighborhood: place.neighborhood || place.address,
+              address: place.address,
+              mealType: dish.meal,
+              suggestedTime: mealTimes[index % mealTimes.length],
+              priceEstimate: `₹${dish.minPrice + 50}`,
+              distanceToNext: index < trailDishes.length - 1 ? `${(1.2 + index * 0.8).toFixed(1)} km (10 min drive)` : 'End of Trail',
+              lat: place.lat,
+              lng: place.lng,
+              notes: place.highlight || `Famous for authentic ${dish.name}`
+            };
+          });
+          setStops(generatedStops);
         }
       } else {
         setActiveTab('templates');
+        if (trailDishes && trailDishes.length > 0) {
+          setCustomSelectedDishIds(trailDishes.map((d) => d.id));
+        }
         if (availableTemplates.length > 0) {
           setSelectedTemplateId(availableTemplates[0].id);
           setStops(JSON.parse(JSON.stringify(availableTemplates[0].stops)));
         }
       }
     }
-  }, [isOpen, initialMode, currentDestination]);
+  }, [isOpen, initialMode, initialStep, currentDestination]);
 
   // Step 2 Preferences
   const [preferences, setPreferences] = useState({
@@ -78,9 +106,56 @@ export default function FoodTrailWizard({
   });
 
   // Step 3 Itinerary Stops state
-  const [stops, setStops] = useState([]);
+  const [stops, setStops] = useState(() => {
+    if (initialStep === 3 && trailDishes && trailDishes.length > 0) {
+      const mealTimes = ['10:00 AM', '1:00 PM', '4:30 PM', '7:30 PM', '9:45 PM'];
+      return trailDishes.map((dish, index) => {
+        const place = dish.recommendedPlaces && dish.recommendedPlaces[0]
+          ? dish.recommendedPlaces[0]
+          : {
+              name: `${dish.destinationName} Heritage Kitchen`,
+              neighborhood: dish.destinationName,
+              address: `${dish.destinationName} Central Street`,
+              distanceKm: 2.1,
+              lat: currentDestination?.coordinates?.lat || 15.2993,
+              lng: currentDestination?.coordinates?.lng || 74.1240
+            };
+        return {
+          stopNumber: index + 1,
+          dishName: dish.name,
+          restaurantName: place.name,
+          dishId: dish.id,
+          dishImage: dish.image || FALLBACK_FOOD_IMG,
+          neighborhood: place.neighborhood || place.address,
+          address: place.address,
+          mealType: dish.meal,
+          suggestedTime: mealTimes[index % mealTimes.length],
+          priceEstimate: `₹${dish.minPrice + 50}`,
+          distanceToNext: index < trailDishes.length - 1 ? `${(1.2 + index * 0.8).toFixed(1)} km (10 min drive)` : 'End of Trail',
+          lat: place.lat,
+          lng: place.lng,
+          notes: place.highlight || `Famous for authentic ${dish.name}`
+        };
+      });
+    }
+    return [];
+  });
 
-  if (!isOpen) return null;
+  // Computed summary (hooks called unconditionally on every render)
+  const summaryBudget = useMemo(() => {
+    return stops.reduce((acc, stop) => {
+      const num = parseInt(String(stop.priceEstimate).replace(/\D/g, ''), 10) || 300;
+      return acc + num;
+    }, 0);
+  }, [stops]);
+
+  const summaryDistance = useMemo(() => {
+    return (stops.length * 2.4).toFixed(1);
+  }, [stops]);
+
+  const summaryDuration = useMemo(() => {
+    return `${Math.max(2, Math.round(stops.length * 1.25))}–${Math.max(3, Math.round(stops.length * 1.5))} hrs`;
+  }, [stops]);
 
   // Handle selecting a pre-built template
   const handleSelectTemplate = (template) => {
@@ -91,13 +166,18 @@ export default function FoodTrailWizard({
     setStops(JSON.parse(JSON.stringify(template.stops)));
   };
 
-  // Toggle dish in custom picker
+  // Toggle dish in custom picker and sync to active trail
   const handleToggleCustomDish = (dishId) => {
     setSelectedTemplateId(null);
     setValidationError('');
-    setCustomSelectedDishIds((prev) =>
-      prev.includes(dishId) ? prev.filter((id) => id !== dishId) : [...prev, dishId]
-    );
+    setCustomSelectedDishIds((prev) => {
+      const next = prev.includes(dishId) ? prev.filter((id) => id !== dishId) : [...prev, dishId];
+      if (onUpdateTrailDishes) {
+        const nextDishes = next.map((id) => FOOD_DISHES.find((d) => d.id === id)).filter(Boolean);
+        onUpdateTrailDishes(nextDishes);
+      }
+      return next;
+    });
   };
 
   // Proceed to Step 2 with strict validation
@@ -107,6 +187,10 @@ export default function FoodTrailWizard({
         setValidationError('Please select at least 1 dish (recommended 2–6) to build your custom trail.');
         return;
       }
+      setPreferences((prev) => ({
+        ...prev,
+        stopCount: Math.max(2, Math.min(6, customSelectedDishIds.length))
+      }));
     } else {
       if (!selectedTemplateId && availableTemplates.length > 0) {
         handleSelectTemplate(availableTemplates[0]);
@@ -143,15 +227,18 @@ export default function FoodTrailWizard({
       }
     }
 
-    // Otherwise build dynamically from selected dish IDs
-    const chosenDishes = FOOD_DISHES.filter((d) =>
-      customSelectedDishIds.includes(d.id)
-    );
+    // Otherwise build dynamically from selected dish IDs in the exact user-selected order
+    const chosenDishes = customSelectedDishIds
+      .map((id) => FOOD_DISHES.find((d) => d.id === id))
+      .filter(Boolean);
 
     // Fallback if none picked
-    const dishesToUse = chosenDishes.length > 0 ? chosenDishes : destinationDishes.slice(0, preferences.stopCount);
+    const dishesToUse = chosenDishes.length > 0 ? chosenDishes : destinationDishes.slice(0, preferences.stopCount || 4);
+    const stopLimit = activeTab === 'custom' && chosenDishes.length > 0
+      ? chosenDishes.length
+      : Math.min(preferences.stopCount || 4, dishesToUse.length);
 
-    const generatedStops = dishesToUse.slice(0, preferences.stopCount).map((dish, index) => {
+    const generatedStops = dishesToUse.slice(0, stopLimit).map((dish, index) => {
       const place = dish.recommendedPlaces && dish.recommendedPlaces[0]
         ? dish.recommendedPlaces[0]
         : {
@@ -201,6 +288,10 @@ export default function FoodTrailWizard({
       distanceToNext: idx < newStops.length - 1 ? `${(1.2 + idx * 0.7).toFixed(1)} km` : 'End of Trail'
     }));
     setStops(renumbered);
+    if (onUpdateTrailDishes && activeTab === 'custom') {
+      const updatedDishes = renumbered.map((s) => FOOD_DISHES.find((d) => d.id === s.dishId)).filter(Boolean);
+      onUpdateTrailDishes(updatedDishes);
+    }
   };
 
   // Delete stop in Step 3
@@ -213,23 +304,14 @@ export default function FoodTrailWizard({
       distanceToNext: idx < filtered.length - 1 ? `${(1.2 + idx * 0.7).toFixed(1)} km` : 'End of Trail'
     }));
     setStops(renumbered);
+    if (onUpdateTrailDishes && activeTab === 'custom') {
+      const updatedDishes = renumbered.map((s) => FOOD_DISHES.find((d) => d.id === s.dishId)).filter(Boolean);
+      onUpdateTrailDishes(updatedDishes);
+    }
+    setCustomSelectedDishIds(renumbered.map((s) => s.dishId).filter(Boolean));
   };
 
-  // Computed summary
-  const summaryBudget = useMemo(() => {
-    return stops.reduce((acc, stop) => {
-      const num = parseInt(String(stop.priceEstimate).replace(/\D/g, ''), 10) || 300;
-      return acc + num;
-    }, 0);
-  }, [stops]);
-
-  const summaryDistance = useMemo(() => {
-    return (stops.length * 2.4).toFixed(1);
-  }, [stops]);
-
-  const summaryDuration = useMemo(() => {
-    return `${Math.max(2, Math.round(stops.length * 1.25))}–${Math.max(3, Math.round(stops.length * 1.5))} hrs`;
-  }, [stops]);
+  if (!isOpen) return null;
 
   return (
     <div className="fg-trail-overlay" onClick={onClose}>
@@ -253,7 +335,12 @@ export default function FoodTrailWizard({
 
           {/* 3 Steps Progress Tracker */}
           <div className="fg-step-tracker">
-            <div className="fg-step-dot-wrap">
+            <div 
+              className="fg-step-dot-wrap" 
+              style={{ cursor: 'pointer' }}
+              onClick={() => setStep(1)}
+              title="Go to Step 1: Choose Dishes"
+            >
               <span className={`fg-step-num ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}>
                 {step > 1 ? '✓' : '1'}
               </span>
@@ -262,7 +349,16 @@ export default function FoodTrailWizard({
 
             <span className={`fg-step-line ${step >= 2 ? 'active' : ''}`}></span>
 
-            <div className="fg-step-dot-wrap">
+            <div 
+              className="fg-step-dot-wrap" 
+              style={{ cursor: (customSelectedDishIds.length > 0 || selectedTemplateId) ? 'pointer' : 'default' }}
+              onClick={() => {
+                if (customSelectedDishIds.length > 0 || selectedTemplateId) {
+                  setStep(2);
+                }
+              }}
+              title="Go to Step 2: Preferences"
+            >
               <span className={`fg-step-num ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}>
                 {step > 2 ? '✓' : '2'}
               </span>
@@ -271,7 +367,18 @@ export default function FoodTrailWizard({
 
             <span className={`fg-step-line ${step === 3 ? 'active' : ''}`}></span>
 
-            <div className="fg-step-dot-wrap">
+            <div 
+              className="fg-step-dot-wrap" 
+              style={{ cursor: stops.length > 0 ? 'pointer' : 'default' }}
+              onClick={() => {
+                if (stops.length > 0) {
+                  setStep(3);
+                } else if (customSelectedDishIds.length > 0 || selectedTemplateId) {
+                  handleBuildTrailItinerary();
+                }
+              }}
+              title="Go to Step 3: Your Trail & Reorder"
+            >
               <span className={`fg-step-num ${step === 3 ? 'active' : ''}`}>
                 3
               </span>

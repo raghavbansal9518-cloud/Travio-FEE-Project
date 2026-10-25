@@ -6,6 +6,7 @@ export default function FoodHero({
   currentDestination,
   onSelectDestination,
   onOpenTrailWizard,
+  onOpenCustomPlanner,
   onSwitchToTrailsView,
   dishCount = 0
 }) {
@@ -98,7 +99,7 @@ export default function FoodHero({
               }}
               className="fg-dest-select-dropdown"
             >
-              <option value="" disabled>Choose from 175 Destinations...</option>
+              <option value="" disabled>Choose from all destinations...</option>
               {FOOD_DESTINATIONS.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.flag} {d.name} — {d.country}
@@ -136,7 +137,7 @@ export default function FoodHero({
               gap: '8px',
               transition: 'all 0.2s ease'
             }}
-            onClick={onOpenTrailWizard}
+            onClick={onOpenCustomPlanner || onOpenTrailWizard}
             onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.16)'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
           >
