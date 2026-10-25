@@ -27,6 +27,7 @@ function formatStoryDate(value, options = { day: 'numeric', month: 'long', year:
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat('en', options).format(date);
 }
 
+// Resolve sample or owner-scoped stories and hide drafts/private entries from others.
 function loadEntry(entryId) {
   try {
     const data = loadJournalData();
@@ -56,6 +57,7 @@ function loadEntry(entryId) {
   }
 }
 
+// Load discussion independently so a comment-data issue does not block the story.
 function loadComments(entryId) {
   try {
     return { items: loadJournalComments(entryId), error: '' };

@@ -79,6 +79,7 @@ export default function AdminPage() {
   const [adminPasscode, setAdminPasscode] = useState('');
   const [authError, setAuthError] = useState('');
 
+  // Restore the editable flight inventory, falling back to the built-in demo schedule.
   const [flights, setFlights] = useState(() => {
     try {
       const saved = localStorage.getItem('travio_admin_flights');
@@ -109,6 +110,7 @@ export default function AdminPage() {
     price: 4999
   });
 
+  // Persist inventory edits so the admin schedule survives a page reload.
   useEffect(() => {
     try {
       localStorage.setItem('travio_admin_flights', JSON.stringify(flights));

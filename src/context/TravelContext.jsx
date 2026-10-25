@@ -183,6 +183,7 @@ export const DEFAULT_BOOKINGS = [
   }
 ].map((booking) => ({ ...booking, demoRecord: true }));
 
+// Convert legacy and category-specific booking records into the shared UI shape.
 export const normalizeBooking = (b) => {
   if (!b) return null;
   const id = b.id || b.bookingRef || `TRV-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -273,6 +274,7 @@ export const normalizeBooking = (b) => {
 
 export const TravelProvider = ({ children }) => {
   // --- Wishlist State ---
+  // Restore older wishlist formats and enrich saved items with current category metadata.
   const [wishlist, setWishlist] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.WISHLIST) || localStorage.getItem(STORAGE_KEYS.WISHLIST_LEGACY);
@@ -325,6 +327,7 @@ export const TravelProvider = ({ children }) => {
   });
 
   // --- Bookings State ---
+  // Normalize stored bookings so pages can use one consistent record shape.
   const [bookings, setBookings] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
@@ -379,6 +382,7 @@ export const TravelProvider = ({ children }) => {
   }, [bookings]);
 
   // --- Live Badges & Journal Synchronization ---
+  // Recompute achievements from travel activity and refresh the journal count on cross-page updates.
   const [badgeState, setBadgeState] = useState(() => {
     try {
       return calculateBadgeProgress(wishlist, bookings);

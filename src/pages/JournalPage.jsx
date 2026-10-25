@@ -52,6 +52,7 @@ function normalizeDate(value) {
   return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
 }
 
+// Map older journal fields into the shape expected by the current cards and editor.
 function normalizeEntry(entry) {
   return {
     ...entry,
@@ -69,6 +70,7 @@ function normalizeEntry(entry) {
   };
 }
 
+// Load and enrich the current owner's entries while keeping storage errors visible.
 function getInitialData() {
   try {
     const data = loadJournalData();

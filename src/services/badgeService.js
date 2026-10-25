@@ -151,6 +151,7 @@ function isFoodBooking(booking) {
   );
 }
 
+// Merge visits, bookings, journal entries, photos, and packing progress into badge metrics.
 export function calculateBadgeProgress(wishlist, bookings) {
   let entries = [];
   try {

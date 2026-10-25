@@ -36,6 +36,7 @@ export default function PackingPage() {
   const { showToast } = useTravel();
   const { t } = useLanguage();
   const [profile, setProfile] = useState('beach');
+  // Restore the saved checklist or start with the default beach packing template.
   const [items, setItems] = useState(() => {
     try {
       const saved = localStorage.getItem('travio_packing_items');
@@ -47,6 +48,7 @@ export default function PackingPage() {
   const [newItemText, setNewItemText] = useState('');
   const [newItemCat, setNewItemCat] = useState('Essentials');
 
+  // Save checklist changes and notify other features that read packing progress.
   useEffect(() => {
     try {
       localStorage.setItem('travio_packing_items', JSON.stringify(items));
