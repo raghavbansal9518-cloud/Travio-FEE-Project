@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '../context/LanguageContext';
+import { getCurrentUser, getInitials, logoutCurrentUser } from '../services/userProfileService';
 
 export default function Header({ variant = '' }) {
   const navigate = useNavigate();
@@ -9,8 +10,21 @@ export default function Header({ variant = '' }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
+  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setCurrentUser(getCurrentUser());
+    };
+    window.addEventListener('travio_profile_updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('travio_profile_updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,14 +40,7 @@ export default function Header({ variant = '' }) {
   }, []);
 
   const handleLogout = () => {
-    try {
-      localStorage.setItem('auth_logged_out', 'true');
-      localStorage.removeItem('auth_email');
-      localStorage.removeItem('auth_role');
-      localStorage.removeItem('auth_password');
-    } catch (e) {
-      // ignore
-    }
+    logoutCurrentUser();
     setShowProfileMenu(false);
     navigate('/auth');
   };
@@ -252,13 +259,23 @@ export default function Header({ variant = '' }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 12px rgba(124, 58, 237, 0.4)'
+                boxShadow: '0 0 12px rgba(124, 58, 237, 0.4)',
+                overflow: 'hidden'
               }}
             >
-              RB
+              {currentUser?.avatar ? (
+                <img
+                  src={currentUser.avatar}
+                  alt={currentUser.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                getInitials(currentUser?.name)
+              )}
             </div>
             <span style={{ fontSize: variant === 'journal' ? '15px' : '13px', fontWeight: 600, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              Raghav <i className={`fa-solid ${showProfileMenu ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: '10px', color: '#94a3b8', transition: 'transform 0.2s ease' }}></i>
+              {currentUser?.name || 'Traveler'} <i className={`fa-solid ${showProfileMenu ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: '10px', color: '#94a3b8', transition: 'transform 0.2s ease' }}></i>
             </span>
           </button>
           
@@ -289,8 +306,8 @@ export default function Header({ variant = '' }) {
             >
               {/* User Header Info Card */}
               <div style={{ padding: '8px 12px 10px 12px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '4px' }}>
-                <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#ffffff' }}>Raghav</div>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>raghav@travio.io</div>
+                <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#ffffff' }}>{currentUser?.name || 'Traveler'}</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{currentUser?.email || 'traveler@travio.io'}</div>
               </div>
 
               {/* Option 1: Profile */}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import BadgeArtwork from '../components/BadgeArtwork';
@@ -6,6 +6,7 @@ import { BADGE_DEFINITIONS, loadBadgeAchievements } from '../services/badgeServi
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getCurrentTime12 } from '../utils/dateUtils';
+import { getCurrentUser, saveUserProfile, getInitials } from '../services/userProfileService';
 
 const DEFAULT_PROFILE = {
   name: 'Raghav',
@@ -67,15 +68,20 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [currentTime, setCurrentTime] = useState(getCurrentTime12());
 
-  // Load from localStorage or use defaults
-  const [profile, setProfile] = useState(() => {
-    try {
-      const saved = localStorage.getItem('travio_user_profile');
-      return saved ? { ...DEFAULT_PROFILE, ...JSON.parse(saved) } : DEFAULT_PROFILE;
-    } catch {
-      return DEFAULT_PROFILE;
-    }
-  });
+  // Load current user profile dynamically
+  const [profile, setProfile] = useState(() => getCurrentUser());
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setProfile(getCurrentUser());
+    };
+    window.addEventListener('travio_profile_updated', handleProfileUpdate);
+    window.addEventListener('storage', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('travio_profile_updated', handleProfileUpdate);
+      window.removeEventListener('storage', handleProfileUpdate);
+    };
+  }, []);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -97,7 +103,7 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
   const handleSave = (e) => {
     if (e) e.preventDefault();
     try {
-      localStorage.setItem('travio_user_profile', JSON.stringify(profile));
+      saveUserProfile(profile);
       setSavedSuccess(true);
       showToast?.('Settings and preferences saved successfully! 💾', 'success');
       setTimeout(() => setSavedSuccess(false), 3000);
@@ -136,9 +142,19 @@ export default function SettingsPage({ defaultTab = 'profile' }) {
               fontSize: '28px',
               fontWeight: 800,
               color: '#ffffff',
-              border: '3px solid rgba(255, 255, 255, 0.2)'
+              border: '3px solid rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden'
             }}>
-              RB
+              {profile?.avatar ? (
+                <img
+                  src={profile.avatar}
+                  alt={profile.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                getInitials(profile?.name)
+              )}
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { SLIDES, CAROUSEL_INTERVAL } from '../data/slides';
+import { loginUser, registerUser, resetPassword } from '../services/userProfileService';
 
 // ===== ICONS =====
 const CompassLogoIcon = () => (
@@ -187,13 +188,21 @@ function SignUpForm({ onSwitch, onSuccess }) {
       return;
     }
     setErrors({});
-    
-    // Save credentials to local storage
-    localStorage.setItem('auth_email', fields.email);
-    localStorage.setItem('auth_password', fields.password);
 
-    // Redirect immediately without showing success banner
-    onSuccess();
+    const result = registerUser({
+      firstName: fields.firstName,
+      lastName: fields.lastName,
+      email: fields.email,
+      password: fields.password
+    });
+
+    if (result.success) {
+      onSuccess();
+    } else {
+      setErrors({ email: result.error || 'Failed to create account.' });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
   };
 
   return (
@@ -292,21 +301,15 @@ function ForgotPasswordForm({ onBack, onSuccess }) {
       return;
     }
 
-    // Persist new password
-    localStorage.setItem('auth_email', fields.email);
-    localStorage.setItem('auth_password', fields.newPassword);
-
-    try {
-      const userProfile = JSON.parse(localStorage.getItem('travio_user_profile') || '{}');
-      if (userProfile.email === fields.email) {
-        userProfile.password = fields.newPassword;
-        localStorage.setItem('travio_user_profile', JSON.stringify(userProfile));
-      }
-    } catch {
-      // ignore
+    const result = resetPassword(fields.email, fields.newPassword);
+    if (!result.success) {
+      setErrors({ email: result.error });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
     }
 
-    setSuccessMsg('Password reset successful! You can now log in.');
+    setSuccessMsg(result.message || 'Password reset successful! You can now log in.');
     setTimeout(() => {
       onSuccess();
     }, 1600);
@@ -418,8 +421,13 @@ function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
 
   const set = (key) => (e) => setFields(f => ({ ...f, [key]: e.target.value }));
 
-  const handleDemoUser = () => {
+  const handleDemoAarav = () => {
     setFields({ email: 'aarav.sharma@example.com', password: 'password123' });
+    setErrors({});
+  };
+
+  const handleDemoRaghav = () => {
+    setFields({ email: 'raghav@travio.io', password: 'password123' });
     setErrors({});
   };
 
@@ -444,27 +452,13 @@ function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
       setTimeout(() => setShake(false), 500);
       return;
     }
-    
-    // Check credentials against local storage or demo credentials
-    const savedEmail = localStorage.getItem('auth_email');
-    const savedPassword = localStorage.getItem('auth_password');
-    const isAdminUser = fields.email.toLowerCase().includes('admin');
 
-    if (
-      (savedEmail && savedEmail === fields.email && savedPassword === fields.password) ||
-      (fields.email === 'admin@travio.com' && fields.password === 'admin123') ||
-      (fields.email === 'aarav.sharma@example.com' && fields.password === 'password123') ||
-      (!savedEmail && fields.email.includes('@') && fields.password.length >= 4)
-    ) {
+    const result = loginUser(fields.email, fields.password);
+    if (result.success) {
       setErrors({});
-      localStorage.setItem('auth_email', fields.email);
-      if (!savedPassword) {
-        localStorage.setItem('auth_password', fields.password);
-      }
-      localStorage.setItem('auth_role', isAdminUser ? 'admin' : 'user');
       onSuccess();
     } else {
-      setErrors({ email: 'Invalid email or password' });
+      setErrors({ email: result.error || 'Invalid email or password' });
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
@@ -527,56 +521,40 @@ function LoginForm({ onSwitch, onForgotPassword, onSuccess }) {
             <button type="submit" className="btn-primary">{t('auth.signIn')}</button>
           </div>
 
-          {/* Quick Demo Credentials for Evaluation */}
+          {/* Quick Demo: Aarav Sharma only */}
           <div
             style={{
               display: 'flex',
               gap: '8px',
-              marginTop: '12px',
+              marginTop: '14px',
               padding: '10px 14px',
               background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(168, 85, 247, 0.25)',
               borderRadius: '12px',
               alignItems: 'center',
               justifyContent: 'space-between',
-              fontSize: '0.78rem'
+              fontSize: '0.8rem'
             }}
           >
-            <span style={{ color: 'rgba(255, 255, 255, 0.65)' }}>Evaluation Demo:</span>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={handleDemoUser}
-                style={{
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid rgba(56, 189, 248, 0.35)',
-                  color: '#38bdf8',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  fontWeight: 600
-                }}
-              >
-                Passenger
-              </button>
-              <button
-                type="button"
-                onClick={handleDemoAdmin}
-                style={{
-                  background: 'rgba(245, 158, 11, 0.15)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
-                  color: '#fbbf24',
-                  borderRadius: '6px',
-                  padding: '4px 10px',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  fontWeight: 600
-                }}
-              >
-                Admin
-              </button>
-            </div>
+            <span style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Demo Account:</span>
+            <button
+              type="button"
+              onClick={handleDemoAarav}
+              title="Auto-fill Aarav Sharma's credentials"
+              style={{
+                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%)',
+                border: '1px solid rgba(168, 85, 247, 0.5)',
+                color: '#c084fc',
+                borderRadius: '8px',
+                padding: '6px 14px',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                fontWeight: 700,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Fill Aarav Credentials
+            </button>
           </div>
 
           <div className="form-footer-switch form-field" style={{ marginTop: '12px' }}>
@@ -1001,19 +979,11 @@ function MobileLanding({ onGoHome }) {
 }
 
 // ===== ROOT COMPONENT =====
-export default function AuthPage({ onLoginSuccess }) {
+export default function AuthPage() {
   const navigate = useNavigate();
 
   // Route to the dashboard instead of home
   const handleGoHome = () => {
-    try {
-      localStorage.removeItem('auth_logged_out');
-    } catch (e) {
-      console.error(e);
-    }
-    if (onLoginSuccess) {
-      onLoginSuccess();
-    }
     navigate('/dashboard');
   };
 

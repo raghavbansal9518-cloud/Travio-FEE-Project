@@ -1,30 +1,42 @@
+import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
+import { getCurrentUser } from '../services/userProfileService';
 
 /**
  * ProtectedRoute component - validates user authentication before allowing access
  * to private routes (Bookings, Journal, Profile, Settings, Admin).
- * Allows seamless exploration for active users while strictly guarding logged-out states.
+ * Defaults to Aarav Sharma so browsing user features does not force login page.
  */
 export default function ProtectedRoute({ children, requiredRole }) {
   const location = useLocation();
 
   const getAuthStatus = () => {
     try {
-      const isLoggedOut = localStorage.getItem('auth_logged_out') === 'true';
-      const email = localStorage.getItem('auth_email');
-      const profile = JSON.parse(localStorage.getItem('travio_user_profile') || '{}');
-      
-      // Default to active explorer profile if not explicitly logged out
-      const userEmail = email || profile.email || (!isLoggedOut ? 'raghav@travio.io' : null);
-      const role = localStorage.getItem('auth_role') || (userEmail?.toLowerCase().includes('admin') ? 'admin' : 'user');
+      // If user explicitly clicked Logout during this session, redirect to auth
+      const isLoggedOut = typeof window !== 'undefined' && sessionStorage.getItem('travio_logged_out') === 'true';
+      if (isLoggedOut) {
+        return { isAuthenticated: false, role: 'user', userEmail: null };
+      }
+
+      let email = localStorage.getItem('auth_email');
+      if (!email) {
+        // Automatically default to Aarav Sharma so Profile, Journal, Settings load immediately
+        email = 'aarav.sharma@example.com';
+        localStorage.setItem('auth_email', email);
+        localStorage.setItem('auth_role', 'user');
+        const user = getCurrentUser();
+        localStorage.setItem('travio_user_profile', JSON.stringify(user));
+      }
+
+      const role = localStorage.getItem('auth_role') || (email?.toLowerCase().includes('admin') ? 'admin' : 'user');
 
       return {
-        isAuthenticated: !!userEmail && !isLoggedOut,
+        isAuthenticated: true,
         role,
-        userEmail
+        userEmail: email
       };
     } catch {
-      return { isAuthenticated: true, role: 'user', userEmail: 'raghav@travio.io' };
+      return { isAuthenticated: true, role: 'user', userEmail: 'aarav.sharma@example.com' };
     }
   };
 

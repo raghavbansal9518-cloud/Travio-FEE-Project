@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { logoutCurrentUser } from '../services/userProfileService';
 
 // We pass isHome prop here in case we need to conditionally style based on the page
 const Sidebar = ({ isHome }) => {
@@ -20,14 +21,7 @@ const Sidebar = ({ isHome }) => {
 
   const handleLogout = (e) => {
     e.preventDefault();
-    try {
-      localStorage.setItem('auth_logged_out', 'true');
-      localStorage.removeItem('auth_email');
-      localStorage.removeItem('auth_role');
-      localStorage.removeItem('auth_password');
-    } catch (err) {
-      // ignore
-    }
+    logoutCurrentUser();
     navigate('/auth');
   };
 
@@ -63,6 +57,13 @@ const Sidebar = ({ isHome }) => {
               <span className="nav-text">{t('nav.explore', 'Explore')}</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/wishlist">
+              <span className="material-symbols-rounded">favorite</span>
+              <span className="nav-text">{t('nav.wishlist', 'Wishlist')}</span>
+            </NavLink>
+          </li>
+          
           <li className="nav-divider"></li>
 
           {/* Tools & Features */}
@@ -88,6 +89,12 @@ const Sidebar = ({ isHome }) => {
             <NavLink to="/badges">
               <span className="material-symbols-rounded">workspace_premium</span>
               <span className="nav-text">{t('nav.badges', 'Badges')}</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/profile">
+              <span className="material-symbols-rounded">person</span>
+              <span className="nav-text">{t('nav.profile', 'Profile')}</span>
             </NavLink>
           </li>
           <li><NavLink to="/settings"><span className="material-symbols-rounded">settings</span><span className="nav-text">{t('nav.settings', 'Settings')}</span></NavLink></li>

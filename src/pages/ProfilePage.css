@@ -1,0 +1,1077 @@
+/* ========================================================
+   TRAVIO — PROFILE DASHBOARD STYLES
+   Visual direction: Premium black/dark navy interface,
+   glowing violet/purple gradients, subtle neon outlines,
+   glass-like cards, travel illustrations, responsive grid.
+   ======================================================== */
+
+.profile-page-container {
+  min-height: 100vh;
+  background: #090d16;
+  background-image: 
+    radial-gradient(circle at 15% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 65%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(56, 189, 248, 0.04) 0%, transparent 40%);
+  color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 4rem;
+}
+
+.profile-dashboard-content {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ========================================================
+   1. HERO PROFILE BANNER
+   ======================================================== */
+.profile-banner-card {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1e1338 0%, #0f172a 60%, #1e1b4b 100%);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(124, 58, 237, 0.15);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 36px;
+  background-size: cover;
+  background-position: center right;
+}
+
+.profile-banner-backdrop {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(90deg, rgba(11, 15, 25, 0.94) 0%, rgba(15, 23, 42, 0.85) 45%, rgba(124, 58, 237, 0.35) 100%),
+    url('https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=1600&auto=format&fit=crop&q=80');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.profile-banner-tagline-quote {
+  position: absolute;
+  top: 22px;
+  right: 36px;
+  z-index: 2;
+  font-family: 'Brush Script MT', 'Dancing Script', cursive, sans-serif;
+  font-size: 1.55rem;
+  color: #e9d5ff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(192, 132, 252, 0.5);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.profile-banner-left {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Glowing Avatar Wrapper */
+.profile-avatar-wrap {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #a855f7 0%, #38bdf8 50%, #c084fc 100%);
+  box-shadow: 0 0 24px rgba(168, 85, 247, 0.65), 0 0 12px rgba(56, 189, 248, 0.4);
+  flex-shrink: 0;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #1e1b4b;
+}
+
+.profile-avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Camera button for avatar upload / selection */
+.profile-avatar-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border: 2px solid #0b0f19;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(139, 92, 246, 0.7);
+  transition: all 0.2s ease;
+  z-index: 3;
+}
+
+.profile-avatar-camera-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.9);
+}
+
+.profile-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-name {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.profile-verified-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+
+.profile-email-text {
+  font-size: 0.92rem;
+  color: rgba(226, 232, 240, 0.75);
+  margin: 0;
+}
+
+.profile-tagline {
+  font-size: 0.9rem;
+  color: #c084fc;
+  margin: 4px 0 0 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Edit Profile button in banner */
+.profile-btn-edit-banner {
+  position: relative;
+  z-index: 2;
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(168, 85, 247, 0.15);
+  align-self: flex-end;
+}
+
+.profile-btn-edit-banner:hover {
+  background: rgba(147, 51, 234, 0.35);
+  border-color: rgba(192, 132, 252, 0.8);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), inset 0 0 16px rgba(168, 85, 247, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ========================================================
+   2. MAIN 2-COLUMN DASHBOARD LAYOUT
+   ======================================================== */
+.profile-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 22px;
+}
+
+.profile-column-left {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.profile-column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ========================================================
+   3. MIDDLE STATS ROW (3 Cards)
+   ======================================================== */
+.profile-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.profile-stat-card {
+  background: rgba(18, 24, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(16px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.profile-stat-card:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 18px rgba(124, 58, 237, 0.15);
+  background: rgba(24, 32, 50, 0.85);
+}
+
+.profile-stat-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-stat-icon-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+.profile-stat-icon-box.purple {
+  background: rgba(147, 51, 234, 0.18);
+  color: #c084fc;
+  box-shadow: 0 0 14px rgba(147, 51, 234, 0.25);
+}
+
+.profile-stat-icon-box.blue {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+}
+
+.profile-stat-icon-box.gold {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+}
+
+.profile-stat-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-stat-val {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.profile-stat-lbl {
+  font-size: 0.82rem;
+  color: rgba(203, 213, 225, 0.7);
+  margin-top: 2px;
+}
+
+.profile-stat-arrow {
+  color: rgba(148, 163, 184, 0.6);
+  font-size: 13px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.profile-stat-card:hover .profile-stat-arrow {
+  transform: translateX(3px);
+  color: #c084fc;
+}
+
+/* ========================================================
+   4. TRAVEL BADGES CARD
+   ======================================================== */
+.profile-badges-card {
+  background: rgba(18, 24, 38, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.profile-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.profile-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-section-title-icon {
+  font-size: 18px;
+  color: #a855f7;
+}
+
+.profile-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.profile-btn-link-action {
+  background: transparent;
+  border: none;
+  color: #a855f7;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.profile-btn-link-action:hover {
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+/* Badges Grid (5 items matching reference) */
+.profile-badges-hex-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.profile-hex-badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 18px 10px 14px 10px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.profile-hex-badge-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(168, 85, 247, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 16px rgba(147, 51, 234, 0.2);
+}
+
+/* Hexagon Shield Icon Wrapper */
+.profile-hex-icon-box {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  position: relative;
+  font-size: 22px;
+}
+
+/* Custom CSS Hexagon Shape */
+.profile-hex-shape {
+  width: 54px;
+  height: 54px;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.profile-hex-shape.explorer {
+  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.6);
+}
+
+.profile-hex-shape.photographer {
+  background: linear-gradient(135deg, #9333ea 0%, #c084fc 100%);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(147, 51, 234, 0.6);
+}
+
+.profile-hex-shape.foodie {
+  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.6);
+}
+
+.profile-hex-shape.wanderer {
+  background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+}
+
+.profile-hex-shape.nightowl {
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+}
+
+.profile-badge-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 4px 0;
+}
+
+.profile-badge-desc {
+  font-size: 0.72rem;
+  color: rgba(203, 213, 225, 0.65);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* ========================================================
+   5. PERSONAL INFORMATION CARD
+   ======================================================== */
+.profile-info-card {
+  background: rgba(18, 24, 38, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.profile-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 24px;
+  row-gap: 18px;
+}
+
+.profile-info-field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.profile-info-icon-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.profile-info-text-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info-lbl {
+  font-size: 0.75rem;
+  color: rgba(148, 163, 184, 0.8);
+  margin-bottom: 2px;
+}
+
+.profile-info-val {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+/* ========================================================
+   6. QUICK LINKS CARD (Right Column)
+   ======================================================== */
+.profile-quicklinks-card {
+  background: rgba(18, 24, 38, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.profile-quicklinks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-quicklink-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.profile-quicklink-item:hover {
+  background: rgba(147, 51, 234, 0.12);
+  border-color: rgba(168, 85, 247, 0.35);
+  transform: translateX(4px);
+}
+
+.profile-quicklink-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-quicklink-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.profile-quicklink-icon-box.purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+}
+
+.profile-quicklink-icon-box.violet {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+}
+
+.profile-quicklink-icon-box.pink {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+}
+
+.profile-quicklink-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-quicklink-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.profile-quicklink-subtitle {
+  font-size: 0.72rem;
+  color: rgba(148, 163, 184, 0.7);
+  margin-top: 1px;
+}
+
+.profile-quicklink-arrow {
+  color: rgba(148, 163, 184, 0.5);
+  font-size: 12px;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.profile-quicklink-item:hover .profile-quicklink-arrow {
+  transform: translateX(2px);
+  color: #c084fc;
+}
+
+/* ========================================================
+   7. TRAVEL PREFERENCES CARD (Right Column)
+   ======================================================== */
+.profile-prefs-card {
+  background: rgba(18, 24, 38, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 22px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.profile-prefs-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-pref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.profile-pref-chip:hover {
+  background: rgba(147, 51, 234, 0.15);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #ffffff;
+}
+
+.profile-pref-chip-icon {
+  font-size: 13px;
+  color: #a855f7;
+}
+
+/* ========================================================
+   8. DECORATIVE TRAVEL CARD (Bottom Right)
+   ======================================================== */
+.profile-decorative-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+  background-size: cover;
+  background-position: center;
+}
+
+.profile-decorative-backdrop {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(135deg, rgba(11, 15, 25, 0.8) 0%, rgba(124, 58, 237, 0.4) 100%),
+    url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&auto=format&fit=crop&q=80');
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.profile-decorative-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 16px;
+}
+
+.profile-decorative-script {
+  font-family: 'Brush Script MT', 'Dancing Script', cursive, sans-serif;
+  font-size: 1.65rem;
+  color: #e9d5ff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 16px rgba(168, 85, 247, 0.7);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+/* ========================================================
+   9. EDIT PROFILE & AVATAR MODALS
+   ======================================================== */
+.profile-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: profileFadeIn 0.2s ease-out;
+}
+
+.profile-modal-box {
+  background: #0f172a;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(124, 58, 237, 0.2);
+  width: 100%;
+  max-width: 580px;
+  overflow: hidden;
+  animation: profileModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.profile-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-modal-close-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.profile-modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.profile-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.profile-btn-cancel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.profile-btn-save {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  border: none;
+  color: #ffffff;
+  padding: 9px 22px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4);
+  transition: all 0.2s ease;
+}
+
+.profile-btn-save:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.6);
+  transform: translateY(-1px);
+}
+
+/* Modal Input Styles */
+.profile-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-input-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.profile-input-field {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.profile-input-field:focus {
+  border-color: #a855f7;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+}
+
+/* Avatar Selection Modal Specifics */
+.avatar-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.avatar-preset-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  aspect-ratio: 1;
+}
+
+.avatar-preset-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-preset-item:hover {
+  transform: scale(1.04);
+  border-color: rgba(168, 85, 247, 0.6);
+}
+
+.avatar-preset-item.selected {
+  border-color: #a855f7;
+  box-shadow: 0 0 18px rgba(168, 85, 247, 0.8);
+}
+
+.avatar-preset-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #a855f7;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+/* File Upload Zone */
+.avatar-upload-zone {
+  border: 2px dashed rgba(168, 85, 247, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(168, 85, 247, 0.05);
+  transition: all 0.2s ease;
+}
+
+.avatar-upload-zone:hover {
+  border-color: #c084fc;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+/* Animations */
+@keyframes profileFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes profileModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .profile-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-badges-hex-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 24px;
+  }
+  .profile-banner-tagline-quote {
+    display: none;
+  }
+  .profile-btn-edit-banner {
+    align-self: flex-start;
+  }
+  .profile-stats-row {
+    grid-template-columns: 1fr;
+  }
+  .profile-info-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-badges-hex-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.profile-info-placeholder {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: rgba(203, 213, 225, 0.45);
+  font-style: italic;
+}
+
+.profile-tagline-add-btn {
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px dashed rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.profile-tagline-add-btn:hover {
+  background: rgba(168, 85, 247, 0.22);
+  border-color: #c084fc;
+  color: #ffffff;
+}
+
+.profile-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.profile-select-custom {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-color: #1e1b4b !important;
+  color: #ffffff !important;
+  padding-right: 38px !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.profile-select-custom:focus {
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.4) !important;
+  background-color: #272261 !important;
+}
+
+.profile-select-custom option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  padding: 12px 14px !important;
+  font-size: 0.9rem;
+}
+
+.profile-select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #a855f7;
+  font-size: 11px;
+}
+
+.avatar-preset-label-badge {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  background: rgba(15, 23, 42, 0.88);
+  font-size: 9.5px;
+  padding: 3px 4px;
+  text-align: center;
+  color: #e2e8f0;
+  backdrop-filter: blur(4px);
+  font-weight: 600;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
