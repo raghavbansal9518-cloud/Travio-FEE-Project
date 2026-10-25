@@ -1201,3 +1201,19 @@
     flex: 1;
   }
 }
+
+
+/* Embedded View inside Book a Trip Page */
+.bookings-page-root.embedded-bookings-view {
+  min-height: auto;
+  background: transparent;
+  padding-bottom: 2rem;
+}
+
+.embedded-bookings-view .bookings-hero-banner {
+  border-radius: 20px;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.08) 50%, rgba(124, 58, 237, 0.06) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

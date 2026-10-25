@@ -99,6 +99,7 @@
   backdrop-filter: blur(12px);
   transition: all 0.25s ease;
   box-shadow: 0 4px 15px rgba(106, 76, 255, 0.25);
+  text-decoration: none;
 }
 
 .btn-my-bookings-trigger:hover {
@@ -106,6 +107,11 @@
   border-color: #a855f7;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(106, 76, 255, 0.45);
+}
+.btn-my-bookings-trigger.active {
+  background: linear-gradient(135deg, rgba(106, 76, 255, 0.75) 0%, rgba(168, 85, 247, 0.65) 100%);
+  border-color: #c084fc;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.55);
 }
 
 .bookings-live-badge {

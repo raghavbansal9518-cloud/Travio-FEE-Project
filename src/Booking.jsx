@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import BookingBackground from './booking/BookingBackground';
@@ -7,6 +8,7 @@ import StaySection from './booking/StaySection';
 import ExperienceSection from './booking/ExperienceSection';
 import BookingCheckoutModal from './booking/BookingCheckoutModal';
 import MyBookingsModal from './booking/MyBookingsModal';
+import BookingsPage from './pages/BookingsPage';
 import ToastNotification from './booking/ToastNotification';
 import { getTodayDate, getFutureDate, formatDisplayDate } from './utils/dateUtils';
 import { useTravel } from './context/TravelContext';
@@ -65,7 +67,6 @@ const getInitialSampleBookings = () => [
 export default function Booking() {
   const travelContext = useTravel ? useTravel() : null;
   const { t } = useLanguage();
-
   // Main Category state: 'MOVE' | 'STAY' | 'EXPERIENCE'
   const [activeCategory, setActiveCategory] = useState('MOVE');
 
@@ -225,44 +226,24 @@ export default function Booking() {
             <div className="booking-hero-pill">
               <span className="material-symbols-rounded">rocket_launch</span>
               <span>TRAVIO FAST-TRACK RESERVATION ENGINE</span>
-              {isInventorySynced && (
-                <span style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '6px', 
-                  marginLeft: '8px', 
-                  padding: '2px 8px', 
-                  borderRadius: '12px', 
-                  background: 'rgba(34, 197, 94, 0.15)', 
-                  border: '1px solid rgba(34, 197, 94, 0.4)', 
-                  color: '#4ade80', 
-                  fontSize: '10px', 
-                  fontWeight: 600,
-                  letterSpacing: '0.5px'
-                }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80' }}></span>
-                  Dynamic Fetch API Active
-                </span>
-              )}
             </div>
 
             {/* Quick Access to My Bookings Manager (CRUD) */}
-            <button
-              type="button"
+            <Link
+              to="/bookings"
               className="btn-my-bookings-trigger"
-              onClick={() => setIsMyBookingsOpen(true)}
-              title="Open My Bookings Management Dashboard"
+              title="Open My Bookings"
             >
               <i className="fa-solid fa-suitcase-rolling"></i>
               <span>{t('nav.myBookings', 'My Bookings')}</span>
               {activeConfirmedCount > 0 && (
                 <span className="bookings-live-badge">{activeConfirmedCount}</span>
               )}
-            </button>
+            </Link>
           </div>
 
           <h1 className="booking-hero-title">
-            {t('booking.title', 'Book Your Journey')}
+            Your Next Journey, <span className="title-accent">Seamlessly Booked</span>
           </h1>
           <p className="booking-hero-subtitle">
             {t('booking.subtitle', 'Instant reservations for flights, luxury stays, scenic trains, intercity coaches, and chauffeur cabs.')}

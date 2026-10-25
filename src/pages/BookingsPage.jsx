@@ -83,10 +83,26 @@ const getCategoryMeta = (rawType = '') => {
   }
 };
 
-export default function BookingsPage() {
+export default function BookingsPage({ embedded = false, onBookNewTrip }) {
   const navigate = useNavigate();
-  const { bookings, cancelBooking, deleteBooking, showToast } = useTravel();
-  const { t } = useLanguage();
+  let travelContext = null;
+  try {
+    travelContext = useTravel();
+  } catch (err) {
+    console.warn('TravelContext fallback in BookingsPage:', err);
+  }
+  const bookings = Array.isArray(travelContext?.bookings) ? travelContext.bookings : [];
+  const cancelBooking = travelContext?.cancelBooking || (() => {});
+  const deleteBooking = travelContext?.deleteBooking || (() => {});
+  const showToast = travelContext?.showToast || (() => {});
+  
+  let t = (k, def) => def;
+  try {
+    const lang = useLanguage();
+    if (lang?.t) t = lang.t;
+  } catch (err) {
+    console.warn('LanguageContext fallback in BookingsPage:', err);
+  }
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'confirmed' | 'cancelled'
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'FLIGHT' | 'TRAIN' | 'HOTEL' | 'BUS' | 'CAB' | 'EXPERIENCE'
@@ -98,7 +114,8 @@ export default function BookingsPage() {
 
   // Filter bookings based on status, category, and search query
   const filteredBookings = useMemo(() => {
-    return bookings.filter((b) => {
+    return (bookings || []).filter((b) => {
+      if (!b) return false;
       // 1. Status Filter
       const isConfirmed = String(b.status || '').toLowerCase() === 'confirmed';
       const isCancelled = String(b.status || '').toLowerCase() === 'cancelled';
@@ -134,10 +151,8 @@ export default function BookingsPage() {
   }, [bookings, activeTab, selectedCategory, searchQuery]);
 
   // Aggregate Metrics
-  const confirmedCount = bookings.filter((b) => String(b.status || '').toLowerCase() === 'confirmed').length;
-  const totalInvestment = bookings
-    .filter((b) => String(b.status || '').toLowerCase() === 'confirmed')
-    .reduce((sum, b) => sum + (Number(b.totalCost) || 0), 0);
+  const confirmedCount = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").length;
+  const totalInvestment = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").reduce((sum, b) => sum + (Number(b?.totalCost) || 0), 0);
 
   const handleCopyRef = (refId) => {
     if (!refId) return;
@@ -150,8 +165,9 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="bookings-page-root">
-      <Header />
+    <div className={`bookings-page-root ${embedded ? "embedded-bookings-view" : ""}`}>
+      {!embedded && <Header />}
+
 
       {/* Cinematic Hero Section */}
       <div className="bookings-hero-banner">
@@ -173,16 +189,30 @@ export default function BookingsPage() {
         </div>
 
         <div>
-          <Link to="/booking" className="btn-book-new-trip">
-            <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
-              airplane_ticket
-            </span>
-            <span>{t('phrases.Book New Trip', 'Book New Trip')}</span>
-          </Link>
+          {onBookNewTrip ? (
+            <button
+              type="button"
+              onClick={onBookNewTrip}
+              className="btn-book-new-trip"
+              style={{ cursor: 'pointer', border: 'none' }}
+            >
+              <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
+                airplane_ticket
+              </span>
+              <span>{t('phrases.Book New Trip', 'Book New Trip')}</span>
+            </button>
+          ) : (
+            <Link to="/booking" className="btn-book-new-trip">
+              <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
+                airplane_ticket
+              </span>
+              <span>{t('phrases.Book New Trip', 'Book New Trip')}</span>
+            </Link>
+          )}
         </div>
       </div>
 
-      <div style={{ padding: '0 5%' }}>
+      <div style={{ padding: embedded ? '0' : '0 5%' }}>
         {/* KPI Summary Cards */}
         <div className="bookings-kpi-grid">
           <div className="bookings-kpi-card">
@@ -352,12 +382,26 @@ export default function BookingsPage() {
               You haven't locked any itineraries yet. Compare live flights, high-speed rail, or boutique villas across India & the globe!
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/booking" className="btn-book-new-trip">
-                <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
-                  airplane_ticket
-                </span>
-                <span>Book Flight, Train or Villa</span>
-              </Link>
+              {onBookNewTrip ? (
+                <button
+                  type="button"
+                  onClick={onBookNewTrip}
+                  className="btn-book-new-trip"
+                  style={{ cursor: 'pointer', border: 'none' }}
+                >
+                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
+                    airplane_ticket
+                  </span>
+                  <span>Book Flight, Train or Villa</span>
+                </button>
+              ) : (
+                <Link to="/booking" className="btn-book-new-trip">
+                  <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>
+                    airplane_ticket
+                  </span>
+                  <span>Book Flight, Train or Villa</span>
+                </Link>
+              )}
               <Link
                 to="/wishlist"
                 style={{
