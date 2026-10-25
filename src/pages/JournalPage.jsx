@@ -434,6 +434,8 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
 }
 
 function JournalCard({ entry, isDemo, favorite, bookmarked, menuOpen, readOnly, onFavorite, onBookmark, onMenu, onEdit, onDelete, onOpenStory }) {
+  const { t } = useLanguage();
+
   return (
     <article
       className="journal-card journal-card--clickable"
