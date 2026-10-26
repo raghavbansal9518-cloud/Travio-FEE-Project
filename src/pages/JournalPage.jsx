@@ -95,7 +95,7 @@ function getInitialData() {
   }
 }
 
-export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
+export function JournalEntryForm({ entry, onCancel, onSave }) {
   const [form, setForm] = useState(() => ({
     title: entry?.title || '',
     destination: entry?.destination || '',
@@ -104,10 +104,7 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
     description: entry?.description || '',
     fullStory: entry?.fullStory || entry?.description || '',
     image: entry?.image || '',
-    tags: (entry?.tags || []).join(', '),
     kind: entry?.kind || 'trip',
-    tripId: entry?.tripId || '',
-    favorite: !!entry?.favorite,
     gallery: (entry?.gallery || []).map((photo) => photo.image).join('\n'),
     activities: (entry?.activities || []).map((activity) => activity.name || activity.title).join('\n'),
     tips: (entry?.tips || []).join('\n'),
@@ -135,30 +132,6 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
 
   const update = (field) => (event) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
-  };
-
-  const handleTripChange = (event) => {
-    const selectedTripId = event.target.value;
-    const selectedBooking = bookings.find((b) => b.id === selectedTripId);
-    setForm((current) => {
-      const nextDest = (!current.destination || current.destination === 'Goa') && selectedBooking
-        ? (selectedBooking.destinationName || selectedBooking.title)
-        : current.destination;
-      const nextDate = selectedBooking?.departureDate ? normalizeDate(selectedBooking.departureDate) : current.date;
-      const nextEndDate = selectedBooking?.returnDate ? normalizeDate(selectedBooking.returnDate) : current.endDate;
-      const nextImage = !current.image && selectedBooking?.destinationImage ? selectedBooking.destinationImage : current.image;
-      const nextTitle = !current.title && selectedBooking ? `Memories from ${selectedBooking.destinationName || selectedBooking.title}` : current.title;
-
-      return {
-        ...current,
-        tripId: selectedTripId,
-        destination: nextDest,
-        date: nextDate,
-        endDate: nextEndDate,
-        image: nextImage,
-        title: nextTitle
-      };
-    });
   };
 
   const handleImageUpload = (event) => {
@@ -283,10 +256,10 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
       tips: form.tips.split('\n').map((tip) => tip.trim()).filter(Boolean),
       budget: form.budget.trim(),
       duration: form.duration.trim(),
-      tags: form.tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+      tags: entry?.tags || [],
       kind: form.kind,
-      tripId: form.tripId || '',
-      favorite: form.favorite,
+      tripId: entry?.tripId || '',
+      favorite: !!entry?.favorite,
       visibility: form.visibility,
       ownerId: entry?.ownerId || getJournalOwner(),
       authorName: entry?.authorName || getProfileName() || getJournalOwner().split('@')[0],
@@ -318,7 +291,6 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
             {form.image && <img src={form.image} alt="Story cover preview" />}
             <p><strong>Introduction</strong><br />{form.description || 'No introduction yet.'}</p>
             <p><strong>Full story</strong><br />{form.fullStory || 'No story text yet.'}</p>
-            {form.tags && <p><strong>Tags</strong><br />{form.tags}</p>}
             <button className="journal-button journal-button--quiet" type="button" onClick={() => setIsPreviewing(false)}>Back to editor</button>
           </div>
         ) : <form className="journal-form" onSubmit={handleSubmit}>
@@ -373,14 +345,6 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
             <textarea rows={3} value={form.tips} onChange={update('tips')} placeholder="One travel tip per line" />
           </label>
           <label className="journal-field">
-            <span>Entry type</span>
-            <select value={form.kind} onChange={update('kind')}>
-              <option value="trip">Trip</option>
-              <option value="photo">Photo</option>
-              <option value="note">Note</option>
-            </select>
-          </label>
-          <label className="journal-field">
             <span>Estimated trip duration</span>
             <input maxLength={60} value={form.duration} onChange={update('duration')} placeholder="e.g. 5 days" />
           </label>
@@ -395,28 +359,6 @@ export function JournalEntryForm({ entry, bookings, onCancel, onSave }) {
               <option value="private">Private to this browser profile</option>
             </select>
           </label>
-          <label className="journal-field">
-            <span>Associate with a trip</span>
-            <select value={form.tripId} onChange={handleTripChange}>
-              <option value="">No trip association</option>
-              {bookings.map((booking) => (
-                <option key={booking.id} value={booking.id}>
-                  {booking.destinationName || booking.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="journal-field journal-field--wide">
-            <span>Categories / tags</span>
-            <input maxLength={180} value={form.tags} onChange={update('tags')} placeholder="Nature, Food, Architecture" />
-            <span className="journal-field__hint">Separate tags with commas.</span>
-          </label>
-          <label className="journal-favorite-check">
-            <input type="checkbox" checked={form.favorite} onChange={(event) => setForm((current) => ({ ...current, favorite: event.target.checked }))} />
-            <span className="material-symbols-rounded" aria-hidden="true">favorite</span>
-            Save this entry to Favorites
-          </label>
-
           {error && <p className="journal-form-error" role="alert">{error}</p>}
           <div className="journal-form__actions">
             <button className="journal-button journal-button--quiet" type="button" onClick={onCancel}>Cancel</button>
@@ -542,7 +484,6 @@ export default function JournalPage() {
         description: '',
         fullStory: '',
         image: matchedTrip?.destinationImage || '',
-        tags: matchedTrip?.type ? [matchedTrip.type] : [],
         kind: 'trip'
       });
       setIsCreating(true);
@@ -859,7 +800,6 @@ export default function JournalPage() {
         <JournalEntryForm
           key={modalEntry?.id || (modalEntry ? `new-${modalEntry.tripId || modalEntry.destination || 'entry'}` : 'new-entry')}
           entry={modalEntry}
-          bookings={bookings}
           onCancel={() => {
             setIsCreating(false);
             setModalEntry(null);

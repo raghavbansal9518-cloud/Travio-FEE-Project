@@ -1050,25 +1050,6 @@
   font-size: 14px;
 }
 
-.journal-favorite-check {
-  display: inline-flex;
-  grid-column: 1 / -1;
-  align-items: center;
-  gap: 7px;
-  color: #dfd9ed;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.journal-favorite-check input {
-  accent-color: #a13fe8;
-}
-
-.journal-favorite-check .material-symbols-rounded {
-  color: #f254a0;
-  font-size: 17px;
-}
-
 .journal-form-error {
   grid-column: 1 / -1;
   margin: 0;
@@ -1250,7 +1231,6 @@
 
   .journal-field,
   .journal-field--wide,
-  .journal-favorite-check,
   .journal-form-error,
   .journal-form__actions {
     grid-column: 1;
