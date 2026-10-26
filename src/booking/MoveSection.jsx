@@ -60,11 +60,8 @@ export default function MoveSection({ onSelectBookingItem }) {
               <div className="transport-animation-stage">
                 {opt.id === 'flights' && (
                   <div className="airplane-scene">
-                    <div className="airplane-clouds-layer">
-                      <span className="cloud-particle cp-1" />
-                      <span className="cloud-particle cp-2" />
-                    </div>
-                    <div className="airplane-icon-vehicle">
+                    <div className="contrail-stream" />
+                    <div className="plane-icon-vehicle">
                       <span className="material-symbols-rounded">flight</span>
                     </div>
                   </div>

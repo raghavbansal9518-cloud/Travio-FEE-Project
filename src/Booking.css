@@ -430,7 +430,8 @@
   opacity: 0.6;
 }
 
-.plane-icon-vehicle {
+.plane-icon-vehicle,
+.airplane-icon-vehicle {
   position: absolute;
   left: 10px;
   width: 36px;
@@ -444,7 +445,8 @@
   animation: planeFlySmooth 3.2s infinite ease-in-out;
 }
 
-.plane-icon-vehicle .material-symbols-rounded {
+.plane-icon-vehicle .material-symbols-rounded,
+.airplane-icon-vehicle .material-symbols-rounded {
   font-size: 22px;
   transform: rotate(45deg);
 }

@@ -142,7 +142,6 @@ export default function Booking() {
     setIsMyBookingsOpen(false);
   };
 
-  const confirmedFlightBookingsCount = travelContext?.confirmedFlightBookingsCount ?? 0;
 
   return (
     <div className="booking-page-root">
@@ -173,7 +172,6 @@ export default function Booking() {
             >
               <i className="fa-solid fa-suitcase-rolling"></i>
               <span>{t('nav.myBookings', 'My Bookings')}</span>
-              <span className="bookings-live-badge">{confirmedFlightBookingsCount}</span>
             </Link>
           </div>
 
