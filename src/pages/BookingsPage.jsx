@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
+import { printTicketVoucher, downloadTicketVoucher } from '../booking/ticketExportUtils';
 import './BookingsPage.css';
 
 // Resolve the visual and ticket labels shared by each transport category.
@@ -112,6 +113,17 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  const handleDownloadTicket = (ticket) => {
+    try {
+      downloadTicketVoucher(ticket);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2500);
+    } catch (e) {
+      console.error('Download ticket error:', e);
+    }
+  };
   const [cancellationTarget, setCancellationTarget] = useState(null);
   const [isCancellationProcessing, setIsCancellationProcessing] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('Change of travel schedule');
@@ -960,7 +972,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                       {/* Live Dynamic QR Code Server */}
                       <div className="ticket-qr-container">
                         <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=TRAVIO-${selectedTicket.id}-${selectedTicket.type}`}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=TRAVIO-${selectedTicket.id}-${selectedTicket.type}`}
                           alt="Ticket QR"
                           className="ticket-qr-img"
                         />
@@ -974,11 +986,21 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                     <button
                       type="button"
                       className="btn-print-pass"
-                      onClick={() => window.print()}
-                      title="Download or Print E-Ticket as PDF"
+                      onClick={() => printTicketVoucher(selectedTicket)}
+                      title="Print Official Ticket or Save as PDF"
                     >
-                      <i className="fa-solid fa-file-pdf"></i>
-                      <span>Download / Print E-Ticket (PDF)</span>
+                      <i className="fa-solid fa-print"></i>
+                      <span>Print / PDF</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-download-pass"
+                      onClick={() => handleDownloadTicket(selectedTicket)}
+                      title="Download Official E-Ticket File"
+                    >
+                      <i className={`fa-solid ${downloadSuccess ? 'fa-check' : 'fa-download'}`}></i>
+                      <span>{downloadSuccess ? 'Downloaded!' : 'Download Ticket'}</span>
                     </button>
 
                     <button

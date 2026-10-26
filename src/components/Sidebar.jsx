@@ -57,12 +57,6 @@ const Sidebar = ({ isHome }) => {
               <span className="nav-text">{t('nav.explore', 'Explore')}</span>
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/wishlist">
-              <span className="material-symbols-rounded">favorite</span>
-              <span className="nav-text">{t('nav.wishlist', 'Wishlist')}</span>
-            </NavLink>
-          </li>
           
           <li className="nav-divider"></li>
 

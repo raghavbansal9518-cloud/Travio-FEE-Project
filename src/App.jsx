@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
 // Pages
@@ -29,7 +29,8 @@ import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// Context
+// Services & Context
+import { getCurrentUser } from './services/userProfileService';
 import { TravelProvider } from './context/TravelContext';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -45,32 +46,94 @@ function MainLayout() {
   );
 }
 
-// Landing page / Root route handler
-function HomeOrLanding() {
-  const [hasSeenSplash, setHasSeenSplash] = useState(() => {
-    try {
-      return sessionStorage.getItem('travio_has_seen_splash') === 'true';
-    } catch {
-      return false;
-    }
-  });
+// App routing and initial landing page controller
+function AppRoutes() {
+  // In-memory state: always resets to false on every full browser refresh / reload
+  const [hasEntered, setHasEntered] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const handleSplashComplete = () => {
-    try {
-      sessionStorage.setItem('travio_has_seen_splash', 'true');
-    } catch (e) {
-      // ignore
-    }
-    setHasSeenSplash(true);
-    navigate('/auth');
-  };
-
-  if (!hasSeenSplash) {
-    return <LandingPage onComplete={handleSplashComplete} />;
+  // If the user has not clicked "Enter Dashboard" on this page load/refresh:
+  // Always present the welcome LandingPage first
+  if (!hasEntered) {
+    return (
+      <LandingPage
+        onComplete={() => {
+          try {
+            sessionStorage.removeItem('travio_logged_out');
+            sessionStorage.removeItem('travio_has_seen_splash');
+            let email = localStorage.getItem('auth_email');
+            if (!email) {
+              localStorage.setItem('auth_email', 'aarav.sharma@example.com');
+              localStorage.setItem('auth_role', 'user');
+              const user = getCurrentUser();
+              localStorage.setItem('travio_user_profile', JSON.stringify(user));
+            }
+          } catch {
+            // ignore
+          }
+          setHasEntered(true);
+          navigate('/dashboard');
+        }}
+      />
+    );
   }
 
-  return <Navigate to="/dashboard" replace />;
+  return (
+    <Routes>
+      {/* Root redirect to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Auth Page: Only shown when explicitly logged out or routed */}
+      <Route
+        path="/auth"
+        element={
+          <AuthPage
+            onLoginSuccess={() => {
+              setHasEntered(true);
+              navigate('/dashboard');
+            }}
+          />
+        }
+      />
+
+      {/* Main App Routes with Sidebar Navigation */}
+      <Route element={<MainLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/destination/:id" element={<DestinationDetails />} />
+        <Route path="/booking" element={<Booking />} />
+        <Route path="/transport" element={<TransportPage />} />
+        <Route path="/geoweather" element={<GeoWeather />} />
+        <Route path="/food-guide" element={<FoodGuide />} />
+        <Route path="/activities" element={<Activities />} />
+        <Route path="/packing" element={<PackingPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
+        <Route path="/badges" element={<BadgesPage />} />
+        <Route path="/badges/:badgeId" element={<BadgesPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
+        <Route path="/hotels" element={<Booking />} />
+        <Route path="/flights" element={<Booking />} />
+
+        {/* Protected Routes (Authentication Required) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/trips" element={<BookingsPage />} />
+          <Route path="/journal" element={<JournalPage />} />
+          <Route path="/journal/:entryId" element={<JournalStoryPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/membership" element={<SettingsPage defaultTab="membership" />} />
+        </Route>
+
+        {/* Admin Management Console */}
+        <Route path="/admin" element={<AdminPage />} />
+      </Route>
+
+      {/* Dedicated 404 Page for Any Unknown Route */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
 }
 
 export default function App() {
@@ -79,49 +142,7 @@ export default function App() {
       <LanguageProvider>
         <TravelProvider>
           <BrowserRouter>
-            <Routes>
-              {/* --- Root: Landing splash if first visit, else redirect to dashboard --- */}
-              <Route path="/" element={<HomeOrLanding />} />
-
-              {/* --- Auth Page (Full screen, no sidebar) --- */}
-              <Route path="/auth" element={<AuthPage />} />
-
-              {/* --- Main App Routes (Wrapped in MainLayout with Sidebar) --- */}
-              <Route element={<MainLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/explore" element={<ExplorePage />} />
-                <Route path="/destination/:id" element={<DestinationDetails />} />
-                <Route path="/booking" element={<Booking />} />
-                <Route path="/transport" element={<TransportPage />} />
-                <Route path="/geoweather" element={<GeoWeather />} />
-                <Route path="/food-guide" element={<FoodGuide />} />
-                <Route path="/activities" element={<Activities />} />
-                <Route path="/packing" element={<PackingPage />} />
-                <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/badges" element={<BadgesPage />} />
-                <Route path="/badges/:badgeId" element={<BadgesPage />} />
-                <Route path="/reviews" element={<ReviewsPage />} />
-                <Route path="/hotels" element={<Booking />} />
-                <Route path="/flights" element={<Booking />} />
-
-                {/* Protected Routes (Authentication Required) */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/bookings" element={<BookingsPage />} />
-                  <Route path="/trips" element={<BookingsPage />} />
-                  <Route path="/journal" element={<JournalPage />} />
-                  <Route path="/journal/:entryId" element={<JournalStoryPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/membership" element={<SettingsPage defaultTab="membership" />} />
-                </Route>
-
-                {/* Admin Management Console (Airline Management System) */}
-                <Route path="/admin" element={<AdminPage />} />
-              </Route>
-
-              {/* --- Dedicated 404 Page for Any Unknown Route --- */}
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <AppRoutes />
           </BrowserRouter>
         </TravelProvider>
       </LanguageProvider>

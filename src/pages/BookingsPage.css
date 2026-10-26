@@ -607,9 +607,9 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1.5rem 1rem;
   animation: ticketModalFadeIn 0.25s ease-out;
   overflow-y: auto;
 }
@@ -627,11 +627,12 @@
 
 .ticket-modal-container {
   width: 100%;
-  max-width: 580px;
+  max-width: 530px;
+  margin: auto;
   background: #0f172a;
-  border-radius: 26px;
+  border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(56, 189, 248, 0.12);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.12);
   overflow: hidden;
   position: relative;
   display: flex;
@@ -668,7 +669,7 @@
 }
 
 .ticket-header-band {
-  padding: 24px 28px;
+  padding: 14px 20px;
   color: #fff;
   position: relative;
 }
@@ -677,7 +678,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .ticket-brand-badge {
@@ -720,7 +721,7 @@
 }
 
 .ticket-service-main {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   line-height: 1.2;
 }
@@ -754,12 +755,12 @@
 /* Journey Visualization Section */
 .ticket-journey-strip {
   background: rgba(15, 23, 42, 0.65);
-  padding: 16px 28px;
+  padding: 10px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
 }
 
 .journey-node {
@@ -830,17 +831,17 @@
 
 /* Ticket Details Body Grid */
 .ticket-details-body {
-  padding: 24px 28px;
+  padding: 12px 20px;
   background: #0b1120;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .ticket-data-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px 20px;
+  gap: 8px 16px;
 }
 
 .ticket-cell {
@@ -894,7 +895,7 @@
 /* Perforation Tear-off Divider */
 .ticket-perforation-divider {
   position: relative;
-  height: 24px;
+  height: 16px;
   background: #0b1120;
   display: flex;
   align-items: center;
@@ -903,9 +904,9 @@
 
 .perf-notch-left {
   position: absolute;
-  left: -12px;
-  width: 24px;
-  height: 24px;
+  left: -9px;
+  width: 18px;
+  height: 18px;
   background: rgba(4, 6, 15, 0.82);
   border-radius: 50%;
   box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.5);
@@ -914,9 +915,9 @@
 
 .perf-notch-right {
   position: absolute;
-  right: -12px;
-  width: 24px;
-  height: 24px;
+  right: -9px;
+  width: 18px;
+  height: 18px;
   background: rgba(4, 6, 15, 0.82);
   border-radius: 50%;
   box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.5);
@@ -931,12 +932,12 @@
 
 /* Ticket Verification & Barcode Footer */
 .ticket-barcode-footer {
-  padding: 20px 28px;
+  padding: 12px 20px;
   background: #080d1a;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .ticket-fare-summary {
@@ -953,7 +954,7 @@
 }
 
 .fare-total-number {
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 900;
   color: #10b981;
 }
@@ -1017,17 +1018,17 @@
 
 /* Modal Actions Bar */
 .ticket-actions-bar {
-  padding: 16px 28px;
+  padding: 10px 20px;
   background: #0f172a;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .btn-print-pass {
-  flex: 1.2;
-  padding: 12px 18px;
-  border-radius: 12px;
+  flex: 1.1;
+  padding: 9px 12px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
   color: #fff;
   border: none;
@@ -1036,10 +1037,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 13.5px;
+  gap: 6px;
+  font-size: 12px;
   box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
   transition: all 0.2s ease;
+}
+
+.btn-download-pass {
+  flex: 1.1;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.btn-download-pass:hover {
+  background: rgba(16, 185, 129, 0.25);
+  transform: translateY(-1px);
 }
 
 .btn-print-pass:hover {
@@ -1048,8 +1071,8 @@
 }
 
 .btn-copy-ref {
-  padding: 12px 18px;
-  border-radius: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
   color: var(--text-dark, #e2e8f0);
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
@@ -1058,7 +1081,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.2s ease;
 }
 
@@ -1067,14 +1090,14 @@
 }
 
 .btn-close-pass {
-  padding: 12px 18px;
-  border-radius: 12px;
+  padding: 9px 14px;
+  border-radius: 10px;
   background: transparent;
   color: var(--text-muted, #94a3b8);
   border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
   font-weight: 600;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   transition: all 0.2s ease;
 }
 
@@ -1196,11 +1219,11 @@
 }
 
 /* ==========================================================================
-   6. PRINT STYLESHEET FOR PHYSICAL BOARDING PASSES & PDF EXPORT
+   6. OFFICIAL TICKET PRINT STYLESHEET (Guaranteed Single Page Output)
    ========================================================================== */
 @page {
   size: A4 portrait;
-  margin: 12mm;
+  margin: 10mm;
 }
 
 @media print {
@@ -1208,7 +1231,7 @@
     background: #ffffff !important;
     color: #0f172a !important;
     width: 100% !important;
-    height: auto !important;
+    height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
@@ -1216,50 +1239,71 @@
     print-color-adjust: exact !important;
   }
 
-  body * {
-    visibility: hidden;
+  /* CRITICAL: Remove all page elements EXCEPT the ticket modal from the layout flow.
+     Do NOT use visibility:hidden as that preserves the 3000px height creating 6 blank pages! */
+  header,
+  .header-container,
+  .sidebar,
+  .bookings-hero-banner,
+  .bookings-kpi-grid,
+  .bookings-financial-summary,
+  .bookings-controls-panel,
+  .bookings-list-container,
+  .empty-bookings-state,
+  .ticket-actions-bar,
+  .btn-close-ticket-modal,
+  .cancellation-modal-overlay {
+    display: none !important;
   }
 
-  .ticket-modal-overlay,
-  .ticket-modal-container,
-  .ticket-modal-container * {
-    visibility: visible;
+  .bookings-page-root {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    min-height: auto !important;
+    display: block !important;
   }
 
   .ticket-modal-overlay {
-    position: static !important;
-    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
     background: transparent !important;
     backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     padding: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     box-shadow: none !important;
     border: none !important;
+    display: block !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .ticket-modal-container {
     max-width: 680px !important;
+    width: 100% !important;
     margin: 0 auto !important;
-    border: 1.5px solid #cbd5e1 !important;
+    border: 2px solid #2563eb !important;
     box-shadow: none !important;
     background: #ffffff !important;
     color: #0f172a !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-    border-radius: 16px !important;
-  }
-
-  .btn-close-ticket-modal,
-  .ticket-actions-bar {
-    display: none !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
   }
 
   .ticket-header-band {
     background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
     color: #ffffff !important;
-    border-top-left-radius: 14px !important;
-    border-top-right-radius: 14px !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    padding: 16px 22px !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
@@ -1281,7 +1325,7 @@
   }
 
   .ticket-cell-lbl,
-  .journey-node-city {
+  .journey-node-sub {
     color: #64748b !important;
   }
 
@@ -1295,6 +1339,11 @@
 
   .ticket-barcode-bars {
     filter: invert(1);
+  }
+
+  .ticket-qr-container {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
   }
 }
 

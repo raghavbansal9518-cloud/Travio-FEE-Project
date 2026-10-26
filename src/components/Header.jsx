@@ -2,11 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useLanguage } from '../context/LanguageContext';
+import { useTravel } from '../context/TravelContext';
 import { getCurrentUser, getInitials, logoutCurrentUser } from '../services/userProfileService';
 
 export default function Header({ variant = '' }) {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  let wishlistCount = 0;
+  try {
+    const travel = useTravel();
+    wishlistCount = Array.isArray(travel?.wishlist) ? travel.wishlist.length : 0;
+  } catch (e) {
+    // TravelContext fallback
+  }
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
@@ -180,8 +188,8 @@ export default function Header({ variant = '' }) {
         {/* 💜 Clean Fast Wishlist Heart */}
         <Link 
           to="/wishlist" 
-          aria-label="Wishlist"
-          title="Wishlist"
+          aria-label={t('nav.wishlist', 'Wishlist')}
+          title={`${t('nav.wishlist', 'Wishlist')}${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`}
           style={{
             width: '40px',
             height: '40px',
@@ -194,6 +202,7 @@ export default function Header({ variant = '' }) {
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
+            position: 'relative',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
           onMouseOver={(e) => {
@@ -212,6 +221,28 @@ export default function Header({ variant = '' }) {
           }}
         >
           <span className="material-symbols-rounded" style={{ fontSize: '20px' }}>favorite</span>
+          {wishlistCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-2px',
+              right: '-2px',
+              background: '#f43f5e',
+              color: '#ffffff',
+              fontSize: '10px',
+              fontWeight: 800,
+              minWidth: '17px',
+              height: '17px',
+              borderRadius: '999px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 4px',
+              boxShadow: '0 2px 6px rgba(244, 63, 94, 0.5)',
+              border: '2px solid #0f172a'
+            }}>
+              {wishlistCount}
+            </span>
+          )}
         </Link>
 
         {/* 🌐 Language Switcher Dropdown */}

@@ -10,13 +10,13 @@ export function generateOfficialTicketHtml(ticket) {
   if (!ticket) return '';
 
   const pnr = ticket.pnr || `TRV-${Math.floor(100000 + Math.random() * 900000)}`;
-  const title = ticket.title || 'TRAVIO RESERVATION';
+  const title = ticket.title || ticket.destinationName || "TRAVIO RESERVATION";
   const type = ticket.type || 'TRAVEL';
-  const from = ticket.from || ticket.fromCity || 'Origin';
-  const to = ticket.to || ticket.toCity || 'Destination';
-  const date = ticket.date || 'Upcoming';
+  const from = ticket.origin || ticket.from || ticket.fromCity || "Origin";
+  const to = ticket.destinationName || ticket.to || ticket.toCity || "Destination";
+  const date = ticket.departureDate || ticket.date || "Upcoming";
   const time = ticket.time || '10:00 AM';
-  const seats = ticket.seatSummary || ticket.seats || 'Standard Reserved';
+  const seats = ticket.seats || ticket.seatSummary || "Standard Reserved";
   const passenger = ticket.passenger || {};
   const fullName = passenger.fullName || 'Lead Traveler';
   const email = passenger.email || 'traveler@travio.com';
@@ -173,6 +173,7 @@ export function generateOfficialTicketHtml(ticket) {
       font-size: 12px;
       letter-spacing: 1px;
     }
+    @page { size: A4 portrait; margin: 8mm; }
     @media print {
       body { background: #ffffff !important; padding: 0 !important; }
       .print-bar { display: none !important; }

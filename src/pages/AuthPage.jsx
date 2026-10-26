@@ -979,11 +979,12 @@ function MobileLanding({ onGoHome }) {
 }
 
 // ===== ROOT COMPONENT =====
-export default function AuthPage() {
+export default function AuthPage({ onLoginSuccess }) {
   const navigate = useNavigate();
 
   // Route to the dashboard instead of home
   const handleGoHome = () => {
+    if (onLoginSuccess) onLoginSuccess();
     navigate('/dashboard');
   };
 
