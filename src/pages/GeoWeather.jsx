@@ -33,21 +33,48 @@ const customIcon = new L.DivIcon({
   iconAnchor: [12, 12]
 });
 
-const WEATHER_CODES = {
-  0: 'Clear sky',
-  1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-  45: 'Fog', 48: 'Depositing rime fog',
-  51: 'Light drizzle', 53: 'Moderate drizzle', 55: 'Dense drizzle',
-  56: 'Light freezing drizzle', 57: 'Dense freezing drizzle',
-  61: 'Slight rain', 63: 'Moderate rain', 65: 'Heavy rain',
-  66: 'Light freezing rain', 67: 'Heavy freezing rain',
-  71: 'Slight snow fall', 73: 'Moderate snow fall', 75: 'Heavy snow fall',
-  77: 'Snow grains',
-  80: 'Slight rain showers', 81: 'Moderate rain showers', 82: 'Violent rain showers',
-  85: 'Slight snow showers', 86: 'Heavy snow showers',
-  95: 'Thunderstorm',
-  96: 'Thunderstorm with slight hail', 99: 'Thunderstorm with heavy hail',
+const WEATHER_CONDITIONS_MAP = {
+  0: { en: 'Clear sky', ja: '快晴', es: 'Cielo despejado', fr: 'Ciel dégagé', de: 'Klarer Himmel', it: 'Cielo sereno' },
+  1: { en: 'Mainly clear', ja: 'おおむね晴れ', es: 'Mayormente despejado', fr: 'Généralement dégagé', de: 'Überwiegend klar', it: 'Prevalentemente sereno' },
+  2: { en: 'Partly cloudy', ja: '晴れ時々曇り', es: 'Parcialmente nublado', fr: 'Partiellement nuageux', de: 'Teilweise bewölkt', it: 'Parzialmente nuvoloso' },
+  3: { en: 'Overcast', ja: '曇り', es: 'Nublado', fr: 'Couvert', de: 'Bedeckt', it: 'Coperto' },
+  45: { en: 'Fog', ja: '霧', es: 'Niebla', fr: 'Brouillard', de: 'Nebel', it: 'Nebbia' },
+  48: { en: 'Depositing rime fog', ja: '着氷性の霧', es: 'Niebla con escarcha', fr: 'Brouillard givrant', de: 'Reifnebel', it: 'Nebbia con brina' },
+  51: { en: 'Light drizzle', ja: '小雨・霧雨', es: 'Llovizna ligera', fr: 'Bruine légère', de: 'Leichter Nieselregen', it: 'Pioggerella leggera' },
+  53: { en: 'Moderate drizzle', ja: '適度な霧雨', es: 'Llovizna moderada', fr: 'Bruine modérée', de: 'Mäßiger Nieselregen', it: 'Pioggerella moderata' },
+  55: { en: 'Dense drizzle', ja: '濃い霧雨', es: 'Llovizna densa', fr: 'Bruine dense', de: 'Dichter Nieselregen', it: 'Pioggerella fitta' },
+  56: { en: 'Light freezing drizzle', ja: '着氷性の小雨', es: 'Llovizna helada ligera', fr: 'Bruine verglaçante légère', de: 'Leichter Gefrierregen', it: 'Pioggerella gelata' },
+  57: { en: 'Dense freezing drizzle', ja: '濃い着氷性霧雨', es: 'Llovizna helada densa', fr: 'Bruine verglaçante dense', de: 'Dichter Gefrierregen', it: 'Pioggerella gelata fitta' },
+  61: { en: 'Slight rain', ja: '小雨', es: 'Lluvia ligera', fr: 'Pluie faible', de: 'Leichter Regen', it: 'Pioggia debole' },
+  63: { en: 'Moderate rain', ja: '雨', es: 'Lluvia moderada', fr: 'Pluie modérée', de: 'Mäßiger Regen', it: 'Pioggia moderata' },
+  65: { en: 'Heavy rain', ja: '大雨', es: 'Lluvia fuerte', fr: 'Forte pluie', de: 'Starker Regen', it: 'Forte pioggia' },
+  66: { en: 'Light freezing rain', ja: '弱い雨氷', es: 'Lluvia helada ligera', fr: 'Pluie verglaçante faible', de: 'Leichter gefrierender Regen', it: 'Pioggia gelata debole' },
+  67: { en: 'Heavy freezing rain', ja: '強い雨氷', es: 'Lluvia helada fuerte', fr: 'Pluie verglaçante forte', de: 'Starker gefrierender Regen', it: 'Pioggia gelata forte' },
+  71: { en: 'Slight snowfall', ja: '小雪', es: 'Nevada ligera', fr: 'Chute de neige faible', de: 'Leichter Schneefall', it: 'Nevicata debole' },
+  73: { en: 'Moderate snowfall', ja: '雪', es: 'Nevada moderada', fr: 'Chute de neige modérée', de: 'Mäßiger Schneefall', it: 'Nevicata moderata' },
+  75: { en: 'Heavy snowfall', ja: '大雪', es: 'Nevada intensa', fr: 'Forte chute de neige', de: 'Starker Schneefall', it: 'Forte nevicata' },
+  77: { en: 'Snow grains', ja: '霧雪', es: 'Granos de nieve', fr: 'Grains de neige', de: 'Schneegriesel', it: 'Neve granulosa' },
+  80: { en: 'Slight rain showers', ja: 'にわか雨', es: 'Chubascos ligeros', fr: 'Averses faibles', de: 'Leichte Regenschauer', it: 'Rovesci deboli' },
+  81: { en: 'Moderate rain showers', ja: '雨のシャワー', es: 'Chubascos moderados', fr: 'Averses modérées', de: 'Mäßige Regenschauer', it: 'Rovesci moderati' },
+  82: { en: 'Violent rain showers', ja: '激しいにわか雨', es: 'Chubascos violentos', fr: 'Averses violentes', de: 'Heftige Regenschauer', it: 'Rovesci violenti' },
+  85: { en: 'Slight snow showers', ja: 'にわか雪', es: 'Chubascos de nieve ligeros', fr: 'Averses de neige faibles', de: 'Leichte Schneeschauer', it: 'Rovesci di neve deboli' },
+  86: { en: 'Heavy snow showers', ja: '激しいにわか雪', es: 'Chubascos de nieve fuertes', fr: 'Fortes averses de neige', de: 'Starke Schneeschauer', it: 'Forti rovesci di neve' },
+  95: { en: 'Thunderstorm', ja: '雷雨', es: 'Tormenta eléctrica', fr: 'Orage', de: 'Gewitter', it: 'Temporale' },
+  96: { en: 'Thunderstorm with slight hail', ja: '雹を伴う雷雨', es: 'Tormenta con granizo ligero', fr: 'Orage avec petite grêle', de: 'Gewitter mit leichtem Hagel', it: 'Temporale con grandine lieve' },
+  99: { en: 'Thunderstorm with heavy hail', ja: '大粒の雹を伴う雷雨', es: 'Tormenta con granizo fuerte', fr: 'Orage avec grosse grêle', de: 'Gewitter mit schwerem Hagel', it: 'Temporale con grandine forte' }
 };
+
+const getLocale = (lang) => {
+  switch (lang) {
+    case 'ja': return 'ja-JP';
+    case 'es': return 'es-ES';
+    case 'fr': return 'fr-FR';
+    case 'de': return 'de-DE';
+    case 'it': return 'it-IT';
+    default: return 'en-US';
+  }
+};
+
 
 // Safe update of map view in useEffect (avoids React render-phase side effects)
 function ChangeView({ center, zoom }) {
@@ -96,7 +123,7 @@ function MapModalController({ center, zoom, onLocationSelect, trailStops = [] })
 }
 
 const GeoWeather = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const routerLocation = useLocation();
 
   const initialIncoming = routerLocation.state && routerLocation.state.from === 'food-guide' ? routerLocation.state : null;
@@ -231,7 +258,26 @@ const GeoWeather = () => {
     }
   };
 
-  const getWeatherDesc = (code) => WEATHER_CODES[code] || 'Unknown';
+  const getWeatherDesc = (code) => {
+    const item = WEATHER_CONDITIONS_MAP[code];
+    if (item) return item[language] || item.en;
+    return WEATHER_CONDITIONS_MAP[0]?.[language] || t('weather.clearSky', 'Clear sky');
+  };
+
+  const translateCondition = (desc) => {
+    if (!desc) return '';
+    return t(desc, desc);
+  };
+
+  const renderLocationHeadline = () => {
+    const city = location.name.split(',')[0].trim();
+    if (language === 'ja') return `${city}の現在気象`;
+    if (language === 'es') return `en ${city}`;
+    if (language === 'fr') return `à ${city}`;
+    if (language === 'it') return `a ${city}`;
+    if (language === 'de') return `in ${city}`;
+    return `in ${city}`;
+  };
   
   const getBackgroundImage = (code, isDay = 1) => {
     // Clear / Sunny
@@ -331,7 +377,7 @@ const GeoWeather = () => {
 
   const getDayName = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
+    return date.toLocaleDateString(getLocale(language), { weekday: 'long' });
   };
 
   if (loading && !weatherData) {
@@ -340,7 +386,7 @@ const GeoWeather = () => {
         <span className="material-symbols-rounded" style={{ fontSize: '3rem', animation: 'spin 1.5s linear infinite' }}>
           progress_activity
         </span>
-        <span>Loading live weather...</span>
+        <span>{t('weather.loadingLive', 'Loading live weather...')}</span>
       </div>
     );
   }
@@ -351,7 +397,7 @@ const GeoWeather = () => {
         <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: '#f87171' }}>cloud_off</span>
         <p>{fetchError}</p>
         <button className="retry-btn" onClick={() => fetchWeather(location.lat, location.lon)}>
-          Try Again
+          {t('weather.tryAgain', 'Try Again')}
         </button>
       </div>
     );
@@ -436,7 +482,7 @@ const GeoWeather = () => {
               <div style={{
                 position: 'absolute',
                 top: '16px',
-                left: '20px',
+                left: '64px',
                 zIndex: 1000,
                 background: 'rgba(15, 23, 42, 0.88)',
                 backdropFilter: 'blur(8px)',
@@ -454,7 +500,7 @@ const GeoWeather = () => {
                 <span style={{ color: '#C084FC', fontSize: '16px' }}>🗺️</span>
                 <span>{trailInfo.trailName}</span>
                 <span style={{ background: '#7C3AED', padding: '2px 8px', borderRadius: '8px', fontSize: '11px', color: '#fff' }}>
-                  {validTrailStops.length} {validTrailStops.length === 1 ? 'Stop' : 'Stops'}
+                  {validTrailStops.length} {validTrailStops.length === 1 ? t('weather.stop', 'Stop') : t('weather.stops', 'Stops')}
                 </span>
               </div>
             )}
@@ -486,14 +532,14 @@ const GeoWeather = () => {
                           />
                         )}
                         <div style={{ fontSize: '11px', color: '#7C3AED', fontWeight: 700, textTransform: 'uppercase' }}>
-                          Stop {stop.stopNumber || i + 1}
+                          {t('weather.stop', 'Stop')} {stop.stopNumber || i + 1}
                         </div>
                         <div style={{ fontWeight: 700, fontSize: '14px', margin: '2px 0' }}>
                           {stop.restaurantName || stop.dishName}
                         </div>
                         {stop.dishName && stop.restaurantName && stop.dishName !== stop.restaurantName && (
                           <div style={{ fontSize: '12px', color: '#4B5563', marginBottom: '4px' }}>
-                            ✨ Must Order: <strong>{stop.dishName}</strong>
+                            ✨ {t('weather.mustOrder', 'Must Order')}: <strong>{stop.dishName}</strong>
                           </div>
                         )}
                         {stop.address && (
@@ -577,9 +623,9 @@ const GeoWeather = () => {
             </div>
           </div>
 
-          <div className="gw-card map-card" onClick={() => setIsMapExpanded(true)} title="Click to expand interactive map">
+          <div className="gw-card map-card" onClick={() => setIsMapExpanded(true)} title={t('weather.expandMap', 'Click to expand interactive map')}>
             <div className="map-header">
-              <span>Select Area</span>
+              <span>{t('weather.selectArea', 'Select Area')}</span>
               <span className="material-symbols-rounded">near_me</span>
             </div>
             <div className="map-container-small">
@@ -622,7 +668,7 @@ const GeoWeather = () => {
           <div className="gw-topbar">
             <div className="location-info">
               <span className="material-symbols-rounded">location_on</span>
-              <span>{location.name} ( {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} )</span>
+              <span>{location.name} ( {new Date().toLocaleDateString(getLocale(language), { weekday: 'long', month: 'long', day: 'numeric' })} )</span>
             </div>
             <div className="topbar-actions">
               {isSearchOpen ? (
@@ -631,24 +677,24 @@ const GeoWeather = () => {
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search city..." 
+                    placeholder={t('weather.searchCityPlaceholder', 'Search city...')} 
                     autoFocus
                   />
                   <button type="submit" className="icon-btn" title="Search"><span className="material-symbols-rounded">search</span></button>
                   <button type="button" onClick={() => setIsSearchOpen(false)} className="icon-btn" title="Close"><span className="material-symbols-rounded">close</span></button>
                 </form>
               ) : (
-                <button className="icon-btn search-btn" onClick={() => setIsSearchOpen(true)} title="Search city">
+                <button className="icon-btn search-btn" onClick={() => setIsSearchOpen(true)} title={t('weather.searchCity', 'Search city')}>
                   <span className="material-symbols-rounded">search</span>
                 </button>
               )}
               <button 
                 className="download-btn" 
                 onClick={() => fetchWeather(location.lat, location.lon)}
-                title="Refresh Weather Data"
+                title={t('weather.refresh', 'Refresh Weather Data')}
               >
                 <span className="material-symbols-rounded" style={{ fontSize: '1rem' }}>refresh</span>
-                <span>GeoWeather</span>
+                <span>{t('weather.refreshBtn', 'GeoWeather')}</span>
               </button>
               <LanguageSelector />
             </div>
@@ -667,19 +713,19 @@ const GeoWeather = () => {
               </div>
               <div className="desc-section">
                 <h1>{currentDesc}</h1>
-                <h2>in {location.name.split(',')[0]}</h2>
+                <h2>{renderLocationHeadline()}</h2>
               </div>
             </div>
             
             <div className="right-info">
               <p className="info-text">
-                With real-time data and advanced technology, we provide reliable forecasts for any location around the world.
+                {t('weather.realtimeIntro', 'With real-time data and advanced technology, we provide reliable forecasts for any location around the world.')}
               </p>
               
               <div className="gw-card recent-section">
                 <div className="recent-header">
-                  <span className="recent-title">Recently Searched</span>
-                  <span className="recent-see-all" onClick={() => setShowAllRecent(true)}>See All &gt;</span>
+                  <span className="recent-title">{t('weather.recentlySearched', 'Recently Searched')}</span>
+                  <span className="recent-see-all" onClick={() => setShowAllRecent(true)}>{t('weather.seeAll', 'See All')} &gt;</span>
                 </div>
                 <div className="recent-cards">
                   {recentSearches.slice(0, 2).map((city, idx) => (
@@ -690,7 +736,7 @@ const GeoWeather = () => {
                       </div>
                       <div className="r-card-bottom">
                         <div className="r-name">{city.name.split(',')[0]}</div>
-                        <div className="r-desc">{city.desc}</div>
+                        <div className="r-desc">{translateCondition(city.desc)}</div>
                       </div>
                     </div>
                   ))}
@@ -757,7 +803,7 @@ const GeoWeather = () => {
             <button className="close-modal-btn" onClick={() => setShowAllRecent(false)}>
               <span className="material-symbols-rounded">close</span>
             </button>
-            <h2 style={{ margin: 0, fontSize: '1.4rem' }}>All Recent Searches</h2>
+            <h2 style={{ margin: 0, fontSize: '1.4rem' }}>{t('weather.allRecentSearches', 'All Recent Searches')}</h2>
             <div className="recent-cards" style={{ flexWrap: 'wrap', overflowY: 'auto', maxHeight: '55vh', padding: '4px' }}>
               {recentSearches.map((city, idx) => (
                 <div 
@@ -775,11 +821,11 @@ const GeoWeather = () => {
                   </div>
                   <div className="r-card-bottom">
                     <div className="r-name">{city.name.split(',')[0]}</div>
-                    <div className="r-desc">{city.desc}</div>
+                    <div className="r-desc">{translateCondition(city.desc)}</div>
                   </div>
                 </div>
               ))}
-              {recentSearches.length === 0 && <p style={{ color: 'rgba(255,255,255,0.6)' }}>No recent searches.</p>}
+              {recentSearches.length === 0 && <p style={{ color: 'rgba(255,255,255,0.6)' }}>{t('weather.noRecentSearches', 'No recent searches.')}</p>}
             </div>
           </div>
         </div>

@@ -370,18 +370,21 @@
 .map-modal-content .modal-header-tip {
   position: absolute;
   top: 16px;
-  left: 20px;
+  left: 64px;
   z-index: 10001;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.8rem;
-  color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   gap: 6px;
+  pointer-events: none;
 }
 
 .close-modal-btn {
@@ -863,5 +866,17 @@
   .map-modal-content {
     width: 95%;
     height: 85vh;
+  }
+
+  .map-modal-content .modal-header-tip {
+    left: 56px;
+    max-width: calc(100% - 125px);
+    font-size: 0.72rem;
+    padding: 5px 10px;
+  }
+  .map-modal-content .modal-header-tip span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
