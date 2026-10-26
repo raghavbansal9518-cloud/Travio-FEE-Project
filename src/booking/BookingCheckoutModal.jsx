@@ -8,6 +8,7 @@ import BankOtpModal from './BankOtpModal';
 import { downloadTicketVoucher, printTicketVoucher } from './ticketExportUtils';
 import { getTodayDate, formatDisplayDate } from '../utils/dateUtils';
 
+// Drive the seat, passenger, payment, and persisted-ticket checkout steps.
 export default function BookingCheckoutModal({ item, onClose, onBookingComplete, initialTicket, initialStep }) {
   const { t } = useLanguage();
   // Stepper state: 'SEAT' | 'PASSENGER' | 'PAYMENT' | 'TICKET'
@@ -80,6 +81,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   // Validate Passenger Form before advancing to Payment
+  // Validate required passenger fields before allowing checkout to continue.
   const validatePassengerStep = () => {
     const errors = {};
     if (!formData.fullName.trim() || formData.fullName.trim().length < 3) {
@@ -99,6 +101,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
     return Object.keys(errors).length === 0;
   };
 
+  // Advance only when the current checkout step is valid.
   const handleNextStep = () => {
     if (currentStep === 'SEAT') {
       setCurrentStep('PASSENGER');
@@ -109,6 +112,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
     }
   };
 
+  // Return to the previous editable checkout step.
   const handlePrevStep = () => {
     if (currentStep === 'PAYMENT') {
       setCurrentStep('PASSENGER');
@@ -118,12 +122,14 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
   };
 
   // Triggered from PaymentGateway
+  // Hold payment details until the OTP verification succeeds.
   const handleInitiatePayment = (paymentData) => {
     setPendingPayment(paymentData);
     setShowOtpModal(true);
   };
 
   // Triggered when Bank 3D OTP is verified successfully
+  // Build the ticket and show it only after the parent persists the booking.
   const handleOtpSuccess = () => {
     setShowOtpModal(false);
 
@@ -153,24 +159,18 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
       bookingDate: formatDisplayDate(getTodayDate())
     };
 
+    // The parent persists the booking through the shared travel context.
+    if (onBookingComplete) {
+      const saved = onBookingComplete(newBooking);
+      if (saved === false) return;
+    }
+
     setConfirmedTicket(newBooking);
     setCurrentStep('TICKET');
-
-    // Sync to user bookings in localStorage
-    try {
-      const stored = JSON.parse(localStorage.getItem('travio_user_bookings') || '[]');
-      localStorage.setItem('travio_user_bookings', JSON.stringify([newBooking, ...stored.filter(b => b.id !== newBooking.id)]));
-    } catch (err) {
-      console.error(err);
-    }
-
-    // Notify parent to save in localStorage / state
-    if (onBookingComplete) {
-      onBookingComplete(newBooking);
-    }
   };
 
   // Download simulation
+  // Download the currently confirmed ticket.
   const handleDownloadTicket = () => {
     if (confirmedTicket) {
       downloadTicketVoucher(confirmedTicket);
@@ -179,6 +179,7 @@ export default function BookingCheckoutModal({ item, onClose, onBookingComplete,
     }
   };
 
+  // Print the ticket when available, otherwise print the current page.
   const handlePrintTicket = () => {
     if (confirmedTicket) {
       printTicketVoucher(confirmedTicket);

@@ -1,21 +1,14 @@
-import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { usePackingItems } from '../services/packingService';
 
-// --- Static Data ---
-const initialItems = [
-  { id: 1, text: 'Light Clothes', checked: true },
-  { id: 2, text: 'Sunscreen', checked: true },
-  { id: 3, text: 'Power Bank', checked: false },
-  { id: 4, text: 'Travel Adapter', checked: true },
-  { id: 5, text: 'Passport', checked: false },
-];
-
+// Show a compact checklist preview backed by the shared packing state.
 const PackingAssistant = () => {
   const { t } = useLanguage();
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = usePackingItems();
 
+  // Toggle one checklist entry without mutating the shared array.
   const toggleItem = (id) => {
-    setItems(items.map(item => 
+    setItems((previousItems) => previousItems.map(item =>
       item.id === id ? { ...item, checked: !item.checked } : item
     ));
   };
@@ -33,17 +26,17 @@ const PackingAssistant = () => {
       </header>
       
       <ul className="packing-preview" style={{ marginTop: '1.5rem', listStyle: 'none' }}>
-        {items.map(item => (
+        {items.slice(0, 5).map(item => (
           <li key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <input 
               type="checkbox" 
-              id={`packing-${item.id}`} 
+              id={`dashboard-packing-${item.id}`}
               checked={item.checked}
               onChange={() => toggleItem(item.id)}
               style={{ accentColor: 'var(--accent-green)', width: '18px', height: '18px', cursor: 'pointer' }}
             />
             <label 
-              htmlFor={`packing-${item.id}`} 
+              htmlFor={`dashboard-packing-${item.id}`}
               style={{ 
                 cursor: 'pointer', 
                 textDecoration: item.checked ? 'line-through' : 'none', 

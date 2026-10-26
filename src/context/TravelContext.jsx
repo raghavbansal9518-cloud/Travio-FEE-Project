@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { getTodayDate, getFutureDate } from '../utils/dateUtils';
 import { calculateBadgeProgress, recordBadgeUnlocks } from '../services/badgeService';
-import { loadJournalData } from '../services/journalService';
+import { getJournalOwner, loadJournalData } from '../services/journalService';
 
 const TravelContext = createContext(null);
 
@@ -9,8 +9,148 @@ const STORAGE_KEYS = {
   WISHLIST: 'travio_wishlist',
   WISHLIST_LEGACY: 'wishlist_destinations',
   WISHLIST_IDS: 'wishlist_ids',
-  BOOKINGS: 'travio_bookings'
+  BOOKINGS: 'travio_bookings',
+  BOOKINGS_LEGACY: 'travio_user_bookings'
 };
+const SAMPLE_BOOKING_IDS = new Set([
+  'booking-seed-1',
+  'booking-seed-2',
+  'TRV-FL-839201',
+  'TRV-TR-224361',
+  'TRV-HT-910482'
+]);
+
+// Read the normalized signed-in owner used by user-scoped booking actions.
+function getActiveUserEmail() {
+  const email = getJournalOwner().trim().toLowerCase();
+  return email === 'guest' ? '' : email;
+}
+
+// Parse one persisted booking list and surface invalid storage instead of hiding it.
+function readStoredBookings(key) {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved === null) return null;
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) throw new Error('Stored booking data is not a list.');
+    return parsed;
+  } catch (error) {
+    console.error(`Failed to read bookings from ${key}:`, error);
+    throw new Error(`Could not read booking data from ${key}: ${error.message || 'invalid data'}`);
+  }
+}
+
+// Treat the canonical list as authoritative; use the legacy key only for migration.
+function loadBookingsFromStorage() {
+  const canonicalExists = localStorage.getItem(STORAGE_KEYS.BOOKINGS) !== null;
+  const stored = canonicalExists
+    ? readStoredBookings(STORAGE_KEYS.BOOKINGS) || []
+    : readStoredBookings(STORAGE_KEYS.BOOKINGS_LEGACY) || [];
+  const bookingsById = new Map();
+
+  stored.forEach((booking) => {
+    const id = String(booking?.id || booking?.bookingRef || '').trim();
+    if (!id || bookingsById.has(id) || booking.demoRecord === true || SAMPLE_BOOKING_IDS.has(id)) return;
+    const normalized = normalizeBooking(booking);
+    if (normalized) bookingsById.set(id, normalized);
+  });
+
+  return [...bookingsById.values()];
+}
+
+// Persist one canonical snapshot to both keys and roll back partial writes.
+function persistBookings(bookings) {
+  const serialized = JSON.stringify(bookings);
+  const previousCanonical = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
+  const previousLegacy = localStorage.getItem(STORAGE_KEYS.BOOKINGS_LEGACY);
+
+  try {
+    if (previousCanonical !== serialized) localStorage.setItem(STORAGE_KEYS.BOOKINGS, serialized);
+    if (previousLegacy !== serialized) localStorage.setItem(STORAGE_KEYS.BOOKINGS_LEGACY, serialized);
+  } catch (error) {
+    try {
+      if (previousCanonical === null) localStorage.removeItem(STORAGE_KEYS.BOOKINGS);
+      else localStorage.setItem(STORAGE_KEYS.BOOKINGS, previousCanonical);
+      if (previousLegacy === null) localStorage.removeItem(STORAGE_KEYS.BOOKINGS_LEGACY);
+      else localStorage.setItem(STORAGE_KEYS.BOOKINGS_LEGACY, previousLegacy);
+    } catch (rollbackError) {
+      console.error('Failed to restore booking storage after a persistence error:', rollbackError);
+    }
+    throw error;
+  }
+}
+
+// Normalize known statuses while leaving unknown statuses non-confirmed.
+function normalizeBookingStatus(status) {
+  const value = String(status || '').trim();
+  switch (value.toUpperCase()) {
+    case 'CONFIRMED':
+      return 'Confirmed';
+    case 'CANCELLED':
+    case 'CANCELED':
+      return 'Cancelled';
+    case 'COMPLETED':
+      return 'Completed';
+    case 'PENDING':
+      return 'Pending';
+    default:
+      return value || 'Pending';
+  }
+}
+
+// Prevent account-scoped actions from mutating another user's known booking.
+function ensureBookingOwnership(booking) {
+  const activeEmail = getActiveUserEmail();
+  if (!activeEmail) return;
+  const ownerEmail = String(
+    booking.ownerEmail
+    || booking.userEmail
+    || booking.user?.email
+    || booking.passenger?.email
+    || booking.email
+    || ''
+  ).trim().toLowerCase();
+  if (ownerEmail !== activeEmail) {
+    throw new Error('This booking does not belong to the current user.');
+  }
+}
+
+// Count distinct, confirmed flights owned by the active account.
+function countConfirmedUserFlights(bookings, activeUserEmail) {
+  if (!activeUserEmail || activeUserEmail === 'guest') return 0;
+
+  const countedIds = new Set();
+  let count = 0;
+  bookings.forEach((booking) => {
+    if (!booking) return;
+    const id = String(booking?.id || '').trim().toLowerCase();
+    const type = String(booking?.type ?? booking?.travelStyle ?? '').trim().toUpperCase();
+    const status = String(booking?.status || '').trim().toLowerCase();
+    const ownerEmail = String(
+      booking?.ownerEmail
+      ?? booking?.userEmail
+      ?? booking?.user?.email
+      ?? booking?.passenger?.email
+      ?? booking?.email
+      ?? ''
+    ).trim().toLowerCase();
+
+    if (
+      !id
+      || countedIds.has(id)
+      || booking?.demoRecord
+      || type !== 'FLIGHT'
+      || status !== 'confirmed'
+      || ownerEmail !== activeUserEmail
+    ) {
+      return;
+    }
+
+    countedIds.add(id);
+    count += 1;
+  });
+  return count;
+}
 
 export const DEFAULT_WISHLIST = [
   {
@@ -111,79 +251,8 @@ export const DEFAULT_WISHLIST = [
   }
 ];
 
-export const DEFAULT_BOOKINGS = [
-  {
-    id: 'TRV-FL-839201',
-    type: 'FLIGHT',
-    title: 'Air India (AI-805)',
-    carrier: 'Air India',
-    origin: 'Delhi (DEL)',
-    destinationName: 'Mumbai (BOM)',
-    destinationCountry: 'Delhi (DEL) → Mumbai (BOM)',
-    destinationFlag: '✈️',
-    destinationImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&auto=format&fit=crop&q=80',
-    departureDate: getTodayDate(),
-    returnDate: getFutureDate(6),
-    time: '06:00 - 08:15 (2h 15m)',
-    duration: '2h 15m',
-    durationDays: 1,
-    travelers: 1,
-    seats: 'Seat 12A • Window (Economy)',
-    travelStyle: 'FLIGHT',
-    totalCost: 5420,
-    specialNotes: 'Airbus A350-900 • Non-stop • Complimentary Meal',
-    status: 'Confirmed',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'TRV-TR-224361',
-    type: 'TRAIN',
-    title: 'Vande Bharat Express (#22436)',
-    carrier: 'Indian Railways (IRCTC)',
-    origin: 'New Delhi (NDLS)',
-    destinationName: 'Kanpur Central (CNB)',
-    destinationCountry: 'New Delhi → Kanpur',
-    destinationFlag: '🚆',
-    destinationImage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
-    departureDate: getTodayDate(),
-    returnDate: getTodayDate(),
-    time: '06:00 - 10:08 (4h 08m)',
-    duration: '4h 08m',
-    durationDays: 1,
-    travelers: 1,
-    seats: 'Coach C-3 • Berth 36 (Chair Car)',
-    travelStyle: 'TRAIN',
-    totalCost: 1115,
-    specialNotes: 'Semi High-Speed (130 km/h) • Hot Breakfast Included',
-    status: 'Confirmed',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'TRV-HT-910482',
-    type: 'HOTEL',
-    title: 'W Goa Luxury Retreat',
-    carrier: 'W Hotels & Resorts',
-    origin: 'Vagator Beach, North Goa',
-    destinationName: 'Goa',
-    destinationCountry: 'Goa, India',
-    destinationFlag: '🏨',
-    destinationImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&auto=format&fit=crop&q=80',
-    departureDate: getTodayDate(),
-    returnDate: getFutureDate(4),
-    time: 'Check-in: 02:00 PM • Check-out: 11:00 AM',
-    duration: '4 Nights',
-    durationDays: 4,
-    travelers: 2,
-    seats: '1 Ocean Villa • 2 Adults',
-    travelStyle: 'HOTEL',
-    totalCost: 74000,
-    specialNotes: '5-Star Beachfront Luxury • Rock Pool & Spa Access',
-    status: 'Confirmed',
-    createdAt: new Date().toISOString()
-  }
-].map((booking) => ({ ...booking, demoRecord: true }));
-
 // Convert legacy and category-specific booking records into the shared UI shape.
+// Convert legacy and category-specific booking shapes into the shared UI model.
 export const normalizeBooking = (b) => {
   if (!b) return null;
   const id = b.id || b.bookingRef || `TRV-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -267,98 +336,147 @@ export const normalizeBooking = (b) => {
     travelStyle: type,
     totalCost: Number(b.totalCost || b.amountPaid || b.price || 4500),
     specialNotes: b.specialNotes || b.extra || defaultNotes,
-    status: b.status || 'Confirmed',
+    status: normalizeBookingStatus(b.status),
     createdAt: b.createdAt || new Date().toISOString()
   };
 };
 
+// Own persistent travel state and derive badge, booking, and wishlist views.
 export const TravelProvider = ({ children }) => {
   // --- Wishlist State ---
   // Restore older wishlist formats and enrich saved items with current category metadata.
   const [wishlist, setWishlist] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.WISHLIST) || localStorage.getItem(STORAGE_KEYS.WISHLIST_LEGACY);
-      if (saved) {
+      // An explicitly stored [] is an intentional empty wishlist, not a missing value.
+      const canonical = localStorage.getItem(STORAGE_KEYS.WISHLIST);
+      const saved = canonical !== null
+        ? canonical
+        : localStorage.getItem(STORAGE_KEYS.WISHLIST_LEGACY);
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const items = parsed.map((item) => {
-            const defaultMatch = DEFAULT_WISHLIST.find(
-              (d) =>
-                String(d.id).toLowerCase() === String(item.id || '').toLowerCase() ||
-                String(d.name || '').toLowerCase() === String(item.name || '').toLowerCase()
-            );
-            const status = item.status || defaultMatch?.status || 'saved';
-            let category = item.category || defaultMatch?.category;
-            if (!category || category === 'destinations') {
-              const str = String(item.tags?.join(' ') || item.travelType || item.name || item.country || item.category || '').toLowerCase();
-              if (str.includes('beach') || str.includes('coastal') || str.includes('goa') || str.includes('maldives') || str.includes('bali')) category = 'beaches';
-              else if (str.includes('mountain') || str.includes('hill') || str.includes('alps') || str.includes('manali') || str.includes('ladakh')) category = 'mountains';
-              else if (str.includes('heritage') || str.includes('culture') || str.includes('history') || str.includes('city') || str.includes('cities') || str.includes('jaipur') || str.includes('delhi') || str.includes('paris')) category = 'heritage';
-              else if (str.includes('activit') || str.includes('adventure') || str.includes('sport') || str.includes('trek') || item.itemType === 'activity') category = 'activities';
-              else if (str.includes('food') || str.includes('culinary') || str.includes('dining') || item.itemType === 'food') category = 'food';
-              else category = 'destinations';
-            }
-
-            const isSeededDemo = item.demoRecord === true || (
-              item.demoRecord !== false
-              && defaultMatch
-              && item.addedDate === defaultMatch.addedDate
-              && item.description === defaultMatch.description
-              && item.cardImage === defaultMatch.cardImage
-            );
-            return {
-              ...item,
-              category,
-              tags: item.tags || defaultMatch?.tags || [category.charAt(0).toUpperCase() + category.slice(1)],
-              itemType: item.itemType || (category === 'activities' ? 'activity' : category === 'food' ? 'food' : 'destination'),
-              addedDate: item.addedDate ? item.addedDate.replace('2025', '2026') : '15 Oct 2026',
-              status,
-              demoRecord: !!isSeededDemo
-            };
-          });
-          return items;
+        if (!Array.isArray(parsed)) {
+          throw new Error('Saved wishlist data is not a list.');
         }
+        const items = parsed.map((item) => {
+          const defaultMatch = DEFAULT_WISHLIST.find(
+            (d) =>
+              String(d.id).toLowerCase() === String(item.id || '').toLowerCase() ||
+              String(d.name || '').toLowerCase() === String(item.name || '').toLowerCase()
+          );
+          const status = item.status || defaultMatch?.status || 'saved';
+          let category = item.category || defaultMatch?.category;
+          if (!category || category === 'destinations') {
+            const str = String(item.tags?.join(' ') || item.travelType || item.name || item.country || item.category || '').toLowerCase();
+            if (str.includes('beach') || str.includes('coastal') || str.includes('goa') || str.includes('maldives') || str.includes('bali')) category = 'beaches';
+            else if (str.includes('mountain') || str.includes('hill') || str.includes('alps') || str.includes('manali') || str.includes('ladakh')) category = 'mountains';
+            else if (str.includes('heritage') || str.includes('culture') || str.includes('history') || str.includes('city') || str.includes('cities') || str.includes('jaipur') || str.includes('delhi') || str.includes('paris')) category = 'heritage';
+            else if (str.includes('activit') || str.includes('adventure') || str.includes('sport') || str.includes('trek') || item.itemType === 'activity') category = 'activities';
+            else if (str.includes('food') || str.includes('culinary') || str.includes('dining') || item.itemType === 'food') category = 'food';
+            else category = 'destinations';
+          }
+
+          const isSeededDemo = item.demoRecord === true || (
+            item.demoRecord !== false
+            && defaultMatch
+            && item.addedDate === defaultMatch.addedDate
+            && item.description === defaultMatch.description
+            && item.cardImage === defaultMatch.cardImage
+          );
+          return {
+            ...item,
+            category,
+            tags: item.tags || defaultMatch?.tags || [category.charAt(0).toUpperCase() + category.slice(1)],
+            itemType: item.itemType || (category === 'activities' ? 'activity' : category === 'food' ? 'food' : 'destination'),
+            addedDate: item.addedDate ? item.addedDate.replace('2025', '2026') : '15 Oct 2026',
+            status,
+            demoRecord: !!isSeededDemo
+          };
+        });
+        return items;
       }
+      // Keep the initial demo list only for a genuinely new browser profile.
       return DEFAULT_WISHLIST.map((item) => ({ ...item, demoRecord: true }));
     } catch (e) {
       console.error('Error loading wishlist from storage:', e);
-      return DEFAULT_WISHLIST.map((item) => ({ ...item, demoRecord: true }));
+      return [];
     }
   });
 
   // --- Bookings State ---
   // Normalize stored bookings so pages can use one consistent record shape.
-  const [bookings, setBookings] = useState(() => {
+  const [initialBookingState] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((booking) => {
-            const normalized = normalizeBooking(booking);
-            const defaultMatch = DEFAULT_BOOKINGS.find((item) => item.id === booking.id && item.title === booking.title);
-            return normalized
-              ? { ...normalized, demoRecord: booking.demoRecord === true || (!!defaultMatch && booking.demoRecord !== false) }
-              : null;
-          }).filter(Boolean);
-        }
-      }
-      return DEFAULT_BOOKINGS.map(b => normalizeBooking(b)).filter(Boolean);
+      return { bookings: loadBookingsFromStorage(), error: '' };
     } catch (e) {
       console.error('Error loading bookings from storage:', e);
-      return DEFAULT_BOOKINGS.map((booking) => normalizeBooking(booking)).filter(Boolean);
+      return { bookings: [], error: e.message || 'Booking storage could not be read.' };
     }
   });
+  const [bookings, setBookings] = useState(initialBookingState.bookings);
+  const [bookingStorageError, setBookingStorageError] = useState(initialBookingState.error);
+
+  const [activeUserEmail, setActiveUserEmail] = useState(getActiveUserEmail);
+
+  // Reload the authoritative list when another tab changes either storage key.
+  useEffect(() => {
+    const syncBookings = (event) => {
+      if (event.key !== null && event.key !== STORAGE_KEYS.BOOKINGS && event.key !== STORAGE_KEYS.BOOKINGS_LEGACY) return;
+      try {
+        setBookings(loadBookingsFromStorage());
+        setBookingStorageError('');
+      } catch (error) {
+        setBookingStorageError(error.message || 'Booking storage could not be read.');
+        console.error('Failed to synchronize bookings from browser storage:', error);
+      }
+    };
+
+    window.addEventListener('storage', syncBookings);
+    return () => window.removeEventListener('storage', syncBookings);
+  }, []);
+
+  // Expose an explicit refresh for route entry and window focus.
+  const refreshBookings = useCallback(() => {
+    try {
+      const latest = loadBookingsFromStorage();
+      setBookings(latest);
+      setBookingStorageError('');
+      return latest;
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be read.');
+      console.error('Failed to refresh bookings from browser storage:', error);
+      throw error;
+    }
+  }, []);
+
+  useEffect(() => {
+    // Keep account-scoped metrics in sync with profile and storage changes.
+    const updateActiveUser = (event) => {
+      if (event.type === 'travio_profile_updated') {
+        setActiveUserEmail(String(event.detail?.email || '').trim().toLowerCase());
+      } else if (event.key === 'auth_email') {
+        setActiveUserEmail(String(event.newValue || '').trim().toLowerCase());
+      }
+    };
+
+    window.addEventListener('travio_profile_updated', updateActiveUser);
+    window.addEventListener('storage', updateActiveUser);
+    return () => {
+      window.removeEventListener('travio_profile_updated', updateActiveUser);
+      window.removeEventListener('storage', updateActiveUser);
+    };
+  }, []);
 
   // --- Toast Notification State ---
   const [toast, setToast] = useState(null);
 
-  const showToast = (message, type = 'info') => {
-    setToast({ message, type, id: Date.now() });
+  // Publish a short-lived app-wide status message.
+  const showToast = useCallback((message, type = 'info') => {
+    const id = Date.now() + Math.random();
+    setToast({ message, type, id });
     setTimeout(() => {
-      setToast(null);
+      setToast((current) => current?.id === id ? null : current);
     }, 3200);
-  };
+  }, []);
 
   // Sync wishlist to localStorage whenever it changes
   useEffect(() => {
@@ -374,12 +492,15 @@ export const TravelProvider = ({ children }) => {
 
   // Sync bookings to localStorage whenever they change
   useEffect(() => {
+    if (bookingStorageError) return;
     try {
-      localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+      persistBookings(bookings);
+      setBookingStorageError('');
     } catch (e) {
+      setBookingStorageError(e.message || 'Booking storage could not be saved.');
       console.error('Failed to sync bookings to storage:', e);
     }
-  }, [bookings]);
+  }, [bookings, bookingStorageError]);
 
   // --- Live Badges & Journal Synchronization ---
   // Recompute achievements from travel activity and refresh the journal count on cross-page updates.
@@ -390,6 +511,8 @@ export const TravelProvider = ({ children }) => {
       return [];
     }
   });
+  const [badgeUnlockQueue, setBadgeUnlockQueue] = useState([]);
+  const previousBadgeUnlocks = useRef(null);
 
   const [journalCount, setJournalCount] = useState(() => {
     try {
@@ -400,15 +523,36 @@ export const TravelProvider = ({ children }) => {
     }
   });
 
+  // Recompute badge state and queue only genuine locked-to-unlocked transitions.
   const checkBadgeUnlocks = useCallback((customWishlist, customBookings) => {
     try {
       const activeWishlist = customWishlist || wishlist;
       const activeBookings = customBookings || bookings;
       const computed = calculateBadgeProgress(activeWishlist, activeBookings);
       setBadgeState(computed);
+      const { achievements } = recordBadgeUnlocks(computed);
 
-      const { newlyUnlocked } = recordBadgeUnlocks(computed);
-      if (newlyUnlocked && newlyUnlocked.length > 0) {
+      const currentUnlocks = new Map(computed.map((badge) => [
+        badge.id,
+        badge.unlocked || (!badge.reversible && !!achievements[badge.id])
+      ]));
+      let newlyUnlocked = [];
+      if (previousBadgeUnlocks.current === null) {
+        previousBadgeUnlocks.current = currentUnlocks;
+      } else {
+        newlyUnlocked = computed
+          .filter((badge) => currentUnlocks.get(badge.id) && previousBadgeUnlocks.current.get(badge.id) === false)
+          .map((badge) => badge.id);
+        previousBadgeUnlocks.current = currentUnlocks;
+        if (newlyUnlocked.length) {
+          setBadgeUnlockQueue((queue) => [
+            ...queue,
+            ...newlyUnlocked.filter((id) => !queue.includes(id))
+          ]);
+        }
+      }
+
+      if (newlyUnlocked.length > 0) {
         newlyUnlocked.forEach((id) => {
           const badge = computed.find((b) => b.id === id);
           if (badge) {
@@ -428,6 +572,10 @@ export const TravelProvider = ({ children }) => {
     }
   }, [wishlist, bookings]);
 
+  const dismissBadgeUnlock = useCallback((badgeId) => {
+    setBadgeUnlockQueue((queue) => queue.filter((id) => id !== badgeId));
+  }, []);
+
   // Recalculate on wishlist or bookings update
   useEffect(() => {
     checkBadgeUnlocks(wishlist, bookings);
@@ -435,6 +583,7 @@ export const TravelProvider = ({ children }) => {
 
   // Listen to cross-feature storage or custom update events (e.g. from Journal or Packing Assistant)
   useEffect(() => {
+    // Recompute shared achievements when wishlist, booking, or journal data changes.
     const handleDataChanged = () => {
       checkBadgeUnlocks();
     };
@@ -447,6 +596,7 @@ export const TravelProvider = ({ children }) => {
   }, [checkBadgeUnlocks]);
 
   // Wishlist Helpers
+  // Check destination membership using the same normalized IDs as toggleWishlist.
   const isWishlisted = (id) => {
     if (!id) return false;
     const cleanId = String(id).toLowerCase().trim();
@@ -455,6 +605,7 @@ export const TravelProvider = ({ children }) => {
     );
   };
 
+  // Add or remove a destination while preserving existing wishlist metadata.
   const toggleWishlist = (destination) => {
     if (!destination || !destination.id) return;
     const cleanId = String(destination.id).toLowerCase().trim();
@@ -516,6 +667,7 @@ export const TravelProvider = ({ children }) => {
     }
   };
 
+  // Update a saved destination's visit state and clear its demo-only marker.
   const updateWishlistStatus = (id, newStatus) => {
     if (!id) return;
     const cleanId = String(id).toLowerCase().trim();
@@ -530,6 +682,7 @@ export const TravelProvider = ({ children }) => {
     showToast(`Marked destination as ${label}! ✨`, 'success');
   };
 
+  // Remove a destination by its normalized ID.
   const removeFromWishlist = (id) => {
     if (!id) return;
     const cleanId = String(id).toLowerCase().trim();
@@ -540,37 +693,148 @@ export const TravelProvider = ({ children }) => {
     }
   };
 
+  // Clear only wishlist records, leaving bookings and other user data intact.
   const clearWishlist = () => {
     setWishlist([]);
     showToast('Wishlist cleared', 'info');
   };
 
   // Booking Helpers
+  // Persist a newly confirmed booking before publishing it to React state.
   const addBooking = (bookingData = {}) => {
     const raw = {
       ...bookingData,
       demoRecord: false,
+      ownerEmail: getActiveUserEmail(),
       destinationId: bookingData.destination?.id || bookingData.destinationId,
       destinationName: bookingData.destination?.name || bookingData.destinationName,
       status: 'Confirmed',
       createdAt: new Date().toISOString()
     };
     const newBooking = normalizeBooking(raw);
-    setBookings((prev) => [newBooking, ...prev]);
+    let current;
+    try {
+      current = loadBookingsFromStorage();
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be read.');
+      throw error;
+    }
+    if (current.some((booking) => booking.id === newBooking.id)) {
+      throw new Error(`Booking ${newBooking.id} already exists.`);
+    }
+    const updated = [newBooking, ...current];
+    try {
+      persistBookings(updated);
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be saved.');
+      throw error;
+    }
+    setBookings(updated);
     showToast(`Reservation confirmed! Ref: ${newBooking.id} 🎉`, 'success');
     return newBooking;
   };
 
-  const cancelBooking = (bookingId) => {
-    setBookings((prev) =>
-      prev.map((b) => (b.id === bookingId ? { ...b, status: 'Cancelled' } : b))
-    );
-    showToast(`Booking ${bookingId} has been cancelled`, 'info');
+  // Update passenger details on the authoritative stored booking record.
+  const updateBooking = (bookingId, updatedDetails) => {
+    const id = String(bookingId || '').trim();
+    let current;
+    try {
+      current = loadBookingsFromStorage();
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be read.');
+      throw error;
+    }
+    const existing = current.find((booking) => booking.id === id);
+    if (!existing) throw new Error('This booking could not be found.');
+    ensureBookingOwnership(existing);
+
+    const updated = current.map((booking) => (
+      booking.id === id
+        ? { ...booking, passenger: { ...booking.passenger, ...updatedDetails } }
+        : booking
+    ));
+    try {
+      persistBookings(updated);
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be saved.');
+      throw error;
+    }
+    setBookings(updated);
+    return true;
   };
 
+  // Persist a reversible status transition before callers report cancellation.
+  const cancelBooking = (bookingId) => {
+    const cleanId = String(bookingId || '').trim();
+    if (!cleanId) throw new Error('A valid booking ID is required.');
+
+    let current;
+    try {
+      current = loadBookingsFromStorage();
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be read.');
+      throw error;
+    }
+    const booking = current.find((item) => item.id === cleanId);
+    if (!booking) throw new Error('This booking could not be found. Refresh and try again.');
+    const status = normalizeBookingStatus(booking.status);
+    if (status === 'Cancelled') throw new Error('This booking has already been cancelled.');
+    if (status !== 'Confirmed' && status !== 'Pending') {
+      throw new Error('Only confirmed or pending bookings can be cancelled.');
+    }
+
+    ensureBookingOwnership(booking);
+
+    const updated = current.map((item) => (
+      item.id === cleanId ? { ...item, status: 'Cancelled' } : item
+    ));
+    try {
+      persistBookings(updated);
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be saved.');
+      throw new Error(`Cancellation could not be saved: ${error.message || 'storage is unavailable'}`);
+    }
+    setBookings(updated);
+    return true;
+  };
+
+  // Permanently remove one booking without reseeding or replacing other records.
   const deleteBooking = (bookingId) => {
-    setBookings((prev) => prev.filter((b) => b.id !== bookingId));
-    showToast(`Booking record deleted`, 'info');
+    const id = String(bookingId || '').trim();
+    if (!id) {
+      showToast('Could not delete booking record: invalid booking ID', 'error');
+      return false;
+    }
+    let current;
+    try {
+      current = loadBookingsFromStorage();
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be read.');
+      showToast(`Could not delete booking record: ${error.message || 'storage is unavailable'}`, 'error');
+      return false;
+    }
+    const target = current.find((booking) => booking.id === id);
+    if (!target) {
+      showToast('Could not delete booking record: booking was not found', 'error');
+      return false;
+    }
+    try {
+      ensureBookingOwnership(target);
+    } catch (error) {
+      showToast(error.message, 'error');
+      return false;
+    }
+    const remaining = current.filter((booking) => booking.id !== id);
+    try {
+      persistBookings(remaining);
+      setBookings(remaining);
+      showToast('Booking record deleted', 'info');
+      return true;
+    } catch (error) {
+      setBookingStorageError(error.message || 'Booking storage could not be saved.');
+      showToast(`Could not delete booking record: ${error.message || 'storage is unavailable'}`, 'error');
+      return false;
+    }
   };
 
   return (
@@ -584,11 +848,17 @@ export const TravelProvider = ({ children }) => {
         removeFromWishlist,
         clearWishlist,
         bookings,
+        bookingStorageError,
+        refreshBookings,
         bookingsCount: bookings.filter((b) => b.status === 'Confirmed').length,
+        confirmedFlightBookingsCount: countConfirmedUserFlights(bookings, activeUserEmail),
         addBooking,
+        updateBooking,
         cancelBooking,
         deleteBooking,
         badges: badgeState,
+        badgeUnlockQueue,
+        dismissBadgeUnlock,
         unlockedBadgesCount: badgeState.filter((b) => b.unlocked).length,
         journalCount,
         checkBadgeUnlocks,
@@ -635,6 +905,7 @@ export const TravelProvider = ({ children }) => {
   );
 };
 
+// Provide typed-by-convention access to the shared travel context.
 export const useTravel = () => {
   const context = useContext(TravelContext);
   if (!context) {

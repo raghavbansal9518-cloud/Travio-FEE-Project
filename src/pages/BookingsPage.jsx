@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Header from '../components/Header';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
 import './BookingsPage.css';
 
-// Transport Category Metadata Helper
+// Resolve the visual and ticket labels shared by each transport category.
 const getCategoryMeta = (rawType = '') => {
   const type = String(rawType).toUpperCase();
   switch (type) {
@@ -83,6 +83,7 @@ const getCategoryMeta = (rawType = '') => {
   }
 };
 
+// Render confirmed bookings by default with separate history and filter views.
 export default function BookingsPage({ embedded = false, onBookNewTrip }) {
   const navigate = useNavigate();
   let travelContext = null;
@@ -92,7 +93,9 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
     console.warn('TravelContext fallback in BookingsPage:', err);
   }
   const bookings = Array.isArray(travelContext?.bookings) ? travelContext.bookings : [];
-  const cancelBooking = travelContext?.cancelBooking || (() => {});
+  const bookingStorageError = travelContext?.bookingStorageError;
+  const refreshBookings = travelContext?.refreshBookings;
+  const cancelBooking = travelContext?.cancelBooking;
   const deleteBooking = travelContext?.deleteBooking || (() => {});
   const showToast = travelContext?.showToast || (() => {});
   
@@ -104,16 +107,38 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
     console.warn('LanguageContext fallback in BookingsPage:', err);
   }
 
-  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'confirmed' | 'cancelled'
+  const [activeTab, setActiveTab] = useState('confirmed'); // 'all' | 'confirmed' | 'cancelled'
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'FLIGHT' | 'TRAIN' | 'HOTEL' | 'BUS' | 'CAB' | 'EXPERIENCE'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [copiedRef, setCopiedRef] = useState(false);
   const [cancellationTarget, setCancellationTarget] = useState(null);
+  const [isCancellationProcessing, setIsCancellationProcessing] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('Change of travel schedule');
 
-  // Filter bookings based on status, category, and search query
+  // Refresh on route entry and focus so persisted changes from other tabs are visible.
+  useEffect(() => {
+    if (!refreshBookings) return undefined;
+    try {
+      refreshBookings();
+    } catch (error) {
+      showToast(`Could not refresh bookings: ${error.message || 'storage is unavailable'}`, 'error');
+    }
+    // Re-read persisted records when the user returns to this browser tab.
+    const refreshOnFocus = () => {
+      try {
+        refreshBookings();
+      } catch (error) {
+        showToast(`Could not refresh bookings: ${error.message || 'storage is unavailable'}`, 'error');
+      }
+    };
+    window.addEventListener('focus', refreshOnFocus);
+    return () => window.removeEventListener('focus', refreshOnFocus);
+  }, [refreshBookings, showToast]);
+
+  // Apply status, category, and search filters to the latest shared booking list.
   const filteredBookings = useMemo(() => {
+    const search = searchQuery.trim().toLowerCase();
     return (bookings || []).filter((b) => {
       if (!b) return false;
       // 1. Status Filter
@@ -133,14 +158,13 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
       }
 
       // 3. Search Query Filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesTitle = String(b.title || '').toLowerCase().includes(q);
-        const matchesDest = String(b.destinationName || '').toLowerCase().includes(q);
-        const matchesOrigin = String(b.origin || '').toLowerCase().includes(q);
-        const matchesCarrier = String(b.carrier || '').toLowerCase().includes(q);
-        const matchesRef = String(b.id || '').toLowerCase().includes(q);
-        const matchesSeats = String(b.seats || '').toLowerCase().includes(q);
+      if (search) {
+        const matchesTitle = String(b.title || '').toLowerCase().includes(search);
+        const matchesDest = String(b.destinationName || '').toLowerCase().includes(search);
+        const matchesOrigin = String(b.origin || '').toLowerCase().includes(search);
+        const matchesCarrier = String(b.carrier || '').toLowerCase().includes(search);
+        const matchesRef = String(b.id || '').toLowerCase().includes(search);
+        const matchesSeats = String(b.seats || '').toLowerCase().includes(search);
         if (!matchesTitle && !matchesDest && !matchesOrigin && !matchesCarrier && !matchesRef && !matchesSeats) {
           return false;
         }
@@ -150,12 +174,22 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
     });
   }, [bookings, activeTab, selectedCategory, searchQuery]);
 
-  // Aggregate Metrics
-  const confirmedCount = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").length;
-  const totalInvestment = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").reduce((sum, b) => sum + (Number(b?.totalCost) || Number(b?.amountPaid) || Number(b?.price) || 0), 0);
+  // Calculate dashboard totals together to avoid repeated list scans.
+  const { confirmedCount, cancelledCount, totalInvestment } = bookings.reduce((summary, booking) => {
+    if (!booking) return summary;
+    const status = String(booking.status || '').toLowerCase();
+    if (status === 'confirmed') {
+      summary.confirmedCount += 1;
+      summary.totalInvestment += Number(booking.totalCost) || Number(booking.amountPaid) || Number(booking.price) || 0;
+    } else if (status === 'cancelled' || status === 'canceled') {
+      summary.cancelledCount += 1;
+    }
+    return summary;
+  }, { confirmedCount: 0, cancelledCount: 0, totalInvestment: 0 });
   const baseFareTotal = Math.round(totalInvestment / 1.18);
   const gstTotal = totalInvestment - baseFareTotal;
 
+  // Copy a booking reference to the clipboard and notify the user.
   const handleCopyRef = (refId) => {
     if (!refId) return;
     if (navigator.clipboard) {
@@ -170,6 +204,46 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
     <div className={`bookings-page-root ${embedded ? "embedded-bookings-view" : ""}`}>
       {!embedded && <Header />}
 
+      {bookingStorageError && (
+        <div
+          role="alert"
+          style={{
+            margin: '16px 5%',
+            padding: '12px 16px',
+            border: '1px solid rgba(248, 113, 113, 0.45)',
+            borderRadius: '12px',
+            background: 'rgba(127, 29, 29, 0.22)',
+            color: '#fecaca',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}
+        >
+          <span>Booking data could not be synchronized: {bookingStorageError}</span>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                refreshBookings?.();
+              } catch (error) {
+                showToast(`Could not refresh bookings: ${error.message || 'storage is unavailable'}`, 'error');
+              }
+            }}
+            style={{
+              border: '1px solid rgba(248, 113, 113, 0.5)',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              color: '#fff',
+              background: 'rgba(127, 29, 29, 0.4)',
+              cursor: 'pointer'
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Cinematic Hero Section */}
       <div className="bookings-hero-banner">
@@ -319,7 +393,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                 className={`status-tab-btn ${activeTab === 'cancelled' ? 'cancelled-active' : ''}`}
                 onClick={() => setActiveTab('cancelled')}
               >
-                {t('phrases.Cancelled', 'Cancelled')} ({bookings.length - confirmedCount})
+                {t('phrases.Cancelled', 'Cancelled')} ({cancelledCount})
               </button>
             </div>
 
@@ -524,7 +598,11 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                       <h3 className="booking-title-text">{b.title || b.destinationName}</h3>
                       <span
                         className={`booking-status-tag ${
-                          isConfirmed ? 'status-tag-confirmed' : 'status-tag-cancelled'
+                          isConfirmed
+                            ? 'status-tag-confirmed'
+                            : ['cancelled', 'canceled'].includes(String(b.status || '').toLowerCase())
+                              ? 'status-tag-cancelled'
+                              : ''
                         }`}
                       >
                         {b.status}
@@ -619,6 +697,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                         type="button"
                         className="btn-open-ticket"
                         onClick={() => setSelectedTicket(b)}
+                        disabled={!isConfirmed}
                         title="View & Print Official E-Ticket Pass"
                       >
                         <i className="fa-solid fa-ticket"></i>
@@ -806,7 +885,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                       <div className="ticket-cell">
                         <span className="ticket-cell-label">RESERVATION STATUS</span>
                         <div className="ticket-cell-val accent-green">
-                          {String(selectedTicket.status || '').toLowerCase() === 'confirmed' ? 'CNF • Confirmed' : 'Cancelled'}
+                          {String(selectedTicket.status || 'Pending').toUpperCase()}
                         </div>
                       </div>
 
@@ -966,17 +1045,32 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
         const netRefund = Math.max(0, grossFare - cancellationCharge); // 85% net refund
         const refundArn = `TRV-ARN-${Math.floor(100000 + Math.random() * 900000)}`;
 
-        const handleProcessCancellation = () => {
-          cancelBooking(cancellationTarget.id);
-          setCancellationTarget(null);
-          showToast?.(
-            `Cancellation confirmed for #${cancellationTarget.id}. Refund of ₹${netRefund.toLocaleString('en-IN')} initiated to original payment method (ARN: ${refundArn}).`,
-            'info'
-          );
+        // Commit the cancellation before dismissing the dialog or showing success.
+        const handleProcessCancellation = async () => {
+          if (isCancellationProcessing) return;
+          setIsCancellationProcessing(true);
+          try {
+            if (typeof cancelBooking !== 'function') {
+              throw new Error('Booking cancellation is unavailable.');
+            }
+            await cancelBooking(cancellationTarget.id);
+            setCancellationTarget(null);
+            showToast?.(
+              `Cancellation confirmed for #${cancellationTarget.id}. Refund of ₹${netRefund.toLocaleString('en-IN')} initiated to original payment method (ARN: ${refundArn}).`,
+              'success'
+            );
+          } catch (error) {
+            showToast?.(`Cancellation failed: ${error.message || 'Please try again.'}`, 'error');
+          } finally {
+            setIsCancellationProcessing(false);
+          }
         };
 
         return (
-          <div className="ticket-modal-overlay" onClick={() => setCancellationTarget(null)}>
+          <div
+            className="ticket-modal-overlay"
+            onClick={() => !isCancellationProcessing && setCancellationTarget(null)}
+          >
             <div
               className="ticket-modal-container"
               onClick={(e) => e.stopPropagation()}
@@ -1017,7 +1111,8 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setCancellationTarget(null)}
+                  onClick={() => !isCancellationProcessing && setCancellationTarget(null)}
+                  disabled={isCancellationProcessing}
                   style={{
                     background: 'rgba(255, 255, 255, 0.08)',
                     border: 'none',
@@ -1147,7 +1242,8 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   type="button"
-                  onClick={() => setCancellationTarget(null)}
+                  onClick={() => !isCancellationProcessing && setCancellationTarget(null)}
+                  disabled={isCancellationProcessing}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -1166,6 +1262,7 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                 <button
                   type="button"
                   onClick={handleProcessCancellation}
+                  disabled={isCancellationProcessing}
                   style={{
                     flex: 1.4,
                     padding: '12px',
@@ -1184,7 +1281,11 @@ export default function BookingsPage({ embedded = false, onBookNewTrip }) {
                   }}
                 >
                   <span className="material-symbols-rounded" style={{ fontSize: '18px' }}>check_circle</span>
-                  <span>Confirm & Refund ₹{netRefund.toLocaleString('en-IN')}</span>
+                  <span>
+                    {isCancellationProcessing
+                      ? 'Processing Cancellation...'
+                      : `Confirm & Refund ₹${netRefund.toLocaleString('en-IN')}`}
+                  </span>
                 </button>
               </div>
             </div>

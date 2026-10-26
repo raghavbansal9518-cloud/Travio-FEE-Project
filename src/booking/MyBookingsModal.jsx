@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 
+// Display shared bookings and manage edit, ticket, and cancellation actions.
 export default function MyBookingsModal({ 
   bookings = [], 
   onClose, 
@@ -13,32 +14,44 @@ export default function MyBookingsModal({
   const [editingBookingId, setEditingBookingId] = useState(null);
   const [editForm, setEditForm] = useState({ phone: '', email: '' });
   const [cancellingBooking, setCancellingBooking] = useState(null);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const filteredBookings = bookings.filter((b) => {
     if (filterStatus === 'ALL') return true;
-    return b.status === filterStatus;
+    return String(b.status || '').toUpperCase() === filterStatus;
   });
 
-  // Aggregate Metrics & Total Bill Calculation
-  const confirmedCount = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").length;
-  const totalInvestment = (bookings || []).filter((b) => b && String(b.status || "").toLowerCase() === "confirmed").reduce((sum, b) => sum + (Number(b?.totalCost) || Number(b?.amountPaid) || Number(b?.price) || 0), 0);
+  // Aggregate confirmed-booking metrics in one pass through the current list.
+  const { confirmedCount, totalInvestment } = bookings.reduce((summary, booking) => {
+    if (!booking || String(booking.status || '').toLowerCase() !== 'confirmed') return summary;
+    summary.confirmedCount += 1;
+    summary.totalInvestment += Number(booking.totalCost) || Number(booking.amountPaid) || Number(booking.price) || 0;
+    return summary;
+  }, { confirmedCount: 0, totalInvestment: 0 });
   const baseFareTotal = Math.round(totalInvestment / 1.18);
   const gstTotal = totalInvestment - baseFareTotal;
 
+  // Load the passenger details used by the inline editor.
   const handleStartEdit = (b) => {
     setEditingBookingId(b.id);
     setEditForm({ phone: b.passenger?.phone || '', email: b.passenger?.email || '' });
   };
 
+  // Persist passenger changes before closing the editor.
   const handleSaveEdit = (id) => {
     onUpdateBooking(id, editForm);
     setEditingBookingId(null);
   };
 
-  const handleConfirmCancel = () => {
-    if (cancellingBooking) {
-      onCancelBooking(cancellingBooking.id);
-      setCancellingBooking(null);
+  // Keep the cancellation dialog open unless shared storage confirms success.
+  const handleConfirmCancel = async () => {
+    if (!cancellingBooking || isCancelling) return;
+    setIsCancelling(true);
+    try {
+      const succeeded = await onCancelBooking(cancellingBooking.id);
+      if (succeeded) setCancellingBooking(null);
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -151,7 +164,10 @@ export default function MyBookingsModal({
           ) : (
             filteredBookings.map((b) => {
               const isEditing = editingBookingId === b.id;
-              const isCancelled = b.status === 'CANCELLED';
+              const status = String(b.status || '').toUpperCase();
+              const isCancelled = status === 'CANCELLED' || status === 'CANCELED';
+              const isCancellable = status === 'CONFIRMED' || status === 'PENDING';
+              const isTicketAvailable = status === 'CONFIRMED' || status === 'COMPLETED';
 
               return (
                 <div key={b.id} className={`my-booking-card ${isCancelled ? 'card-cancelled' : ''}`}>
@@ -162,11 +178,13 @@ export default function MyBookingsModal({
                     </div>
 
                     <div className="mb-status-group">
-                      <span className={`status-pill ${b.status.toLowerCase()}`}>
-                        {b.status === 'CONFIRMED' ? (
+                      <span className={`status-pill ${status.toLowerCase()}`}>
+                        {status === 'CONFIRMED' ? (
                           <><i className="fa-solid fa-circle-check"></i> {t('phrases.Confirmed', 'Confirmed')}</>
-                        ) : (
+                        ) : isCancelled ? (
                           <><i className="fa-solid fa-ban"></i> {t('phrases.Cancelled & Refunded', 'Cancelled & Refunded')}</>
+                        ) : (
+                          <><i className="fa-solid fa-clock"></i> {b.status || t('phrases.Pending', 'Pending')}</>
                         )}
                       </span>
                       <span className="mb-pnr">PNR: <strong>{b.pnr}</strong></span>
@@ -232,12 +250,13 @@ export default function MyBookingsModal({
                         type="button"
                         className="btn-action-glass"
                         onClick={() => onViewTicket(b)}
+                        disabled={!isTicketAvailable}
                         title="View Full E-Ticket & Boarding Pass"
                       >
                         <i className="fa-solid fa-ticket"></i> {t('phrases.E-Ticket', 'E-Ticket')}
                       </button>
 
-                      {!isCancelled && !isEditing && (
+                      {isCancellable && !isEditing && (
                         <>
                           <button
                             type="button"
@@ -297,6 +316,7 @@ export default function MyBookingsModal({
                   type="button"
                   className="btn-glass"
                   onClick={() => setCancellingBooking(null)}
+                  disabled={isCancelling}
                 >
                   {t('phrases.Keep Reservation', 'Keep Reservation')}
                 </button>
@@ -304,8 +324,9 @@ export default function MyBookingsModal({
                   type="button"
                   className="btn-danger-confirm"
                   onClick={handleConfirmCancel}
+                  disabled={isCancelling}
                 >
-                  {t('phrases.Confirm Cancellation & Refund', 'Confirm Cancellation & Refund')}
+                  {isCancelling ? t('phrases.Cancelling', 'Cancelling...') : t('phrases.Confirm Cancellation & Refund', 'Confirm Cancellation & Refund')}
                 </button>
               </div>
             </div>

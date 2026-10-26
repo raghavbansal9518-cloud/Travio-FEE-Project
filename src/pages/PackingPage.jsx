@@ -1,78 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Header from '../components/Header';
 import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
+import { PACKING_PRESETS, usePackingItems } from '../services/packingService';
 
-const PRESET_LISTS = {
-  beach: [
-    { id: 'b1', text: 'Sunscreen SPF 50+ & Aloe Vera Gel', category: 'Essentials', checked: true },
-    { id: 'b2', text: 'UV Protection Polarized Sunglasses', category: 'Accessories', checked: true },
-    { id: 'b3', text: 'Breathable Linen Shirts & Shorts', category: 'Clothing', checked: false },
-    { id: 'b4', text: 'Quick-dry Swimwear / Boardshorts', category: 'Clothing', checked: true },
-    { id: 'b5', text: 'Waterproof Phone Pouch & Dry Bag', category: 'Gear', checked: false },
-    { id: 'b6', text: 'Flip-flops & Beach Towel', category: 'Essentials', checked: true },
-    { id: 'b7', text: 'Portable Power Bank (20,000mAh)', category: 'Electronics', checked: false }
-  ],
-  mountain: [
-    { id: 'm1', text: 'Thermal Base Layers (Top & Bottom)', category: 'Clothing', checked: true },
-    { id: 'm2', text: 'Down Jacket / Windproof Parka', category: 'Clothing', checked: true },
-    { id: 'm3', text: 'High-Ankle Waterproof Trekking Boots', category: 'Gear', checked: false },
-    { id: 'm4', text: 'Moisturizing Lip Balm & Cold Cream', category: 'Essentials', checked: true },
-    { id: 'm5', text: 'Woolen Beanie, Gloves & Neck Warmer', category: 'Accessories', checked: false },
-    { id: 'm6', text: 'High Altitude Sickness Meds (Diamox)', category: 'Medical', checked: false },
-    { id: 'm7', text: 'Insulated Hot Water Thermos Flask', category: 'Gear', checked: true }
-  ],
-  city: [
-    { id: 'c1', text: 'Universal International Plug Adapter', category: 'Electronics', checked: true },
-    { id: 'c2', text: 'Comfortable Walking Sneakers', category: 'Clothing', checked: true },
-    { id: 'c3', text: 'RFID-Blocking Slim Wallet / Passport Cover', category: 'Essentials', checked: false },
-    { id: 'c4', text: 'Compact Folding Umbrella / Rain Shell', category: 'Accessories', checked: true },
-    { id: 'c5', text: 'Noise-Cancelling Headphones for Flights', category: 'Electronics', checked: false },
-    { id: 'c6', text: 'Hand Sanitizer & Disinfectant Wipes', category: 'Essentials', checked: true }
-  ]
-};
-
+// Manage the full checklist and its available packing templates.
 export default function PackingPage() {
   const { showToast } = useTravel();
   const { t } = useLanguage();
   const [profile, setProfile] = useState('beach');
-  // Restore the saved checklist or start with the default beach packing template.
-  const [items, setItems] = useState(() => {
-    try {
-      const saved = localStorage.getItem('travio_packing_items');
-      return saved ? JSON.parse(saved) : PRESET_LISTS.beach;
-    } catch (e) {
-      return PRESET_LISTS.beach;
-    }
-  });
+  const [items, setItems] = usePackingItems();
   const [newItemText, setNewItemText] = useState('');
   const [newItemCat, setNewItemCat] = useState('Essentials');
 
-  // Save checklist changes and notify other features that read packing progress.
-  useEffect(() => {
-    try {
-      localStorage.setItem('travio_packing_items', JSON.stringify(items));
-      window.dispatchEvent(new Event('travio_data_changed'));
-    } catch (e) {}
-  }, [items]);
-
+  // Replace the active checklist with the selected travel template.
   const handleProfileSwitch = (selectedProfile) => {
     setProfile(selectedProfile);
-    setItems(PRESET_LISTS[selectedProfile] || PRESET_LISTS.beach);
+    setItems(PACKING_PRESETS[selectedProfile] || PACKING_PRESETS.beach);
     showToast(`Loaded ${selectedProfile.toUpperCase()} packing template!`, 'info');
   };
 
+  // Toggle an existing item by stable checklist ID.
   const toggleItem = (id) => {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item))
     );
   };
 
+  // Remove one checklist item and notify the user.
   const deleteItem = (id) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
     showToast('Item removed', 'info');
   };
 
+  // Validate and append a custom checklist item.
   const addItem = (e) => {
     e.preventDefault();
     if (!newItemText.trim()) return;

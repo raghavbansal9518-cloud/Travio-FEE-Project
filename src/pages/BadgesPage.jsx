@@ -6,10 +6,7 @@ import { useTravel } from '../context/TravelContext';
 import { useLanguage } from '../context/LanguageContext';
 import { DESTINATIONS } from '../data/destinationsData';
 import {
-  BADGE_DEFINITIONS,
-  calculateBadgeProgress,
-  loadBadgeAchievements,
-  recordBadgeUnlocks
+  loadBadgeAchievements
 } from '../services/badgeService';
 import './BadgesPage.css';
 
@@ -43,6 +40,7 @@ const BADGE_TIPS = {
   'master-packer': ['Check off your essential items in the Packing Assistant.', 'Get packing ready before you set out!']
 };
 
+// Format persisted badge timestamps consistently across detail views.
 function formatUnlockDate(value) {
   if (!value) return '';
   const date = new Date(value);
@@ -51,6 +49,7 @@ function formatUnlockDate(value) {
     : new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 }
 
+// Format user-supplied and ISO visit dates without shifting date-only values.
 function formatVisitDate(value) {
   if (!value) return 'Visit recorded';
   const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value);
@@ -59,6 +58,7 @@ function formatVisitDate(value) {
     : new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
 }
 
+// Find a small set of discovery suggestions matching a badge's categories.
 function getRelatedDestinations(badge) {
   const categories = badge.related || [];
   const matches = DESTINATIONS.filter((destination) => {
@@ -68,17 +68,19 @@ function getRelatedDestinations(badge) {
   return matches.slice(0, 4);
 }
 
+// Render the badge's current progress and threshold in a reusable bar.
 function BadgeProgressBar({ badge }) {
   return (
     <div className="badge-progress" aria-label={`${badge.progress} of ${badge.target} ${badge.requirement.toLowerCase()}`}>
       <div className="badge-progress__track">
-        <span style={{ width: `${badge.percentage}%`, backgroundColor: badge.accent }} />
+        <span style={{ width: `${badge.percentage}%`, backgroundColor: badge.unlocked ? badge.accent : '#a855f7' }} />
       </div>
-      <span className="badge-progress__count">{badge.progress} / {badge.target}</span>
+      <span className="badge-progress__count">{badge.progress}/{badge.target}</span>
     </div>
   );
 }
 
+// Render the collection card with artwork and live lock/progress state.
 function BadgeCard({ badge, unlocked, onSelect }) {
   const { t } = useLanguage();
   return (
@@ -103,6 +105,7 @@ function BadgeCard({ badge, unlocked, onSelect }) {
   );
 }
 
+// Render all detail tabs and records for one selected badge.
 function BadgeDetail({ badge, achievements, onBack }) {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
@@ -250,6 +253,7 @@ function BadgeDetail({ badge, achievements, onBack }) {
   );
 }
 
+// Present a transition-only celebration for the specific newly unlocked badge.
 function UnlockCelebration({ badge, onView, onKeep, onClose }) {
   return (
     <div className="badge-celebration-backdrop" role="presentation" onMouseDown={(event) => {
@@ -264,7 +268,7 @@ function UnlockCelebration({ badge, onView, onKeep, onClose }) {
         <span className="badge-category-label">Achievement earned</span>
         <h2 id="badge-celebration-title">Badge Unlocked!</h2>
         <strong>{badge.name}</strong>
-        <p>You completed: {badge.requirement.toLowerCase()}.</p>
+        <p>{badge.description}</p>
         <div className="badge-celebration__actions">
           <button type="button" className="badge-button badge-button--secondary" onClick={onView}>View Badge</button>
           <button type="button" className="badge-button badge-button--primary" onClick={onKeep}>Keep Exploring</button>
@@ -274,33 +278,38 @@ function UnlockCelebration({ badge, onView, onKeep, onClose }) {
   );
 }
 
+// Coordinate live progress, filtering, details, and queued unlock celebrations.
 export default function BadgesPage() {
   const { t } = useLanguage();
   const { badgeId } = useParams();
   const navigate = useNavigate();
-  const { wishlist, bookings, showToast } = useTravel();
+  const {
+    badges: liveBadges,
+    badgeUnlockQueue,
+    dismissBadgeUnlock,
+    showToast
+  } = useTravel();
   const [activeFilter, setActiveFilter] = useState('all');
   const [query, setQuery] = useState('');
-  const [badges, setBadges] = useState([]);
   const [achievements, setAchievements] = useState({});
-  const [celebrationQueue, setCelebrationQueue] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
     try {
-      const calculated = calculateBadgeProgress(wishlist, bookings);
-      const result = recordBadgeUnlocks(calculated);
-      setBadges(calculated);
-      setAchievements(result.achievements);
-      if (result.newlyUnlocked.length) {
-        setCelebrationQueue((queue) => [...queue, ...result.newlyUnlocked]);
-      }
+      setAchievements(loadBadgeAchievements());
       setError('');
     } catch (loadError) {
       setError(loadError.message || 'Badge progress could not be loaded.');
       showToast?.('Badge progress could not be loaded. Please check your saved travel data.', 'error');
     }
-  }, [wishlist, bookings]);
+  }, [liveBadges]);
+
+  const badges = useMemo(() => liveBadges.map((badge) => ({
+    ...badge,
+    unlocked: badge.reversible
+      ? badge.unlocked
+      : badge.unlocked || !!achievements[badge.id]
+  })), [liveBadges, achievements]);
 
   const filteredBadges = useMemo(() => {
     const search = query.trim().toLowerCase();
@@ -312,27 +321,45 @@ export default function BadgesPage() {
   }, [badges, activeFilter, query]);
 
   const earnedBadges = useMemo(() => badges
-    .filter((badge) => achievements[badge.id])
-    .sort((first, second) => new Date(achievements[second.id].unlockedAt) - new Date(achievements[first.id].unlockedAt)), [badges, achievements]);
-  const unlockedCount = earnedBadges.length;
+    .filter((badge) => badge.unlocked)
+    .sort((first, second) =>
+      new Date(achievements[second.id]?.unlockedAt || 0) - new Date(achievements[first.id]?.unlockedAt || 0)
+    ), [badges, achievements]);
+  const { totalBadges, unlockedCount } = useMemo(() => badges.reduce((summary, badge) => {
+    summary.totalBadges += 1;
+    if (badge.unlocked) summary.unlockedCount += 1;
+    return summary;
+  }, { totalBadges: 0, unlockedCount: 0 }), [badges]);
+  const lockedCount = Math.max(0, totalBadges - unlockedCount);
+  const progressPercent = totalBadges
+    ? Math.min(100, Math.max(0, Math.round((unlockedCount / totalBadges) * 100)))
+    : 0;
   const selectedBadge = badges.find((badge) => badge.id === badgeId);
-  const currentCelebration = badges.find((badge) => badge.id === celebrationQueue[0]);
+  const currentCelebrationId = badgeUnlockQueue[0];
+  const currentCelebration = badges.find((badge) => badge.id === currentCelebrationId);
 
+  // Allow Escape to dismiss the active celebration and clean up its listener.
   useEffect(() => {
     if (!currentCelebration) return undefined;
+    // Dismiss the active queue item when Escape is pressed.
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') setCelebrationQueue((queue) => queue.slice(1));
+      if (event.key === 'Escape') dismissBadgeUnlock(currentCelebrationId);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentCelebration?.id]);
+  }, [currentCelebration, currentCelebrationId, dismissBadgeUnlock]);
 
-  const dismissCelebration = () => setCelebrationQueue((queue) => queue.slice(1));
+  // Dismiss only the first queued celebration; later unlocks remain queued.
+  const dismissCelebration = () => {
+    if (currentCelebrationId) dismissBadgeUnlock(currentCelebrationId);
+  };
+  // Close the celebration and navigate to the badge that triggered it.
   const openBadgeFromCelebration = () => {
-    const id = celebrationQueue[0];
+    const id = currentCelebrationId;
     dismissCelebration();
     if (id) navigate(`/badges/${id}`);
   };
+  // Close the celebration and return to the badge collection.
   const keepExploring = () => {
     dismissCelebration();
     navigate('/badges');
@@ -398,12 +425,12 @@ export default function BadgesPage() {
                 <section className="badges-collection" aria-labelledby="badges-collection-title">
                   <div className="badges-section-heading">
                     <div><span className="badges-eyebrow">KEEP EXPLORING</span><h2 id="badges-collection-title">{t('badges.allBadges')}</h2></div>
-                    <span>{filteredBadges.length} {t('phrases.of', 'of')} {BADGE_DEFINITIONS.length} {t('phrases.badges earned', 'badges')}</span>
+                    <span>{filteredBadges.length} {t('phrases.of', 'of')} {totalBadges} {t('phrases.badges earned', 'badges')}</span>
                   </div>
                   {filteredBadges.length ? (
                     <div className="badges-grid">
                       {filteredBadges.map((badge) => (
-                        <BadgeCard key={badge.id} badge={badge} unlocked={!!achievements[badge.id]} />
+                        <BadgeCard key={badge.id} badge={badge} unlocked={badge.unlocked} />
                       ))}
                     </div>
                   ) : (
@@ -420,15 +447,15 @@ export default function BadgesPage() {
                   <section className="badge-side-panel">
                     <div className="badge-side-panel__heading"><span className="material-symbols-rounded" aria-hidden="true">insights</span><h2>{t('badges.progress', 'Your Badge Progress')}</h2></div>
                     <div className="badge-total-progress">
-                      <div className="badge-total-progress__ring" style={{ '--badge-progress': `${Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%` }}>
-                        <strong>{unlockedCount}</strong><span>/ {BADGE_DEFINITIONS.length}</span>
+                      <div className="badge-total-progress__ring" style={{ '--badge-progress': `${progressPercent}%` }}>
+                        <strong>{unlockedCount}</strong><span>/ {totalBadges}</span>
                       </div>
-                      <div><strong>{unlockedCount} {t('phrases.Badges Unlocked', 'Badges Unlocked')}</strong><p>{t('phrases.Keep exploring to earn more achievements.', 'Keep exploring to earn more achievements.')}</p></div>
+                      <div><strong>{unlockedCount} {t('phrases.Badges Unlocked', 'Badges Unlocked')}</strong><p>{lockedCount} {t('badges.locked', 'Locked')} · {t('phrases.Keep exploring to earn more achievements.', 'Keep exploring to earn more achievements.')}</p></div>
                     </div>
-                    <div className="badge-side-progress" role="progressbar" aria-label="Badge collection progress" aria-valuemin="0" aria-valuemax={BADGE_DEFINITIONS.length} aria-valuenow={unlockedCount}>
-                      <span style={{ width: `${Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%` }} />
+                    <div className="badge-side-progress" role="progressbar" aria-label="Badge collection progress" aria-valuemin="0" aria-valuemax={totalBadges} aria-valuenow={unlockedCount}>
+                      <span style={{ width: `${progressPercent}%` }} />
                     </div>
-                    <p className="badge-side-caption">{unlockedCount} {t('phrases.of', 'of')} {BADGE_DEFINITIONS.length} {t('phrases.badges earned', 'badges earned')} · {Math.round((unlockedCount / BADGE_DEFINITIONS.length) * 100)}%</p>
+                    <p className="badge-side-caption">{unlockedCount} {t('phrases.of', 'of')} {totalBadges} {t('phrases.badges earned', 'badges earned')} · {progressPercent}%</p>
                   </section>
 
                   <section className="badge-side-panel">

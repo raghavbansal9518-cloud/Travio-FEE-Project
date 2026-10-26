@@ -2,6 +2,9 @@ import { DESTINATIONS } from '../data/destinationsData';
 import { getJournalOwner, loadJournalData } from './journalService';
 
 const BADGE_STATE_PREFIX = 'travio_badge_achievements:';
+const BADGE_RESET_PREFIX = 'travio_badge_progress_reset:';
+const BADGE_RESET_VERSION = '1';
+const REVERSIBLE_BADGE_IDS = new Set(['wishlist-dreamer', 'master-packer']);
 
 export const BADGE_DEFINITIONS = [
   { id: 'mountain-explorer', name: 'Mountain Explorer', category: 'Destinations', filter: 'destinations', description: 'Find your way to five remarkable mountain destinations.', requirement: 'Visit 5 mountain destinations', target: 5, metric: 'mountains', accent: '#48bfff', image: '/images/swiss_alps_bg.png', related: ['mountains'] },
@@ -20,8 +23,8 @@ export const BADGE_DEFINITIONS = [
   { id: 'island-hopper', name: 'Island Hopper', category: 'Destinations', filter: 'destinations', description: 'Make three different islands part of your story.', requirement: 'Visit 3 different islands', target: 3, metric: 'islands', accent: '#45e8d6', image: '/images/maldives.jpg', related: ['beaches'] },
   { id: 'volcano-conqueror', name: 'Volcano Conqueror', category: 'Special', filter: 'special', description: 'Stand in awe of the power and beauty of a volcano.', requirement: 'Record a visit to an active volcano', target: 1, metric: 'volcano', accent: '#ff7455', image: '/images/bali_bg.png', related: ['adventure'] },
   { id: 'storyteller', name: 'Storyteller', category: 'Milestones', filter: 'milestones', description: 'Share your personal adventures and memories with the world.', requirement: 'Publish 3 travel stories in your journal', target: 3, metric: 'stories', accent: '#c084fc', image: '/images/hero-bg.jpg', related: ['cities', 'adventure'] },
-  { id: 'wishlist-dreamer', name: 'Wishlist Dreamer', category: 'Exploration', filter: 'exploration', description: 'Curate your wanderlust bucket list of dream places.', requirement: 'Save 3 destinations to your wishlist', target: 3, metric: 'wishlist', accent: '#f43f5e', image: '/images/featured-destination.jpg', related: ['beaches', 'mountains'] },
-  { id: 'master-packer', name: 'Master Packer', category: 'Activities', filter: 'activities', description: 'Stay prepared for every journey with your gear checked off.', requirement: 'Check off 3 packed items in Packing Assistant', target: 3, metric: 'packing', accent: '#38bdf8', image: '/images/adventure.jpg', related: ['adventure'] }
+  { id: 'wishlist-dreamer', name: 'Wishlist Wanderer', category: 'Exploration', filter: 'exploration', description: 'Curate your wanderlust bucket list of dream places.', requirement: 'Save 3 destinations to your wishlist', target: 3, metric: 'wishlist', accent: '#f43f5e', image: '/images/featured-destination.jpg', related: ['beaches', 'mountains'] },
+  { id: 'master-packer', name: 'Packing Pro', category: 'Activities', filter: 'activities', description: 'Stay prepared for every journey with your gear checked off.', requirement: 'Check off 3 packed items in Packing Assistant', target: 3, metric: 'packing', accent: '#38bdf8', image: '/images/adventure.jpg', related: ['adventure'] }
 ];
 
 const DESTINATION_TYPES = {
@@ -34,11 +37,14 @@ const DESTINATION_TYPES = {
   islands: ['island', 'islands', 'atoll', 'archipelago', 'maldives', 'andaman', 'bali', 'krabi'],
   volcano: ['volcano', 'volcanic', 'batur', 'etna', 'fuji', 'kilimanjaro']
 };
+const DESTINATION_CATEGORY_NAMES = Object.keys(DESTINATION_TYPES);
 
+// Treat malformed optional collections as empty without affecting other metrics.
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+// Parse date-only and legacy display-date values without local-midnight drift.
 function asDate(value) {
   if (!value) return null;
   let parsed;
@@ -51,6 +57,7 @@ function asDate(value) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+// Check whether a valid date has passed relative to the current local day.
 function beforeToday(value) {
   const date = asDate(value);
   if (!date) return false;
@@ -60,6 +67,7 @@ function beforeToday(value) {
   return date < today;
 }
 
+// Check whether a valid date is today or earlier.
 function onOrBeforeToday(value) {
   const date = asDate(value);
   if (!date) return false;
@@ -69,6 +77,7 @@ function onOrBeforeToday(value) {
   return date <= today;
 }
 
+// Resolve a user record to the closest known destination definition.
 function getDestination(value, id) {
   const idKey = String(id || '').toLowerCase();
   const valueKey = String(value || '').toLowerCase();
@@ -81,6 +90,7 @@ function getDestination(value, id) {
   ) || null;
 }
 
+// Derive badge categories from both destination metadata and searchable text.
 function destinationCategories(name, id, country) {
   const destination = getDestination(name, id);
   const text = `${name || ''} ${id || ''} ${country || ''} ${destination?.category || ''} ${destination?.travelType || ''} ${destination?.tagline || ''}`.toLowerCase();
@@ -95,11 +105,13 @@ function destinationCategories(name, id, country) {
   ]));
 }
 
+// Extract the country portion from a comma-separated place name.
 function countryName(value) {
   const parts = String(value || '').split(',').map((part) => part.trim()).filter(Boolean);
   return parts.length > 1 ? parts[parts.length - 1] : '';
 }
 
+// Convert booking, wishlist, or journal entries into a common visit shape.
 function normalizeVisit(record, source) {
   const name = record.destinationName || record.destination || record.name || '';
   const destination = getDestination(name, record.destinationId);
@@ -120,10 +132,12 @@ function normalizeVisit(record, source) {
   };
 }
 
+// Build a normalized identity key to deduplicate the same destination.
 function destinationKey(record) {
   return String(record.destinationId || `${record.name}-${record.country}`).toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+// Preserve the first record for each non-empty identity key.
 function uniqueBy(items, keyFor) {
   const seen = new Set();
   return items.filter((item) => {
@@ -134,30 +148,34 @@ function uniqueBy(items, keyFor) {
   });
 }
 
+// Identify journal entries that describe a food-related experience.
 function isFoodStory(entry) {
   const text = `${entry.title || ''} ${entry.description || ''} ${(entry.tags || []).join(' ')}`
     .toLowerCase();
   return /\b(food|foodie|local cuisine|cuisine|dish|restaurant|meal|street food|tasting|culinary|ramen|seafood)\b/.test(text);
 }
 
+// Identify completed experience bookings that describe an adventure.
 function isAdventureBooking(booking) {
   const text = `${booking.title || ''} ${booking.specialNotes || ''} ${booking.destinationName || ''}`.toLowerCase();
   return /\b(adventure|hike|hiking|trek|trekking|climb|climbing|scuba|rafting|paraglid|ski|kayak|safari|snorkel|zipline|bungee)\b/.test(text);
 }
 
+// Identify bookings with food-related titles or notes.
 function isFoodBooking(booking) {
   return /\b(food|culinary|cuisine|tasting|restaurant|food tour|food crawl)\b/i.test(
     `${booking.title || ''} ${booking.specialNotes || ''}`
   );
 }
 
-// Merge visits, bookings, journal entries, photos, and packing progress into badge metrics.
+// Merge user travel sources into the records consumed by each badge definition.
 export function calculateBadgeProgress(wishlist, bookings) {
   let entries = [];
   try {
     entries = safeArray(loadJournalData().userEntries)
       .filter((entry) => entry && entry.status !== 'draft');
-  } catch {
+  } catch (error) {
+    console.error('Could not load journal entries for badge progress:', error);
     entries = [];
   }
 
@@ -266,7 +284,17 @@ export function calculateBadgeProgress(wishlist, bookings) {
     source: 'Travel journal'
   }));
 
-  const wishlistRecords = safeArray(wishlist).map((item) => ({
+  const wishlistKeys = new Set();
+  const wishlistRecords = safeArray(wishlist).filter((item) => {
+    if (item.demoRecord) return false;
+    const idKey = String(item.id || '').trim().toLowerCase();
+    const placeKey = `${String(item.name || '').trim().toLowerCase()}|${String(item.country || '').trim().toLowerCase()}`;
+    const keys = [idKey && `id:${idKey}`, item.name && `place:${placeKey}`].filter(Boolean);
+    if (!keys.length) return false;
+    const isDuplicate = keys.some((key) => wishlistKeys.has(key));
+    keys.forEach((key) => wishlistKeys.add(key));
+    return !isDuplicate;
+  }).map((item) => ({
     id: item.id,
     name: item.name,
     source: 'Wishlist'
@@ -278,31 +306,45 @@ export function calculateBadgeProgress(wishlist, bookings) {
     if (packingSaved) {
       const parsed = JSON.parse(packingSaved);
       if (Array.isArray(parsed)) {
-        packedItemsCount = parsed.filter((item) => item.checked).length;
+        const selectedOptions = parsed.filter((item) => item?.checked);
+        const seenPackingOptions = new Set();
+        packedItemsCount = selectedOptions.filter((item) => {
+          const idKey = String(item.id || '').trim().toLowerCase();
+          const textKey = String(item.text || '').trim().toLowerCase();
+          const keys = [idKey && `id:${idKey}`, textKey && `text:${textKey}`].filter(Boolean);
+          if (!keys.length) return false;
+          const isDuplicate = keys.some((key) => seenPackingOptions.has(key));
+          keys.forEach((key) => seenPackingOptions.add(key));
+          return !isDuplicate;
+        }).length;
       }
     }
-  } catch {}
+  } catch (error) {
+    console.error('Could not load packing progress for badges:', error);
+  }
   const packingRecords = Array.from({ length: packedItemsCount }, (_, i) => ({
     id: `packed-item-${i}`,
     name: `Packed item #${i + 1}`,
     source: 'Packing Assistant'
   }));
 
+  const destinationMetrics = Object.fromEntries(
+    DESTINATION_CATEGORY_NAMES.map((category) => [category, []])
+  );
+  visits.forEach((visit) => {
+    DESTINATION_CATEGORY_NAMES.forEach((category) => {
+      if (visit.categories[category]) destinationMetrics[category].push(visit);
+    });
+  });
+
   const metrics = {
-    mountains: visits.filter((visit) => visit.categories.mountains),
-    cities: visits.filter((visit) => visit.categories.cities),
-    beaches: visits.filter((visit) => visit.categories.beaches),
-    culture: visits.filter((visit) => visit.categories.culture),
+    ...destinationMetrics,
     trips: tripRecords,
     countries,
     photos,
     adventures,
     food: foodVisits,
     winter: winterVisits,
-    desert: visits.filter((visit) => visit.categories.desert),
-    forest: visits.filter((visit) => visit.categories.forest),
-    islands: visits.filter((visit) => visit.categories.islands),
-    volcano: visits.filter((visit) => visit.categories.volcano),
     stories: storyRecords,
     wishlist: wishlistRecords,
     packing: packingRecords
@@ -315,17 +357,31 @@ export function calculateBadgeProgress(wishlist, bookings) {
       ...badge,
       progress,
       unlocked: progress >= badge.target,
+      reversible: REVERSIBLE_BADGE_IDS.has(badge.id),
       records,
       percentage: Math.round((progress / badge.target) * 100)
     };
   });
 }
 
+// Scope stored achievements to the current account owner.
 function achievementKey() {
   return `${BADGE_STATE_PREFIX}${encodeURIComponent(getJournalOwner())}`;
 }
 
+// Apply the requested progress reset exactly once per account.
+function resetBadgeAchievementsOnce() {
+  const ownerKey = encodeURIComponent(getJournalOwner());
+  const resetKey = `${BADGE_RESET_PREFIX}${ownerKey}`;
+  if (localStorage.getItem(resetKey) === BADGE_RESET_VERSION) return;
+
+  localStorage.removeItem(achievementKey());
+  localStorage.setItem(resetKey, BADGE_RESET_VERSION);
+}
+
+// Load the account's persisted unlock timestamps after the one-time reset.
 export function loadBadgeAchievements() {
+  resetBadgeAchievementsOnce();
   const key = achievementKey();
   const stored = localStorage.getItem(key);
   if (!stored) return {};
@@ -336,6 +392,7 @@ export function loadBadgeAchievements() {
   return achievements;
 }
 
+// Persist new unlock timestamps and remove stale reversible achievements.
 export function recordBadgeUnlocks(badges) {
   const achievements = loadBadgeAchievements();
   const newlyUnlocked = [];
@@ -344,6 +401,9 @@ export function recordBadgeUnlocks(badges) {
     if (badge.unlocked && !achievements[badge.id]) {
       achievements[badge.id] = { unlockedAt: new Date().toISOString() };
       newlyUnlocked.push(badge.id);
+      changed = true;
+    } else if (badge.reversible && !badge.unlocked && achievements[badge.id]) {
+      delete achievements[badge.id];
       changed = true;
     }
   });
