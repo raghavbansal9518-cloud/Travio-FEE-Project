@@ -10,12 +10,21 @@ const safeStorage = {
   getItem(key) {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        return window.localStorage.getItem(key);
+        let val = window.localStorage.getItem(key);
+        if (val && typeof val === 'string' && val.includes('Raghav Verma')) {
+          val = val.replace(/Raghav Verma/g, 'Raghav Bansal');
+          try { window.localStorage.setItem(key, val); } catch (e) {}
+        }
+        return val;
       }
     } catch {
       // fallback
     }
-    return memoryStore.get(key) || null;
+    const memVal = memoryStore.get(key) || null;
+    if (memVal && typeof memVal === 'string' && memVal.includes('Raghav Verma')) {
+      return memVal.replace(/Raghav Verma/g, 'Raghav Bansal');
+    }
+    return memVal;
   },
   setItem(key, value) {
     try {
@@ -38,6 +47,24 @@ const safeStorage = {
     memoryStore.delete(key);
   }
 };
+
+// Auto-migrate legacy stored name
+function migrateLegacyStorage() {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (!key) continue;
+      const val = window.localStorage.getItem(key);
+      if (val && typeof val === 'string' && val.includes('Raghav Verma')) {
+        window.localStorage.setItem(key, val.replace(/Raghav Verma/g, 'Raghav Bansal'));
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+migrateLegacyStorage();
 
 const ACCOUNTS_STORAGE_KEY = 'travio_accounts';
 const ACTIVE_PROFILE_KEY = 'travio_user_profile';
@@ -67,7 +94,7 @@ export const DEFAULT_ACCOUNTS = [
   },
   {
     id: 'user_raghav',
-    name: 'Raghav Verma',
+    name: 'Raghav Bansal',
     email: 'raghav@travio.io',
     password: 'password123',
     role: 'user',
@@ -196,7 +223,12 @@ export function getProfileByEmail(email) {
     const userSpecificKey = `${PROFILE_PREFIX}${norm}`;
     const saved = safeStorage.getItem(userSpecificKey);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (parsed && (parsed.name === 'Raghav Verma' || (norm === 'raghav@travio.io' && parsed.name?.includes('Verma')))) {
+        parsed.name = 'Raghav Bansal';
+        try { safeStorage.setItem(userSpecificKey, JSON.stringify(parsed)); } catch (e) {}
+      }
+      return parsed;
     }
 
     // 2. Fall back to account data
@@ -237,7 +269,12 @@ export function getCurrentUser() {
     const authEmail = safeStorage.getItem('auth_email');
     if (authEmail) {
       const profile = getProfileByEmail(authEmail);
-      if (profile) return profile;
+      if (profile) {
+        if (profile.name === 'Raghav Verma' || (profile.email && profile.email.toLowerCase() === 'raghav@travio.io')) {
+          profile.name = 'Raghav Bansal';
+        }
+        return profile;
+      }
     }
 
     // Check fallback active profile
@@ -245,6 +282,9 @@ export function getCurrentUser() {
     if (rawActive) {
       const parsed = JSON.parse(rawActive);
       if (parsed && parsed.email) {
+        if (parsed.name === 'Raghav Verma' || (parsed.email && parsed.email.toLowerCase() === 'raghav@travio.io')) {
+          parsed.name = 'Raghav Bansal';
+        }
         return parsed;
       }
     }

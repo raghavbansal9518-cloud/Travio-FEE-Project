@@ -9,7 +9,7 @@ import { getCurrentTime12 } from '../utils/dateUtils';
 import { getCurrentUser, saveUserProfile, getInitials } from '../services/userProfileService';
 
 const DEFAULT_PROFILE = {
-  name: 'Raghav',
+  name: 'Raghav Bansal',
   email: 'raghav@travio.io',
   phone: '+91 98765 43210',
   homeCity: 'New Delhi (DEL)',
