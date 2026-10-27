@@ -224,7 +224,7 @@ export default function Explore() {
 
         {/* DYNAMIC SEARCH & ADVANCED FILTER RESULTS (When search input or country/budget filter active) */}
         {isSearchOrFilterActive ? (
-          <section className="search-results-section" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <section key="search-results-section" className="search-results-section" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="filter-active-summary-bar">
               <div>
                 <span>{t('explore.found', 'Found')} <strong>{filteredDestinations.length || (dynamicDestination ? 1 : 0)}</strong> {t('explore.destinationsMatching', 'destinations matching your criteria')}</span>
@@ -293,7 +293,7 @@ export default function Explore() {
 
             {/* If a category is selected, display all 28 destinations for that category */}
             {selectedCategory ? (
-              <section className="category-results-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <section key="category-results-view" className="category-results-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div className="filter-active-summary-bar" style={{ background: 'linear-gradient(135deg, rgba(106,76,255,0.2) 0%, rgba(56,189,248,0.15) 100%)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <i className="fa-solid fa-layer-group" style={{ color: '#a855f7' }}></i>
